@@ -29,6 +29,8 @@ final class UsageStore {
     private(set) var isLoading = false
     /// Panel UI state; lives here because `@State` is unavailable without full Xcode.
     var showingSettings = false
+    /// Measured height of the panel body, so the popover fits it (up to the screen) and scrolls beyond.
+    var panelBodyHeight: CGFloat = 400
 
     /// Compact shows only the limits; full adds extras, API cost, activity and models.
     var panelMode: PanelMode {

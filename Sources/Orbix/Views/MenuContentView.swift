@@ -11,43 +11,9 @@ struct MenuContentView: View {
             header
             Hairline(theme: t)
 
-            if store.showingSettings {
-                // Taller than a 13" screen allows, so it scrolls past 640 pt.
-                ScrollView {
-                    SettingsView(theme: t).padding(14)
-                }
-                .scrollIndicators(.never)
-                .frame(height: 640)
-            } else if store.panelMode == .compact {
-                VStack(spacing: 8) {
-                    CompactPanel(store: store, theme: t)
-                    if ProfileManager.shared.hasExtraProfiles {
-                        ProfilesCard(profiles: ProfileManager.shared, theme: t)
-                    }
-                }
-                .padding(12)
-            } else {
-                VStack(spacing: 10) {
-                    SessionHero(store: store, theme: t)
-                    if let error = store.errorMessage {
-                        Banner(text: error, color: t.warm, background: t.warmSoft)
-                    }
-                    if let snapshot = store.snapshot, snapshot.weekly != nil || !snapshot.models.isEmpty {
-                        LimitsCard(snapshot: snapshot, theme: t)
-                    }
-                    if ProfileManager.shared.hasExtraProfiles {
-                        ProfilesCard(profiles: ProfileManager.shared, theme: t)
-                    }
-                    if store.chromeSessionEnabled || store.extras != nil {
-                        ExtrasCard(extras: store.extras, error: store.extrasError, theme: t)
-                    }
-                    if let activity = store.activity {
-                        APICostCard(activity: activity, theme: t)
-                        ActivityCard(activity: activity, theme: t)
-                        ModelsList(activity: activity, theme: t)
-                    }
-                }
-                .padding(14)
+            FittedScroll(height: store.panelBodyHeight, maxHeight: maxBodyHeight,
+                         onMeasure: { store.panelBodyHeight = $0 }) {
+                panelBody
             }
 
             Hairline(theme: t)
@@ -56,6 +22,50 @@ struct MenuContentView: View {
         .frame(width: 340)
         .background(t.bg)
         .foregroundStyle(t.fg)
+    }
+
+    @ViewBuilder
+    private var panelBody: some View {
+        if store.showingSettings {
+            SettingsView(theme: t).padding(14)
+        } else if store.panelMode == .compact {
+            VStack(spacing: 8) {
+                CompactPanel(store: store, theme: t)
+                if ProfileManager.shared.hasExtraProfiles {
+                    ProfilesCard(profiles: ProfileManager.shared, theme: t)
+                }
+            }
+            .padding(12)
+        } else {
+            VStack(spacing: 10) {
+                SessionHero(store: store, theme: t)
+                if let error = store.errorMessage {
+                    Banner(text: error, color: t.warm, background: t.warmSoft)
+                }
+                if let snapshot = store.snapshot, snapshot.weekly != nil || !snapshot.models.isEmpty {
+                    LimitsCard(snapshot: snapshot, theme: t)
+                }
+                if ProfileManager.shared.hasExtraProfiles {
+                    ProfilesCard(profiles: ProfileManager.shared, theme: t)
+                }
+                if store.chromeSessionEnabled || store.extras != nil {
+                    ExtrasCard(extras: store.extras, error: store.extrasError, theme: t)
+                }
+                if let activity = store.activity {
+                    APICostCard(activity: activity, theme: t)
+                    ActivityCard(activity: activity, theme: t)
+                    ModelsList(activity: activity, theme: t)
+                }
+            }
+            .padding(14)
+        }
+    }
+
+    /// Room for the body on the screen showing the menu bar: visible height minus the
+    /// header, the footer and a margin so the popover never runs off a 13" display.
+    private var maxBodyHeight: CGFloat {
+        let screen = NSScreen.screens.first { $0.frame.contains(NSEvent.mouseLocation) } ?? NSScreen.main
+        return max(320, (screen?.visibleFrame.height ?? 800) - 150)
     }
 
     private var header: some View {
@@ -257,4 +267,32 @@ enum ResetText {
             : date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
         return "en \(span) · \(when)"
     }
+}
+
+/// Sizes to its content up to `maxHeight`, then scrolls. The measured height is kept by the
+/// caller (`@State` is unavailable without full Xcode).
+struct FittedScroll<Content: View>: View {
+    let height: CGFloat
+    let maxHeight: CGFloat
+    let onMeasure: (CGFloat) -> Void
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        ScrollView {
+            content.background(GeometryReader { geo in
+                Color.clear.preference(key: ContentHeightKey.self, value: geo.size.height)
+            })
+        }
+        .scrollIndicators(height > maxHeight ? .automatic : .never)
+        .scrollDisabled(height <= maxHeight)
+        .frame(height: min(max(height, 1), maxHeight))
+        .onPreferenceChange(ContentHeightKey.self) { value in
+            MainActor.assumeIsolated { onMeasure(value) }
+        }
+    }
+}
+
+private struct ContentHeightKey: PreferenceKey {
+    static let defaultValue: CGFloat = 0
+    static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
 }
