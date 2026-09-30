@@ -15,8 +15,10 @@ swift build -c release --arch arm64 --arch x86_64
 
 APP=build/Orbix.app
 rm -rf "$APP"
-mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Frameworks"
+mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Frameworks" "$APP/Contents/Resources"
 cp "$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/Orbix" "$APP/Contents/MacOS/Orbix"
+# App icon, generated from Resources/icon/AppIcon.png by Scripts/make-icon.sh.
+cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 # ditto keeps the framework's symlinks intact.
 ditto .build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework \
     "$APP/Contents/Frameworks/Sparkle.framework"
@@ -31,6 +33,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleIdentifier</key><string>dev.orbix.app</string>
     <key>CFBundleExecutable</key><string>Orbix</string>
     <key>CFBundlePackageType</key><string>APPL</string>
+    <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>CFBundleShortVersionString</key><string>${VERSION}</string>
     <key>CFBundleVersion</key><string>${VERSION}</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>

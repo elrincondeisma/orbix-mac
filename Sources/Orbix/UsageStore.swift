@@ -1,6 +1,10 @@
 import Foundation
 import Observation
 
+enum PanelMode: String {
+    case compact, full
+}
+
 enum CredentialSource: String, CaseIterable, Identifiable {
     case auto, claudeCode, cli, manual
     var id: String { rawValue }
@@ -25,6 +29,11 @@ final class UsageStore {
     private(set) var isLoading = false
     /// Panel UI state; lives here because `@State` is unavailable without full Xcode.
     var showingSettings = false
+
+    /// Compact shows only the limits; full adds extras, API cost, activity and models.
+    var panelMode: PanelMode {
+        didSet { UserDefaults.standard.set(panelMode.rawValue, forKey: "panelMode") }
+    }
     private(set) var activity: LocalActivity?
     /// Unused extras from claude.ai (free resets, prepaid balance, extra-usage room).
     private(set) var extras: WebExtras?
@@ -64,6 +73,7 @@ final class UsageStore {
         let saved = defaults.integer(forKey: "interval")
         interval = saved > 0 ? saved : 5
         manualCredential = SecretStore.read() ?? ""
+        panelMode = PanelMode(rawValue: defaults.string(forKey: "panelMode") ?? "") ?? .compact
         chromeSessionEnabled = defaults.object(forKey: "chromeSession") as? Bool ?? true
         scheduleTimer()
         refreshNow()
@@ -94,6 +104,10 @@ final class UsageStore {
         let windowStart = snapshot?.session?.resetsAt.map { $0.addingTimeInterval(-5 * 3600) }
         activity = await LocalSessionScanner.shared.scan(sessionStart: windowStart)
         await refreshExtras()
+        let profiles = ProfileManager.shared
+        profiles.reload()
+        profiles.record(snapshot, for: profiles.activeSlug)
+        if profiles.hasExtraProfiles { profiles.refreshUsage() }
     }
 
     private func refreshExtras() async {
@@ -135,6 +149,10 @@ final class UsageStore {
     }
 
     private func fetch() async throws -> UsageSnapshot {
+        // Another profile is active: only `claude /usage` inside it knows that account's limits.
+        if !ProfileManager.shared.active.isMain {
+            return try await fetchWithCLI()
+        }
         let manual = manualCredential.trimmingCharacters(in: .whitespacesAndNewlines)
         switch source {
         case .claudeCode:
@@ -164,7 +182,8 @@ final class UsageStore {
     }
 
     private func fetchWithCLI() async throws -> UsageSnapshot {
-        try await Task.detached { try ClaudeCLIUsage.fetch() }.value
+        let profile = ProfileManager.shared.activeEnvironment
+        return try await Task.detached { try ClaudeCLIUsage.fetch(profile: profile) }.value
     }
 
     private func fetchManual(_ credential: String) async throws -> UsageSnapshot {

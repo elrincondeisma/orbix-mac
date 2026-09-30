@@ -11,6 +11,16 @@ struct SettingsView: View {
         @Bindable var store = store
 
         VStack(alignment: .leading, spacing: 10) {
+            section("Vista") {
+                SegmentedChoice(options: [(PanelMode.compact, "Compacta"), (.full, "Completa")],
+                                selection: $store.panelMode, theme: t)
+                note(store.panelMode == .compact
+                     ? "Solo la sesión y los límites semanales. El botón del pie cambia a la completa."
+                     : "Añade extras de claude.ai, coste en API, actividad y modelos de Claude Code.")
+            }
+
+            profilesSection
+
             section("Origen de los datos") {
                 SegmentedChoice(options: [(.auto, "Auto"), (.claudeCode, "Token"), (.cli, "CLI"), (.manual, "Manual")],
                                 selection: $store.source, theme: t)
@@ -85,6 +95,80 @@ struct SettingsView: View {
                     .disabled(!updater.isAvailable)
             }
         }
+    }
+
+    @ViewBuilder
+    private var profilesSection: some View {
+        @Bindable var profiles = ProfileManager.shared
+        section("Perfiles de Claude Code") {
+            note("Cada perfil es una cuenta con su propia carpeta (`~/.claude-perfiles/<nombre>`). El activo es el que usa `claude` al abrirlo.")
+            ForEach(profiles.profiles.filter { !$0.isMain }) { profile in
+                HStack {
+                    Text(profile.name).font(Brand.sans(12, .medium))
+                    Chip(text: profile.kind == .token ? "token" : "login", theme: t)
+                    Text(profile.slug).font(Brand.mono(10)).foregroundStyle(t.muted)
+                    Spacer()
+                    IconButton(symbol: "trash", theme: t, help: "Quitar de Orbix (la carpeta se conserva)") {
+                        profiles.remove(profile)
+                    }
+                }
+            }
+            Hairline(theme: t)
+            Text("Nuevo perfil").font(Brand.sans(11, .semibold)).foregroundStyle(t.secondary)
+            field("Nombre, p. ej. Trabajo", text: $profiles.newName, secure: false)
+            SegmentedChoice(options: [(Profile.Kind.login, "Login"), (.token, "Token de larga duración")],
+                            selection: $profiles.newKind, theme: t)
+            if profiles.newKind == .token {
+                field("sk-ant-oat… (claude setup-token)", text: $profiles.newToken, secure: true)
+                note("Se guarda en tu Llavero. Puede que Orbix no pueda leer sus límites: estos tokens solo sirven para usar el modelo.")
+            } else {
+                note("Al crearlo se abre una Terminal con `claude` en el perfil: escribe `/login` y entra con esa cuenta.")
+            }
+            HStack(alignment: .center) {
+                Text("Compartir historial con Principal").font(Brand.sans(11.5))
+                Spacer()
+                BrandSwitch(isOn: $profiles.newShareHistory, theme: t)
+            }
+            HStack {
+                Spacer()
+                SoftButton(title: "Crear perfil", symbol: "plus", theme: t) { profiles.createProfile() }
+            }
+            Hairline(theme: t)
+            if profiles.shellInstalled {
+                note("Terminal lista: `claude` usa el perfil activo · `claude --perfil <nombre>` usa otro solo esa vez · `orbix-perfil <nombre>` lo cambia.")
+            } else {
+                HStack(alignment: .top, spacing: 10) {
+                    note("Para que `claude` en la terminal siga el perfil activo, Orbix añade una línea a tu `~/.zshrc`.")
+                    Spacer()
+                    SoftButton(title: "Activar", symbol: "apple.terminal", theme: t) { profiles.installShell() }
+                }
+            }
+            HStack(alignment: .top, spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Aplicar también a las apps").font(Brand.sans(12, .medium))
+                    note("VS Code y otras apps que lanzan Claude Code usarán el perfil activo (las que abras después; no aplica a perfiles de token).")
+                }
+                Spacer()
+                BrandSwitch(isOn: $profiles.applyToApps, theme: t)
+            }
+            if let message = profiles.message { note(message) }
+        }
+    }
+
+    private func field(_ placeholder: String, text: Binding<String>, secure: Bool) -> some View {
+        ZStack(alignment: .leading) {
+            if text.wrappedValue.isEmpty {
+                Text(placeholder).font(Brand.sans(11.5)).foregroundStyle(t.muted)
+            }
+            if secure {
+                SecureField("", text: text).textFieldStyle(.plain).font(Brand.mono(11.5))
+            } else {
+                TextField("", text: text).textFieldStyle(.plain).font(Brand.sans(12))
+            }
+        }
+        .padding(.horizontal, 9).padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 7).fill(t.bg))
+        .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(t.line))
     }
 
     private var aboutSection: some View {

@@ -18,6 +18,14 @@ struct MenuContentView: View {
                 }
                 .scrollIndicators(.never)
                 .frame(height: 640)
+            } else if store.panelMode == .compact {
+                VStack(spacing: 8) {
+                    CompactPanel(store: store, theme: t)
+                    if ProfileManager.shared.hasExtraProfiles {
+                        ProfilesCard(profiles: ProfileManager.shared, theme: t)
+                    }
+                }
+                .padding(12)
             } else {
                 VStack(spacing: 10) {
                     SessionHero(store: store, theme: t)
@@ -26,6 +34,9 @@ struct MenuContentView: View {
                     }
                     if let snapshot = store.snapshot, snapshot.weekly != nil || !snapshot.models.isEmpty {
                         LimitsCard(snapshot: snapshot, theme: t)
+                    }
+                    if ProfileManager.shared.hasExtraProfiles {
+                        ProfilesCard(profiles: ProfileManager.shared, theme: t)
                     }
                     if store.chromeSessionEnabled || store.extras != nil {
                         ExtrasCard(extras: store.extras, error: store.extrasError, theme: t)
@@ -84,7 +95,9 @@ struct MenuContentView: View {
 
     private var subtitle: String {
         if store.showingSettings { return "Claude · \(store.source.label.lowercased())" }
-        let parts = [store.snapshot?.plan, store.snapshot?.account, store.snapshot?.source].compactMap { $0 }
+        let profile = ProfileManager.shared.active
+        let parts = [profile.isMain ? nil : "perfil \(profile.slug)", store.snapshot?.plan, store.snapshot?.account,
+                     store.snapshot?.source].compactMap { $0 }
         return parts.isEmpty ? "Claude" : parts.joined(separator: " · ")
     }
 
@@ -109,6 +122,12 @@ struct MenuContentView: View {
                 }
             }
             Spacer()
+            if !store.showingSettings {
+                IconButton(symbol: store.panelMode == .compact ? "rectangle.expand.vertical" : "rectangle.compress.vertical",
+                           theme: t, help: store.panelMode == .compact ? "Vista completa" : "Vista compacta") {
+                    store.panelMode = store.panelMode == .compact ? .full : .compact
+                }
+            }
             IconButton(symbol: "arrow.clockwise", theme: t, help: "Actualizar") { store.refreshNow() }
                 .disabled(store.isLoading)
             IconButton(symbol: "power", theme: t, help: "Salir de Orbix") { NSApp.terminate(nil) }

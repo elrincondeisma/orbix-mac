@@ -55,11 +55,17 @@ actor LocalSessionScanner {
     /// Parsed files, reused while their modification date and size do not change.
     private var cache: [URL: (stamp: String, entries: [Entry])] = [:]
 
-    private var root: URL {
-        let env = ProcessInfo.processInfo.environment
-        let base = env["CLAUDE_CONFIG_DIR"].map { URL(fileURLWithPath: $0) }
-            ?? FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".claude")
-        return base.appendingPathComponent("projects")
+    /// `projects` of ~/.claude and of every Orbix profile. Profiles that share history link to
+    /// the same folder; responses are deduplicated anyway.
+    private var roots: [URL] {
+        let home = FileManager.default.homeDirectoryForCurrentUser
+        let profiles = home.appendingPathComponent(".claude-perfiles")
+        let names = (try? FileManager.default.contentsOfDirectory(atPath: profiles.path)) ?? []
+        let dirs = [home.appendingPathComponent(".claude")]
+            + names.filter { !$0.hasPrefix(".") }.map { profiles.appendingPathComponent($0) }
+        var seen = Set<String>()
+        return dirs.map { $0.appendingPathComponent("projects").resolvingSymlinksInPath() }
+            .filter { FileManager.default.fileExists(atPath: $0.path) && seen.insert($0.path).inserted }
     }
 
     /// - Parameter sessionStart: start of the current 5-hour window (from `/usage`); defaults to 5 hours ago.
@@ -112,11 +118,13 @@ actor LocalSessionScanner {
 
     private func recentFiles(since: Date) -> [URL] {
         let keys: [URLResourceKey] = [.contentModificationDateKey, .fileSizeKey]
-        guard let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: keys) else { return [] }
         var files: [URL] = []
-        for case let url as URL in walker where url.pathExtension == "jsonl" {
-            let values = try? url.resourceValues(forKeys: Set(keys))
-            if let modified = values?.contentModificationDate, modified >= since { files.append(url) }
+        for root in roots {
+            guard let walker = FileManager.default.enumerator(at: root, includingPropertiesForKeys: keys) else { continue }
+            for case let url as URL in walker where url.pathExtension == "jsonl" {
+                let values = try? url.resourceValues(forKeys: Set(keys))
+                if let modified = values?.contentModificationDate, modified >= since { files.append(url) }
+            }
         }
         let alive = Set(files)
         cache = cache.filter { alive.contains($0.key) }

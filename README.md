@@ -69,6 +69,22 @@ cookie `sessionKey` descifrada con la clave «Chrome Safe Storage» del Llavero;
 una `sessionKey` pegada en Ajustes, consulta `usage?cedar_ember=1` (reinicios gratis guardados y su caducidad),
 `prepaid/credits` (saldo prepago) y `overage_spend_limit` (uso extra del mes). Se desactiva en Ajustes.
 
+**Perfiles (varias cuentas)**: cada perfil es una carpeta de Claude Code propia (`~/.claude-perfiles/<nombre>`,
+vía `CLAUDE_CONFIG_DIR`) con su login, historial y servidores MCP; ajustes, `CLAUDE.md`, skills, comandos y agentes
+se enlazan a `~/.claude` (y el historial, si se elige). Tipos: *login* (haces `/login` una vez dentro) y *token de
+larga duración* (`claude setup-token`, guardado en el Llavero y pasado como `CLAUDE_CODE_OAUTH_TOKEN`). El perfil
+activo se guarda en `~/.config/orbix/active-profile`; con la integración de terminal (una línea en `~/.zshrc` que
+carga `~/.config/orbix/shell.zsh`):
+
+```bash
+claude                     # abre Claude Code con el perfil activo
+claude --perfil trabajo    # otro perfil solo esta vez
+orbix-perfil trabajo       # cambia el perfil activo (Orbix lo refleja)
+```
+
+En el panel, un clic en una cuenta la activa y ▸ abre `claude` en una Terminal con ella. Orbix no toca ningún token
+de Claude Code: cada login lo gestiona el propio Claude Code en su perfil.
+
 Las dos APIs devuelven el mismo JSON (`five_hour`, `seven_day`, `seven_day_opus`, `seven_day_sonnet`,
 `limits[]`, `extra_usage`), así que se decodifica con un solo modelo (`Models/Usage.swift`).
 
@@ -89,6 +105,7 @@ Sources/Orbix/
   Services/APIPricing.swift      Precios de lista de la API por modelo
   Services/ChromeSession.swift   Lee la cookie sessionKey de claude.ai en Chrome
   Services/AppUpdater.swift      Actualizaciones con Sparkle
+  Services/Profiles/             Perfiles de Claude Code, tokens y la función de terminal
   Services/SecretStore.swift     Guarda la credencial manual en el Llavero
   Views/Theme.swift              Tokens de color y tipografía (claro/oscuro)
   Views/Components.swift         Tarjeta, pastilla, medidor, chip, aviso
@@ -98,4 +115,6 @@ Scripts/
   build-app.sh                   Empaqueta y firma Orbix.app (universal, con Sparkle)
   release.sh                     Publica una versión en GitHub Releases con su appcast
   setup-sparkle.sh               Descarga las herramientas de Sparkle
+  make-icon.sh                   Genera Resources/AppIcon.icns desde Resources/icon/AppIcon.png
+  generate-icon.sh               Propuestas de icono con GPT Image 2.5 (OPENAI_API_KEY)
 ```

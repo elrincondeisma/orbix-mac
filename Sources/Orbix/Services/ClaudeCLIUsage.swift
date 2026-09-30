@@ -12,21 +12,27 @@ enum ClaudeCLIUsage {
     enum CLIError: LocalizedError {
         case notInstalled
         case timedOut
+        case noLimitsForToken
         case unparseable(String)
 
         var errorDescription: String? {
             switch self {
             case .notInstalled: "No se encontró el comando `claude`. Instala Claude Code."
             case .timedOut: "`claude /usage` no respondió a tiempo."
+            case .noLimitsForToken:
+                "Con un token de larga duración Claude Code no informa de los límites de la cuenta. La actividad y el coste sí se ven."
             case let .unparseable(output):
                 output.isEmpty ? "`claude /usage` no devolvió nada." : "`claude /usage`: \(output.prefix(200))"
             }
         }
     }
 
-    static func fetch() throws -> UsageSnapshot {
+    /// `profile` selects the Claude Code profile (its folder and, for token profiles, its token).
+    static func fetch(profile: ProfileEnvironment = .main) throws -> UsageSnapshot {
         guard let binary = findBinary() else { throw CLIError.notInstalled }
-        let output = try run(binary, arguments: [
+        var profileEnv: [String: String] = [:]
+        try profile.apply(to: &profileEnv)
+        let output = try run(binary, profileEnv: profileEnv, clearing: ["CLAUDE_CONFIG_DIR", "CLAUDE_CODE_OAUTH_TOKEN"], arguments: [
             "-p", "/usage",
             // Same safety flags as CodexBar: no tools, no MCP servers, no Remote Control.
             "--allowed-tools", "", "--strict-mcp-config",
@@ -58,6 +64,10 @@ enum ClaudeCLIUsage {
             }
         }
 
+        // Token-authenticated sessions only get the local cost summary, never the plan limits.
+        if session == nil, weekly == nil, output.contains("Total cost:") {
+            throw CLIError.noLimitsForToken
+        }
         guard session != nil || weekly != nil else {
             throw CLIError.unparseable(output.trimmingCharacters(in: .whitespacesAndNewlines))
         }
@@ -68,6 +78,8 @@ enum ClaudeCLIUsage {
 
     /// Apps launched from Finder get a minimal PATH, so check the usual install locations
     /// and fall back to asking a login shell.
+    static func claudePath() -> String? { findBinary()?.path }
+
     private static func findBinary() -> URL? {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
         let candidates = ["\(home)/.local/bin/claude", "\(home)/.claude/local/claude",
@@ -81,7 +93,8 @@ enum ClaudeCLIUsage {
         return URL(fileURLWithPath: path)
     }
 
-    private static func run(_ executable: URL, arguments: [String], timeout: TimeInterval = 60) throws -> String {
+    private static func run(_ executable: URL, profileEnv: [String: String] = [:], clearing: [String] = [],
+                            arguments: [String], timeout: TimeInterval = 60) throws -> String {
         let process = Process()
         process.executableURL = executable
         process.arguments = arguments
@@ -89,6 +102,8 @@ enum ClaudeCLIUsage {
         var env = ProcessInfo.processInfo.environment
         // An API key in the environment would make `claude` bill the API instead of the subscription.
         env.removeValue(forKey: "ANTHROPIC_API_KEY")
+        clearing.forEach { env.removeValue(forKey: $0) }
+        profileEnv.forEach { env[$0.key] = $0.value }
         process.environment = env
 
         let out = Pipe()
