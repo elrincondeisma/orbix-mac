@@ -1,0 +1,404 @@
+---
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import Scene from "../components/Scene.astro";
+import Tour from "../components/Tour.astro";
+import { latestRelease } from "../lib/release";
+import appIcon from "../assets/art/app-icon.png";
+import textura from "../assets/art/textura.png";
+import compact from "../assets/shots/panel-compacta-oscuro.png";
+import dmgBackground from "../assets/art/dmg-fondo.png";
+
+const release = await latestRelease();
+
+const faqs = [
+  {
+    q: "¿Cuánto cuesta?",
+    a: "Nada. Orbix es gratis y su código está en GitHub.",
+  },
+  {
+    q: "¿Qué necesito para usarla?",
+    a: "Un Mac con macOS 14 o posterior y Claude Code instalado y con la sesión iniciada. Orbix le pregunta a claude por tus límites, así que no tienes que pegar ninguna clave.",
+  },
+  {
+    q: "¿Funciona con Pro, Max, Team o Enterprise?",
+    a: "Con cualquier plan de suscripción que muestre límites en claude /usage. Si en tu organización no hay límites de sesión, Orbix sigue mostrando la actividad y el coste equivalente.",
+  },
+  {
+    q: "¿Por qué una cuenta con token no enseña límites?",
+    a: "Los tokens de larga duración de claude setup-token solo sirven para usar el modelo; Claude Code no informa de sus límites. Orbix lo indica en esa cuenta y sigue mostrando su actividad.",
+  },
+  {
+    q: "¿Se abre sola al encender el Mac?",
+    a: "Si quieres. La primera vez te pregunta si abrirla al iniciar sesión, y lo puedes cambiar cuando quieras en Ajustes o en Ajustes del Sistema → General → Ítems de inicio. Nunca se añade sin preguntarte.",
+  },
+  {
+    q: "¿Cómo se actualiza?",
+    a: "Sola. Una vez al día comprueba si hay versión nueva, la descarga, verifica su firma y se reinicia. También puedes buscarla desde Ajustes.",
+  },
+  {
+    q: "¿Qué pasa si la abro desde el .dmg?",
+    a: "Te ofrece moverla a Aplicaciones. Desde fuera de esa carpeta macOS no deja que una app se sustituya a sí misma.",
+  },
+  {
+    q: "¿Es una app oficial de Anthropic?",
+    a: "No. Orbix es un proyecto independiente y no está afiliado a Anthropic. Claude y Claude Code son marcas de Anthropic.",
+  },
+];
+---
+
+<Base
+  title="Orbix · El uso de Claude en la barra de menús del Mac"
+  description="Orbix te enseña cuánto te queda de la sesión de 5 horas y de la semana de Claude, cuándo se reinicia y qué te costaría por API. Gratis, para macOS."
+>
+  <header class="site-header wrap">
+    <a class="brand" href="/" aria-label="Orbix, inicio">
+      <Image src={appIcon} alt="" width={36} height={36} />
+      <span>Orbix</span>
+    </a>
+    <nav aria-label="Secciones">
+      <a href="#que-hace">Qué hace</a>
+      <a href="#cuentas">Cuentas</a>
+      <a href="#privacidad">Privacidad</a>
+      <a href="#instalar">Instalar</a>
+    </nav>
+    <a class="button button--primary site-header__cta" href={release.dmgUrl}>Descargar</a>
+  </header>
+
+  <main>
+    <section class="hero wrap" aria-labelledby="hero-title">
+      <div class="hero__copy">
+        <h1 id="hero-title">Tu límite de Claude, siempre a la vista.</h1>
+        <p class="hero__lede">
+          Orbix vive en la barra de menús del Mac. Te dice cuánto te queda de la sesión de 5 horas y de la semana,
+          cuándo se reinicia cada una y qué te costaría ese uso por API.
+        </p>
+        <div class="hero__actions">
+          <a class="button button--primary" href={release.dmgUrl}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.5v9m0 0-3.5-3.5M8 10.5l3.5-3.5M2.5 14h11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            Descargar para Mac
+          </a>
+          <a class="button button--quiet" href={release.repoUrl}>Ver el código</a>
+        </div>
+        <p class="hero__meta">
+          Versión <span class="figures">{release.version}</span>, gratis. macOS 14 o posterior, Apple Silicon e Intel.
+          Firmada y notarizada por Apple.
+        </p>
+      </div>
+      <Scene />
+    </section>
+
+    <Tour />
+
+    <section class="accounts" id="cuentas" aria-labelledby="accounts-title">
+      <Image src={textura} alt="" class="accounts__texture" widths={[1024, 1536]} sizes="100vw" />
+      <div class="wrap accounts__grid">
+        <div class="accounts__copy">
+          <h2 id="accounts-title">Varias cuentas, un interruptor.</h2>
+          <p>
+            Cada cuenta de Claude Code vive en su propio perfil, con su login, su historial y sus servidores MCP.
+            Los ajustes, tus instrucciones y tus skills se comparten. Enciende una en Orbix y el próximo{" "}
+            <code>claude</code> que abras entra con ella.
+          </p>
+          <p>
+            Funciona con cuentas de login y con tokens de larga duración, que Orbix guarda en tu Llavero. Si una
+            cuenta se acerca al límite, lo ves en su fila antes de abrirla.
+          </p>
+          <pre class="terminal" aria-label="Uso desde la terminal"><code><span class="terminal__prompt">$</span> claude                      <span class="terminal__note"># la cuenta activa</span>
+<span class="terminal__prompt">$</span> claude --perfil trabajo     <span class="terminal__note"># otra, solo esta vez</span>
+<span class="terminal__prompt">$</span> orbix-perfil trabajo        <span class="terminal__note"># cambia la activa</span></code></pre>
+        </div>
+        <figure class="accounts__shot">
+          <div class="accounts__crop">
+            <Image src={compact} alt="Tarjeta de cuentas de Orbix: Principal activa, Trabajo al 71 % de la sesión y una cuenta de integración continua con token" widths={[340, 680]} sizes="340px" />
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="privacy wrap" id="privacidad" aria-labelledby="privacy-title">
+      <h2 id="privacy-title">Mira tu uso. Nada más.</h2>
+      <div class="privacy__columns">
+        <div>
+          <h3>Qué lee</h3>
+          <ul>
+            <li>La respuesta de <code>claude /usage</code>, sin guardar esa sesión en tu historial.</li>
+            <li>El recuento de tokens de tus sesiones de Claude Code en este Mac, nunca el contenido de las conversaciones.</li>
+            <li>Si lo activas, tu sesión de claude.ai en el navegador, para los reinicios gratis y el uso extra. macOS te pide permiso antes.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Qué no hace</h3>
+          <ul>
+            <li>No envía nada a servidores propios: no tiene cuentas, analíticas ni telemetría.</li>
+            <li>No toca los logins de Claude Code. Cada cuenta la gestiona el propio Claude Code.</li>
+            <li>No guarda tokens en ficheros: los que pegas quedan en tu Llavero.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="install" id="instalar" aria-labelledby="install-title">
+      <div class="wrap install__grid">
+        <div>
+          <h2 id="install-title">Instalar lleva medio minuto.</h2>
+          <ol class="install__steps">
+            <li><strong>Descarga el .dmg</strong> de la versión <span class="figures">{release.version}</span>.</li>
+            <li><strong>Arrastra Orbix a Aplicaciones</strong> en la ventana que se abre.</li>
+            <li><strong>Ábrela.</strong> Aparece en la barra de menús, arriba a la derecha, y te pregunta si quieres que se abra al iniciar sesión.</li>
+          </ol>
+          <a class="button button--primary" href={release.dmgUrl}>Descargar Orbix {release.version}</a>
+          <p class="install__note">
+            Necesitas Claude Code con la sesión iniciada. Todas las versiones están en{" "}
+            <a href={release.releasesUrl}>GitHub</a>.
+          </p>
+        </div>
+        <figure class="dmg" aria-label="Ventana del instalador: Orbix a la izquierda y la carpeta Aplicaciones a la derecha">
+          <div class="dmg__titlebar" aria-hidden="true"><span></span><span></span><span></span><em>Orbix</em></div>
+          <div class="dmg__body">
+            <Image src={dmgBackground} alt="" class="dmg__bg" widths={[660, 1320]} sizes="(min-width: 60rem) 34rem, 100vw" />
+            <div class="dmg__item dmg__item--app">
+              <Image src={appIcon} alt="" width={104} height={104} />
+              <span>Orbix</span>
+            </div>
+            <div class="dmg__item dmg__item--folder">
+              <svg viewBox="0 0 104 84" width="104" height="84" aria-hidden="true">
+                <path d="M6 14a6 6 0 0 1 6-6h24l8 8h48a6 6 0 0 1 6 6v6H6Z" fill="#5fa8e8" />
+                <rect x="6" y="22" width="92" height="56" rx="7" fill="#7cbdf2" />
+                <path d="M52 38v24M42 52l10 10 10-10" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+              </svg>
+              <span>Aplicaciones</span>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section class="faq wrap" aria-labelledby="faq-title">
+      <h2 id="faq-title">Preguntas</h2>
+      <div class="faq__list">
+        {faqs.map((item) => (
+          <details>
+            <summary>{item.q}</summary>
+            <p>{item.a}</p>
+          </details>
+        ))}
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap site-footer__row">
+      <p>Hecho por <a href="https://github.com/elrincondeisma">Ismael Catala</a>.</p>
+      <p class="site-footer__legal">Orbix no está afiliado a Anthropic. Claude es una marca de Anthropic.</p>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  code { font-family: var(--figures); font-size: 0.88em; }
+
+  /* Header */
+  .site-header {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding-block: 1.4rem;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+  }
+  .site-header nav { display: flex; gap: 1.6rem; margin-left: auto; }
+  .site-header nav a { text-decoration: none; color: var(--ink-soft); font-weight: 500; }
+  .site-header nav a:hover { color: var(--ink); }
+  .site-header__cta { padding: 0.55rem 1.1rem; }
+
+  /* Hero */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4.5rem);
+    padding-block: clamp(2rem, 6vw, 4.5rem) clamp(3rem, 8vw, 6rem);
+  }
+  .hero h1 { font-size: var(--step-4); font-weight: 800; letter-spacing: -0.035em; margin-bottom: 1.4rem; }
+  .hero__lede { font-size: 1.2rem; color: var(--ink-soft); max-width: 32rem; margin-bottom: 2rem; }
+  .hero__actions { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.2rem; }
+  .hero__meta { font-size: var(--step--1); color: var(--muted); max-width: 30rem; }
+
+  /* Accounts */
+  .accounts {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background: var(--forest-deep);
+    color: #e6efe9;
+    padding-block: clamp(4rem, 10vw, 7.5rem);
+  }
+  .accounts__texture {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: -1;
+  }
+  .accounts__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    gap: clamp(2rem, 6vw, 5rem);
+    align-items: center;
+  }
+  .accounts h2 { font-size: var(--step-3); margin-bottom: 1.4rem; }
+  .accounts__copy { max-width: var(--measure); }
+  .accounts__copy p { color: #b9cbc2; margin-bottom: 1rem; }
+  .accounts__copy code { color: #e6efe9; }
+  .accounts__shot { margin: 0; }
+    /* Only the "Cuentas" card of the compact panel: rows 500–870 of the 680×958 capture. */
+  .accounts__crop {
+    aspect-ratio: 680 / 370;
+    overflow: hidden;
+    border-radius: var(--radius-panel);
+    background: #0b0f0e;
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 40px 80px -30px rgb(0 0 0 / 0.7);
+  }
+  .accounts__crop img { width: 100%; margin-top: -73.5%; }
+
+  .terminal {
+    margin: 1.8rem 0 0;
+    padding: 1.1rem 1.3rem;
+    border-radius: 12px;
+    background: rgb(0 0 0 / 0.35);
+    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.08);
+    overflow-x: auto;
+    font-size: 0.9rem;
+    line-height: 1.8;
+  }
+  .terminal { scrollbar-color: rgb(255 255 255 / 0.2) transparent; }
+  .terminal code { font-size: inherit; color: #e6efe9; }
+  .terminal__prompt { color: var(--emerald-bright); }
+  .terminal__note { color: #7f978b; }
+
+  /* Privacy */
+  .privacy { padding-block: clamp(4rem, 10vw, 7rem); }
+  .privacy h2 { font-size: var(--step-3); margin-bottom: 2.4rem; max-width: 20ch; }
+  .privacy__columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(2rem, 5vw, 4rem); }
+  .privacy h3 { font-size: var(--step-1); margin-bottom: 1rem; }
+  .privacy ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
+  .privacy li { padding-left: 1.4rem; position: relative; color: var(--ink-soft); max-width: 34rem; }
+  .privacy__columns > div:first-child li::before,
+  .privacy__columns > div:last-child li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.62em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+  }
+  .privacy__columns > div:first-child li::before { background: var(--emerald); }
+  .privacy__columns > div:last-child li::before { box-shadow: inset 0 0 0 2px var(--muted); }
+
+  /* Install */
+  .install { background: var(--paper-deep); padding-block: clamp(4rem, 10vw, 7rem); }
+  .install__grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: clamp(2rem, 6vw, 5rem); align-items: center; }
+  .install h2 { font-size: var(--step-3); margin-bottom: 1.8rem; }
+  .install__steps { margin: 0 0 2rem; padding-left: 1.3rem; display: grid; gap: 0.8rem; color: var(--ink-soft); }
+  .install__steps li::marker { font-family: var(--figures); color: var(--emerald); font-weight: 600; }
+  .install__steps strong { color: var(--ink); font-weight: 600; }
+  .install__note { margin-top: 1.2rem; font-size: var(--step--1); color: var(--muted); }
+
+  .dmg {
+    margin: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f4f7f5;
+    box-shadow: 0 0 0 1px var(--line), 0 40px 70px -40px rgb(7 37 29 / 0.45);
+  }
+  .dmg__titlebar {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 30px;
+    padding-inline: 12px;
+    background: #e9eeeb;
+    border-bottom: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-soft);
+  }
+  .dmg__titlebar span { width: 11px; height: 11px; border-radius: 50%; background: #d0d9d4; }
+  .dmg__titlebar em { font-style: normal; font-weight: 600; margin-inline: auto; transform: translateX(-24px); }
+  .dmg__body { position: relative; aspect-ratio: 660 / 440; container-type: inline-size; }
+  .dmg__bg { width: 100%; height: 100%; }
+  .dmg__item {
+    position: absolute;
+    top: 45.5%;
+    display: grid;
+    justify-items: center;
+    gap: 4px;
+    translate: -50% -50%;
+    font-size: clamp(9px, 1.9cqi, 12px);
+    color: var(--ink);
+  }
+  .dmg__item img, .dmg__item svg { width: 15.8cqi; height: auto; }
+  .dmg__item--app { left: 25.8%; }
+  .dmg__item--folder { left: 74.2%; }
+
+  /* FAQ */
+  .faq { padding-block: clamp(4rem, 10vw, 7rem); }
+  .faq h2 { font-size: var(--step-3); margin-bottom: 2rem; }
+  .faq__list { border-top: 1px solid var(--line); max-width: 48rem; }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    cursor: pointer;
+    list-style: none;
+    padding: 1.2rem 2.5rem 1.2rem 0;
+    position: relative;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--step-1);
+    letter-spacing: -0.015em;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  .faq summary::after {
+    content: "";
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    width: 0.7rem;
+    height: 0.7rem;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-70%) rotate(45deg);
+    transition: transform 0.2s ease;
+  }
+  .faq details[open] summary::after { transform: translateY(-30%) rotate(-135deg); }
+  .faq details p { padding-bottom: 1.4rem; color: var(--ink-soft); max-width: var(--measure); }
+
+  /* Footer */
+  .site-footer { border-top: 1px solid var(--line); padding-block: 2rem; font-size: var(--step--1); color: var(--muted); }
+  .site-footer__row { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; }
+  .site-footer a { color: var(--ink); }
+
+  /* Narrow screens */
+  @media (max-width: 60rem) {
+    .hero, .install__grid { grid-template-columns: minmax(0, 1fr); }
+    /* minmax(0, …): the terminal block scrolls instead of widening the column. */
+    .accounts__grid { grid-template-columns: minmax(0, 1fr); }
+    .accounts__shot { justify-self: center; width: min(340px, 100%); }
+  }
+  @media (max-width: 44rem) {
+    .site-header nav { display: none; }
+    .site-header__cta { margin-left: auto; }
+    .privacy__columns { grid-template-columns: 1fr; }
+    /* The comments repeat the paragraph above; on a phone the commands alone fit. */
+    .terminal__note { display: none; }
+  }
+</style>

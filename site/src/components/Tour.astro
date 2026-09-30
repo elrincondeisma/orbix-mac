@@ -1,0 +1,117 @@
+---
+// "What you see when you open it": the full panel with keyed markers on each region and
+// the explanation beside it. The keys map regions to text, so numbering is a legend here.
+import { Image } from "astro:assets";
+import full from "../assets/shots/panel-completa-claro.png";
+
+const regions = [
+  { top: 10, title: "La sesión de 5 horas", text: "Cuánto te queda de la ventana actual y a qué hora se reinicia. El aro pasa a ámbar cerca del límite." },
+  { top: 21, title: "Los límites semanales", text: "El general y los de cada modelo, como Fable, con su día y hora de reinicio." },
+  { top: 36, title: "Tus cuentas", text: "Principal, trabajo o un token de larga duración. Enciende una y los próximos claude la usan." },
+  { top: 52, title: "Lo que no has gastado", text: "Reinicios gratis guardados, saldo prepago y uso extra del mes, leídos de claude.ai." },
+  { top: 65, title: "Lo que costaría por API", text: "Tu sesión actual y los últimos 30 días a precio de lista, calculados con tus sesiones locales." },
+  { top: 83, title: "Actividad y modelos", text: "Tokens por día y qué modelos usas más en Claude Code." },
+];
+---
+
+<section class="tour" id="que-hace" aria-labelledby="tour-title">
+  <div class="wrap tour__grid">
+    <div class="tour__intro">
+      <h2 id="tour-title">Todo lo que Claude no te enseña hasta que es tarde.</h2>
+      <p>
+        Un clic en la barra de menús y lo tienes delante. La vista compacta muestra la sesión y los límites; la
+        completa, todo lo demás.
+      </p>
+    </div>
+
+    <figure class="tour__shot">
+      <Image src={full} alt="Vista completa del panel de Orbix con sesión, límites, cuentas, extras, coste por API y actividad" widths={[340, 680]} sizes="340px" />
+      {regions.map((region, index) => (
+        <a class="tour__key figures" href={`#region-${index + 1}`} style={`top:${region.top}%`} aria-label={region.title}>
+          {index + 1}
+        </a>
+      ))}
+    </figure>
+
+    <ol class="tour__list">
+      {regions.map((region, index) => (
+        <li id={`region-${index + 1}`}>
+          <span class="tour__key tour__key--static figures" aria-hidden="true">{index + 1}</span>
+          <div>
+            <h3>{region.title}</h3>
+            <p>{region.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  .tour { padding-block: clamp(4rem, 10vw, 8rem); }
+
+  .tour__grid {
+    display: grid;
+    grid-template-columns: 340px minmax(0, 1fr);
+    grid-template-areas: "intro intro" "shot list";
+    column-gap: clamp(2rem, 5vw, 4.5rem);
+    row-gap: 3rem;
+    align-items: start;
+  }
+
+  .tour__intro { grid-area: intro; max-width: var(--measure); }
+  .tour__intro h2 { font-size: var(--step-3); margin-bottom: 1rem; }
+  .tour__intro p { color: var(--ink-soft); }
+
+  .tour__shot {
+    grid-area: shot;
+    position: relative;
+    margin: 0;
+    width: 340px;
+  }
+  .tour__shot img {
+    border-radius: var(--radius-panel);
+    box-shadow: 0 0 0 1px var(--line), 0 30px 60px -30px rgb(7 37 29 / 0.35);
+  }
+
+  .tour__key {
+    display: grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: 50%;
+    background: var(--forest);
+    color: var(--paper);
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .tour__shot .tour__key {
+    position: absolute;
+    left: -0.8rem;
+    box-shadow: 0 0 0 3px var(--paper);
+  }
+  .tour__shot .tour__key:hover { background: var(--emerald); }
+
+  .tour__list {
+    grid-area: list;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.6rem;
+    max-width: 30rem;
+    /* Keeps the explanations beside the panel while it scrolls past. */
+    position: sticky;
+    top: 2rem;
+  }
+  .tour__list li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; scroll-margin-top: 2rem; }
+  .tour__list h3 { font-size: var(--step-1); letter-spacing: -0.015em; margin-bottom: 0.3rem; }
+  .tour__list p { color: var(--ink-soft); }
+  .tour__list li:target h3 { color: var(--emerald); }
+
+  @media (max-width: 52rem) {
+    .tour__grid { grid-template-columns: 1fr; grid-template-areas: "intro" "shot" "list"; }
+    .tour__shot { justify-self: center; width: min(340px, 100%); }
+  }
+</style>

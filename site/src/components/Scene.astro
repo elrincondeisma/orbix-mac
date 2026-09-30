@@ -1,0 +1,149 @@
+---
+// The hero: a Mac desktop (generated wallpaper) with a menu bar where Orbix sits at 26 %,
+// and the real panel hanging from it, as when you click the icon.
+import { Image } from "astro:assets";
+import wallpaper from "../assets/art/wallpaper.png";
+import panel from "../assets/shots/panel-compacta-oscuro.png";
+
+const session = 26; // matches the demo data in the screenshot
+const radius = 6.2;
+const circumference = 2 * Math.PI * radius;
+---
+
+<figure class="scene" aria-label="Orbix abierto desde la barra de menús del Mac">
+  <Image src={wallpaper} alt="" class="scene__wallpaper" widths={[800, 1200, 1536]} sizes="(min-width: 64rem) 44rem, 100vw" loading="eager" />
+
+  <div class="menubar" aria-hidden="true">
+    <span class="menubar__app">Finder</span>
+    <span class="menubar__menu">Archivo</span>
+    <span class="menubar__menu">Edición</span>
+    <span class="menubar__menu">Ver</span>
+    <span class="menubar__spacer"></span>
+    <span class="menubar__orbix">
+      <svg viewBox="0 0 20 18" width="20" height="18">
+        <circle cx="10" cy="9" r={radius} fill="none" stroke="currentColor" stroke-opacity="0.3" stroke-width="1.6" />
+        <circle
+          class="menubar__arc"
+          cx="10" cy="9" r={radius} fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+          stroke-dasharray={`${circumference * session / 100} ${circumference}`}
+          style={`--full:${circumference}`}
+          transform="rotate(-90 10 9)"
+        />
+        <circle cx="14.4" cy="4.6" r="2.6" fill="#34d399" />
+      </svg>
+      <span class="figures">{session}%</span>
+    </span>
+    <span class="menubar__glyph">
+      <svg viewBox="0 0 16 12" width="16" height="12"><path d="M8 11.2 1.2 4.4a9.6 9.6 0 0 1 13.6 0Z" fill="currentColor" /></svg>
+    </span>
+    <span class="menubar__glyph">
+      <svg viewBox="0 0 26 12" width="24" height="11"><rect x="0.6" y="0.6" width="22" height="10.8" rx="3" fill="none" stroke="currentColor" stroke-opacity="0.6" /><rect x="2.4" y="2.4" width="15" height="7.2" rx="1.6" fill="currentColor" /><rect x="23.6" y="4" width="1.6" height="4" rx="0.8" fill="currentColor" fill-opacity="0.6" /></svg>
+    </span>
+    <span class="menubar__clock">mié 14:32</span>
+  </div>
+
+  <div class="popover">
+    <Image src={panel} alt="Panel de Orbix: sesión de 5 horas al 26 %, límite semanal al 48 %, un reinicio gratis y tres cuentas de Claude Code" class="popover__panel" widths={[340, 680]} sizes="340px" loading="eager" />
+  </div>
+</figure>
+
+<style>
+  .scene {
+    position: relative;
+    margin: 0;
+    aspect-ratio: 1 / 0.98;
+    border-radius: var(--radius-scene);
+    overflow: hidden;
+    background: var(--forest-deep);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.6) inset, 0 40px 80px -40px rgb(7 37 29 / 0.55);
+    container-type: inline-size;
+  }
+
+  .scene__wallpaper {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 70%;
+  }
+
+  .menubar {
+    position: absolute;
+    inset: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: clamp(0.5rem, 2.4cqi, 1.2rem);
+    height: 30px;
+    padding-inline: 14px;
+    font-size: 13px;
+    color: #f3f7f5;
+    background: rgb(14 26 22 / 0.42);
+    backdrop-filter: blur(18px) saturate(1.4);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  }
+  .menubar__app { font-weight: 700; }
+  .menubar__menu { opacity: 0.92; }
+  .menubar__spacer { flex: 1; }
+  .menubar__clock { opacity: 0.92; font-variant-numeric: tabular-nums; }
+  .menubar__glyph { display: inline-flex; opacity: 0.92; }
+  .menubar__orbix {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 5px;
+    border-radius: 6px;
+    background: rgb(255 255 255 / 0.22);
+    font-size: 12.5px;
+    font-weight: 600;
+  }
+
+  /* Anchored under the Orbix item: right edge lines up with it at every width. */
+  .popover {
+    position: absolute;
+    top: 38px;
+    /* Right edge a little past the Orbix item, so the arrow lands under it. */
+    right: 7.3rem;
+    width: min(330px, 64cqi);
+    transform-origin: 90% 0;
+    animation: drop 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.15) 0.35s both;
+  }
+  .popover::before {
+    content: "";
+    position: absolute;
+    top: -7px;
+    right: 34px;
+    width: 16px;
+    height: 16px;
+    background: #0b0f0e;
+    transform: rotate(45deg);
+    border-radius: 3px;
+  }
+  .popover__panel {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 0 0 0.5px rgb(255 255 255 / 0.12), 0 30px 60px -12px rgb(0 0 0 / 0.6);
+  }
+
+  .menubar__arc {
+    animation: fill 1.1s cubic-bezier(0.3, 0.7, 0.2, 1) 0.2s both;
+  }
+
+  @keyframes drop {
+    from { opacity: 0; transform: translateY(-6px) scale(0.96); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fill {
+    from { stroke-dasharray: 0 var(--full); }
+  }
+
+  @container (max-width: 34rem) {
+    .menubar__menu { display: none; }
+  }
+  /* Narrow screens: the panel takes more of the width, so the desktop needs more height. */
+  @media (max-width: 34rem) {
+    .scene { aspect-ratio: 3 / 4; }
+    .popover { right: 5.2rem; width: 78cqi; }
+  }
+</style>

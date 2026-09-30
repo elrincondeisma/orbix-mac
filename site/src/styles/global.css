@@ -1,0 +1,97 @@
+/* Orbix — tokens. The page is the app's light "paper" with forest ink; emerald is the
+   app's accent, amber only where the app itself uses it (near the limit). */
+:root {
+  --paper: #eef3f0;
+  --paper-deep: #e2ebe5;
+  --card: #fbfdfc;
+  --ink: #0e1a16;
+  --ink-soft: #3b4c44;
+  --muted: #62746b;
+  --line: #c9d8d0;
+  --forest: #0b3b2e;
+  --forest-deep: #07251d;
+  --emerald: #047857;
+  --emerald-bright: #34d399;
+  --amber: #a16207;
+
+  --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --body: "Onest", ui-sans-serif, system-ui, sans-serif;
+  --figures: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Type scale: perfect fourth (1.333) from a 17px body. */
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.4167rem;
+  --step-2: 1.8889rem;
+  --step-3: 2.5185rem;
+  --step-4: clamp(2.6rem, 5.2vw, 4.4rem);
+
+  --gutter: clamp(1rem, 4vw, 3rem);
+  --measure: 38rem;
+  --radius-panel: 14px;
+  --radius-scene: 22px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  font-feature-settings: "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.04;
+  margin: 0;
+  text-wrap: balance;
+}
+
+p { margin: 0; text-wrap: pretty; }
+
+a { color: inherit; }
+
+img { display: block; max-width: 100%; height: auto; }
+
+:focus-visible {
+  outline: 3px solid var(--emerald);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.wrap {
+  width: min(100% - 2 * var(--gutter), 72rem);
+  margin-inline: auto;
+}
+
+.figures { font-family: var(--figures); font-feature-settings: "zero"; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.85rem 1.35rem;
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+.button:active { transform: translateY(1px); }
+.button--primary { background: var(--forest); color: var(--paper); }
+.button--primary:hover { background: var(--forest-deep); }
+.button--quiet { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.button--quiet:hover { box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  html { scroll-behavior: auto; }
+}
