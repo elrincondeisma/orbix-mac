@@ -83,8 +83,13 @@ func render(scale: CGFloat) -> Data {
     line.setStroke()
     card.lineWidth = 1
     card.stroke()
+    // Without a version (the website's copy) the text sits centred in the card.
     centered("El uso de tu cuenta de Claude en la barra de menús", .systemFont(ofSize: 12, weight: .medium), ink,
-             x: W / 2, top: H - footer.maxY + 12)
+             x: W / 2, top: H - footer.maxY + (version.isEmpty ? 20 : 12))
+    guard !version.isEmpty else {
+        NSGraphicsContext.restoreGraphicsState()
+        return rep.representation(using: .png, properties: [:])!
+    }
     let pill = "versión \(version)"
     let pillText = NSAttributedString(string: pill, attributes: [.font: NSFont.monospacedSystemFont(ofSize: 10.5, weight: .medium),
                                                                  .foregroundColor: green])

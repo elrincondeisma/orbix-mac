@@ -270,3 +270,24 @@ final class ProfileManager {
         usage[slug] = snapshot
     }
 }
+
+#if DEBUG
+extension ProfileManager {
+    /// Two demo accounts for website screenshots (debug builds only).
+    func loadDemo(active: String = Profile.mainSlug) {
+        let work = Profile(slug: "trabajo", name: "Trabajo", kind: .login)
+        let ci = Profile(slug: "ci", name: "Integración continua", kind: .token)
+        profiles = [.main, work, ci]
+        activeSlug = active
+        usage = [
+            "trabajo": UsageSnapshot(session: UsageBar(id: "session", title: "Sesión (5 h)", percent: 71, resetsAt: nil),
+                                     weekly: UsageBar(id: "weekly", title: "Semanal", percent: 83, resetsAt: nil),
+                                     models: [], source: "claude /usage"),
+        ]
+        usageErrors = [:]
+        message = nil
+    }
+
+    func recordDemo(_ snapshot: UsageSnapshot?) { usage[activeSlug] = snapshot }
+}
+#endif

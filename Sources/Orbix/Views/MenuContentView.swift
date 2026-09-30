@@ -30,6 +30,7 @@ struct MenuContentView: View {
             SettingsView(theme: t).padding(14)
         } else if store.panelMode == .compact {
             VStack(spacing: 8) {
+                if LoginItem.shared.shouldOffer { LoginOffer(theme: t) }
                 CompactPanel(store: store, theme: t)
                 if ProfileManager.shared.hasExtraProfiles {
                     ProfilesCard(profiles: ProfileManager.shared, theme: t)
@@ -38,6 +39,7 @@ struct MenuContentView: View {
             .padding(12)
         } else {
             VStack(spacing: 10) {
+                if LoginItem.shared.shouldOffer { LoginOffer(theme: t) }
                 SessionHero(store: store, theme: t)
                 if let error = store.errorMessage {
                     Banner(text: error, color: t.warm, background: t.warmSoft)
@@ -295,4 +297,39 @@ struct FittedScroll<Content: View>: View {
 private struct ContentHeightKey: PreferenceKey {
     static let defaultValue: CGFloat = 0
     static func reduce(value: inout CGFloat, nextValue: () -> CGFloat) { value = max(value, nextValue()) }
+}
+
+/// Asked once, on an installed copy: Orbix never adds itself to the login items.
+struct LoginOffer: View {
+    let theme: Theme
+    private var t: Theme { theme }
+
+    var body: some View {
+        Card(theme: t, padding: 12) {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(alignment: .top, spacing: 10) {
+                    Image(systemName: "power.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundStyle(t.accent)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("¿Abrir Orbix al iniciar sesión?").font(Brand.sans(12.5, .semibold))
+                        Text("Así tendrás tus límites en la barra de menús desde que enciendes el Mac. Se cambia en Ajustes.")
+                            .font(Brand.sans(11)).foregroundStyle(t.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                }
+                HStack(spacing: 8) {
+                    Spacer()
+                    Button("No, gracias") { LoginItem.shared.declineOffer() }
+                        .buttonStyle(.plain)
+                        .font(Brand.sans(11, .medium))
+                        .foregroundStyle(t.secondary)
+                        .padding(.horizontal, 8)
+                    SoftButton(title: "Sí, abrirla", symbol: "checkmark", theme: t) {
+                        LoginItem.shared.setEnabled(true)
+                    }
+                }
+            }
+        }
+    }
 }

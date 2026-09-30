@@ -214,3 +214,50 @@ final class UsageStore {
         }
     }
 }
+
+#if DEBUG
+// MARK: - Demo data for website screenshots (debug builds only)
+
+extension UsageStore {
+    /// Plausible figures, no real account: session 26 %, weekly 48 %, a free reset, a month of activity.
+    func loadDemo() {
+        let now = Date()
+        let calendar = Calendar.current
+        var snapshot = UsageSnapshot(
+            session: UsageBar(id: "session", title: "Sesión (5 h)", percent: 26,
+                              resetsAt: now.addingTimeInterval(2 * 3600 + 14 * 60)),
+            weekly: UsageBar(id: "weekly", title: "Semanal", percent: 48,
+                             resetsAt: now.addingTimeInterval(2 * 86_400 + 5 * 3600)),
+            models: [UsageBar(id: "model-Fable", title: "Fable · semanal", percent: 12,
+                              resetsAt: now.addingTimeInterval(2 * 86_400 + 5 * 3600))],
+            source: "claude /usage")
+        snapshot.plan = "Max"
+        self.snapshot = snapshot
+        errorMessage = nil
+        isLoading = false
+        extras = WebExtras(organization: nil, resets: [now.addingTimeInterval(9 * 86_400)],
+                           prepaid: .init(amount: 0, currency: "USD"), overage: nil, fetchedAt: now)
+        extrasError = nil
+
+        let tokens = [180, 420, 0, 260, 610, 330, 95].map { $0 * 1_000_000 }
+        let costs = [61.0, 142, 0, 88, 205, 111, 32]
+        let start = calendar.startOfDay(for: now)
+        let days = (0..<7).map { offset -> LocalActivity.Day in
+            var day = LocalActivity.Day(date: calendar.date(byAdding: .day, value: offset - 6, to: start)!)
+            day.tokens = tokens[offset]
+            day.outputTokens = tokens[offset] / 400
+            day.messages = tokens[offset] / 250_000
+            day.sessions = Set((0..<(tokens[offset] == 0 ? 0 : 3 + offset % 4)).map { "s\(offset)-\($0)" })
+            day.cost = costs[offset]
+            return day
+        }
+        activity = LocalActivity(
+            days: days,
+            modelsLast7: [.init(name: "claude-opus-5-5", tokens: 1_610_000_000, cost: 548),
+                          .init(name: "claude-sonnet-5-5", tokens: 240_000_000, cost: 61),
+                          .init(name: "claude-haiku-4-5", tokens: 45_000_000, cost: 6)],
+            cost30Days: 2_184, costSessionWindow: 14.6,
+            sessionWindowStart: now.addingTimeInterval(-(2 * 3600 + 46 * 60)), unpricedResponses: 0)
+    }
+}
+#endif

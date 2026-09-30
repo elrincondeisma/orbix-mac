@@ -11,6 +11,8 @@ struct SettingsView: View {
         @Bindable var store = store
 
         VStack(alignment: .leading, spacing: 10) {
+            loginSection
+
             section("Vista") {
                 SegmentedChoice(options: [(PanelMode.compact, "Compacta"), (.full, "Completa")],
                                 selection: $store.panelMode, theme: t)
@@ -169,6 +171,29 @@ struct SettingsView: View {
         .padding(.horizontal, 9).padding(.vertical, 7)
         .background(RoundedRectangle(cornerRadius: 7).fill(t.bg))
         .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(t.line))
+    }
+
+    private var loginSection: some View {
+        let login = LoginItem.shared
+        return section("Inicio") {
+            HStack(alignment: .center, spacing: 10) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Abrir al iniciar sesión").font(Brand.sans(12, .medium))
+                    note("Orbix aparece en la barra de menús al encender el Mac. También se gestiona en Ajustes del Sistema → General → Ítems de inicio.")
+                }
+                Spacer()
+                BrandSwitch(isOn: Binding(get: { login.isEnabled || login.needsApproval },
+                                          set: { login.setEnabled($0) }), theme: t)
+            }
+            if login.needsApproval {
+                HStack {
+                    note("Falta aprobarlo en Ajustes del Sistema.")
+                    Spacer()
+                    SoftButton(title: "Abrir Ajustes", symbol: "gearshape", theme: t) { login.openSystemSettings() }
+                }
+            }
+            if let error = login.errorMessage { note(error) }
+        }
     }
 
     private var aboutSection: some View {

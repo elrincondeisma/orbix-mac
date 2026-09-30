@@ -59,6 +59,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         } else {
             store.showingSettings = false
             ProfileManager.shared.reload()
+            LoginItem.shared.refresh()
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
             popover.contentViewController?.view.window?.makeKey()
         }
