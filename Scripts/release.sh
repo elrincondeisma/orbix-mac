@@ -68,7 +68,8 @@ cat > build/appcast.xml <<XML
 XML
 
 git add VERSION
-git commit -m "Orbix $VERSION"
+# The first release may already carry its number in VERSION.
+git diff --cached --quiet || git commit -m "Orbix $VERSION"
 git tag "v$VERSION"
 git push origin HEAD "v$VERSION"
 gh release create "v$VERSION" "$ZIP" build/appcast.xml --repo "$REPO" --title "Orbix $VERSION" --notes "$NOTES"

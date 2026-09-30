@@ -91,13 +91,6 @@ struct SettingsView: View {
         section("Acerca de") {
             credit(symbol: "person.fill", title: "Creado por Ismael Catala",
                    detail: "github.com/elrincondeisma", url: "https://github.com/elrincondeisma")
-            Hairline(theme: t)
-            credit(symbol: "paintpalette.fill", title: "Diseño basado en ModelNap",
-                   detail: "Erik Taveras · Taveras Solutions · licencia MIT",
-                   url: "https://github.com/eriktaveras/modelnap")
-            Hairline(theme: t)
-            credit(symbol: "lightbulb.fill", title: "Inspirado en CodexBar",
-                   detail: "Peter Steinberger", url: "https://github.com/steipete/CodexBar")
         }
     }
 
