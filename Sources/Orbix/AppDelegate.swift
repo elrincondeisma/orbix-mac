@@ -2,16 +2,6 @@ import AppKit
 import Observation
 import SwiftUI
 
-@main
-struct OrbixApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) private var delegate
-
-    var body: some Scene {
-        // Everything lives in the status item's popover; SwiftUI needs at least one scene.
-        Settings { EmptyView() }
-    }
-}
-
 /// Status item + popover, as in ModelNap. `MenuBarExtra` keeps its window at the tallest
 /// height it has shown, so the shorter settings view floated in empty space; a popover
 /// with `preferredContentSize` resizes to whatever the panel shows.
@@ -22,6 +12,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private let popover = NSPopover()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        installEditMenu()
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
             button.target = self
@@ -38,6 +29,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         updateStatusItem()
         // Starts Sparkle's daily check for a newer release.
         _ = AppUpdater.shared
+    }
+
+    /// Never shown (Orbix has no menu bar of its own), but its key equivalents are what make
+    /// ⌘C / ⌘V / ⌘X / ⌘A / ⌘Z work in the settings text fields.
+    private func installEditMenu() {
+        let edit = NSMenu(title: "Edición")
+        edit.addItem(withTitle: "Deshacer", action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: "Rehacer", action: Selector(("redo:")), keyEquivalent: "Z")
+        edit.addItem(.separator())
+        edit.addItem(withTitle: "Cortar", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: "Copiar", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: "Pegar", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: "Seleccionar todo", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem(title: "Edición", action: nil, keyEquivalent: "")
+        editItem.submenu = edit
+        let main = NSMenu()
+        main.addItem(NSMenuItem(title: "Orbix", action: nil, keyEquivalent: ""))
+        main.addItem(editItem)
+        NSApp.mainMenu = main
     }
 
     @objc private func togglePopover() {

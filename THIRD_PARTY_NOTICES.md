@@ -2,7 +2,7 @@
 
 El diseño visual de Orbix (`Sources/Orbix/Views/Theme.swift` y los componentes de `Views/`) está
 adaptado de [ModelNap](https://github.com/eriktaveras/modelnap). El nombre y el logo de ModelNap no se
-reutilizan.
+reutilizan. La configuración del instalador (`packaging/dmg-settings.py`) también parte de la suya.
 
 ```
 MIT License

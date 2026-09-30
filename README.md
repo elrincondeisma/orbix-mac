@@ -4,6 +4,12 @@ App de barra de menús para macOS (SwiftUI) que muestra el uso de **tu cuenta de
 la ventana de sesión de 5 horas, el límite semanal, los límites semanales por modelo y el uso extra
 del mes. Es una versión mínima de [CodexBar](https://github.com/steipete/CodexBar) centrada solo en Claude.
 
+## Instalar
+
+Descarga **`Orbix-<versión>.dmg`** del [último release](https://github.com/elrincondeisma/orbix-mac/releases/latest),
+ábrelo y arrastra **Orbix** a **Aplicaciones**. Está firmada con Developer ID y notarizada por Apple, así que se abre
+sin avisos. Después se actualiza sola.
+
 ## Diseño
 
 La estética (paleta verde esmeralda / casi negro, tarjetas con borde fino, SF Mono para cifras, pastilla de
@@ -115,6 +121,7 @@ Scripts/
   build-app.sh                   Empaqueta y firma Orbix.app (universal, con Sparkle)
   release.sh                     Publica una versión en GitHub Releases con su appcast
   setup-sparkle.sh               Descarga las herramientas de Sparkle
+  make-dmg.sh                    Instalador .dmg (fondo de Tools/dmgbackground, dmgbuild), firmado y notarizado
   make-icon.sh                   Genera Resources/AppIcon.icns desde Resources/icon/AppIcon.png
   generate-icon.sh               Propuestas de icono con GPT Image 2.5 (OPENAI_API_KEY)
 ```

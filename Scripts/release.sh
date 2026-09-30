@@ -4,7 +4,8 @@
 #   ./Scripts/release.sh 0.2.0 "Qué cambia en esta versión"
 #
 # Steps: bump VERSION → build and sign → notarize (with Developer ID) → zip → sign the zip
-# for Sparkle (EdDSA) → appcast.xml → commit + tag → GitHub release with zip and appcast.
+# for Sparkle (EdDSA) → appcast.xml → dmg for people to download (signed and notarized) →
+# commit + tag → GitHub release with dmg, zip and appcast.
 #
 # Notarization needs a "Developer ID Application" certificate and a notarytool profile:
 #   xcrun notarytool store-credentials orbix-notary --apple-id <email> --team-id <TEAM>
@@ -67,10 +68,14 @@ cat > build/appcast.xml <<XML
 </rss>
 XML
 
+# Installer for first-time downloads; Sparkle keeps using the zip.
+./Scripts/make-dmg.sh
+DMG="build/Orbix-$VERSION.dmg"
+
 git add VERSION
 # The first release may already carry its number in VERSION.
 git diff --cached --quiet || git commit -m "Orbix $VERSION"
 git tag "v$VERSION"
 git push origin HEAD "v$VERSION"
-gh release create "v$VERSION" "$ZIP" build/appcast.xml --repo "$REPO" --title "Orbix $VERSION" --notes "$NOTES"
+gh release create "v$VERSION" "$DMG" "$ZIP" build/appcast.xml --repo "$REPO" --title "Orbix $VERSION" --notes "$NOTES"
 echo "Publicada: https://github.com/$REPO/releases/tag/v$VERSION"
