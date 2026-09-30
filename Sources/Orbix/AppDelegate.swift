@@ -27,6 +27,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.animates = true
 
         updateStatusItem()
+        // Before Sparkle starts: from the dmg or a translocated copy it could not update itself.
+        AppMover.offerIfNeeded()
         // Starts Sparkle's daily check for a newer release.
         _ = AppUpdater.shared
     }
