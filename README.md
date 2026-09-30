@@ -1,127 +1,210 @@
+<div align="center">
+
+<img src="docs/images/icon.png" width="128" alt="Icono de Orbix">
+
 # Orbix
 
-App de barra de menús para macOS (SwiftUI) que muestra el uso de **tu cuenta de Claude**:
-la ventana de sesión de 5 horas, el límite semanal, los límites semanales por modelo y el uso extra
-del mes. Es una versión mínima de [CodexBar](https://github.com/steipete/CodexBar) centrada solo en Claude.
+**Tu límite de Claude, siempre a la vista en la barra de menús del Mac.**
 
-## Instalar
+[![Versión](https://img.shields.io/github/v/release/elrincondeisma/orbix-mac?style=flat-square&label=versi%C3%B3n&color=047857)](https://github.com/elrincondeisma/orbix-mac/releases/latest)
+![macOS](https://img.shields.io/badge/macOS-14%2B-111?style=flat-square&logo=apple&logoColor=white)
+![Arquitectura](https://img.shields.io/badge/Apple%20Silicon%20%7C%20Intel-universal-111?style=flat-square)
+![Swift](https://img.shields.io/badge/Swift-SwiftUI%20%2B%20AppKit-F05138?style=flat-square&logo=swift&logoColor=white)
+![Notarizada](https://img.shields.io/badge/Apple-firmada%20y%20notarizada-34D399?style=flat-square&logo=apple&logoColor=white)
+[![Descargas](https://img.shields.io/github/downloads/elrincondeisma/orbix-mac/total?style=flat-square&label=descargas&color=5C6B64)](https://github.com/elrincondeisma/orbix-mac/releases)
 
-Descarga **`Orbix-<versión>.dmg`** del [último release](https://github.com/elrincondeisma/orbix-mac/releases/latest),
-ábrelo y arrastra **Orbix** a **Aplicaciones**. Está firmada con Developer ID y notarizada por Apple, así que se abre
-sin avisos. Después se actualiza sola.
+[Descargar](https://github.com/elrincondeisma/orbix-mac/releases/latest) ·
+[Funciones](#-funciones) ·
+[Instalar](#-instalar) ·
+[Uso](#-uso) ·
+[Cómo funciona](#%EF%B8%8F-cómo-funciona) ·
+[Desarrollo](#%EF%B8%8F-desarrollo)
 
-## Diseño
+<br>
 
-La estética (paleta verde esmeralda / casi negro, tarjetas con borde fino, SF Mono para cifras, pastilla de
-estado y medidor circular) está adaptada de [ModelNap](https://github.com/eriktaveras/modelnap), MIT License,
-Copyright (c) 2026 Taveras Solutions LLC. El nombre y el logo de ModelNap no se reutilizan: Orbix tiene su
-propia marca (una órbita con un planeta; en la barra de menús, el arco muestra el uso de la sesión).
+<img src="docs/images/hero.png" width="620" alt="Orbix abierto desde la barra de menús: sesión de 5 horas al 26 %, límites semanales, un reinicio gratis y tres cuentas de Claude Code">
 
-## Compilar y ejecutar
+</div>
 
-Basta con las Command Line Tools (no hace falta Xcode):
+<br>
+
+## ¿Por qué?
+
+Claude avisa del límite cuando ya lo has alcanzado. **Orbix** te lo enseña antes: cuánto te queda de la sesión
+de 5 horas y de la semana, cuándo se reinicia cada una, qué extras tienes sin gastar y cuánto te costaría ese uso
+si lo pagaras por API. Todo desde un icono en la barra de menús, sin abrir la terminal ni el navegador.
+
+## ✨ Funciones
+
+| | Función | Detalle |
+|:-:|---|---|
+| ⏱️ | **Sesión de 5 horas** | Porcentaje libre, hora de reinicio y un aro que pasa a ámbar al 70 % y a rojo al 90 %. |
+| 📅 | **Límites semanales** | El general y los de cada modelo, con su día y hora de reinicio. |
+| 🔁 | **Varias cuentas** | Perfiles de Claude Code con login o token de larga duración. Un interruptor elige cuál usa `claude`. |
+| 🎁 | **Extra sin usar** | Reinicios gratis guardados, saldo prepago y uso extra del mes, leídos de claude.ai. |
+| 💸 | **Coste equivalente en API** | La sesión actual y los últimos 30 días a precio de lista, a partir de tus sesiones locales. |
+| 📊 | **Actividad** | Tokens por día, respuestas, sesiones y modelos más usados en Claude Code. |
+| 🪟 | **Dos vistas** | Compacta por defecto; la completa a un clic. El panel se adapta a la altura de tu pantalla. |
+| 🟢 | **Estado de un vistazo** | En la barra de menús, un arco con el uso de la sesión, un punto de color y el porcentaje. |
+| 🚀 | **Abre al iniciar sesión** | Te lo pregunta la primera vez; se cambia en Ajustes o en los ítems de inicio de macOS. |
+| 🔄 | **Se actualiza sola** | Comprueba una vez al día, verifica la firma de la descarga y se reinicia. |
+| 🌗 | **Claro y oscuro** | Sigue la apariencia de macOS. |
+| 🔒 | **Privada** | Sin cuentas, sin analíticas y sin servidores propios. Nunca lee el contenido de tus conversaciones. |
+
+## 📥 Instalar
+
+1. Descarga **`Orbix-<versión>.dmg`** del [último release](https://github.com/elrincondeisma/orbix-mac/releases/latest).
+2. Ábrelo y arrastra **Orbix** a **Aplicaciones**.
+3. Ábrela: aparece en la **barra de menús**, arriba a la derecha, y te pregunta si quieres que se abra al iniciar sesión.
+
+> [!NOTE]
+> Orbix está **firmada con Developer ID y notarizada por Apple**: se abre sin avisos de Gatekeeper. Si la abres
+> directamente desde el `.dmg`, te ofrecerá moverla a Aplicaciones, porque solo desde ahí puede actualizarse sola.
+
+**Requisitos:** macOS 14 Sonoma o posterior · Apple Silicon o Intel ·
+[Claude Code](https://docs.claude.com/en/docs/claude-code) instalado y con la sesión iniciada.
+
+## 🧭 Uso
+
+### El panel
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="docs/images/panel-compacta-oscuro.png">
+        <img src="docs/images/panel-compacta-claro.png" alt="Vista compacta de Orbix">
+      </picture>
+    </td>
+    <td width="50%" valign="top">
+      <b>Vista compacta</b>: la sesión de 5 horas, los límites semanales, tus reinicios gratis y tus cuentas.
+      <br><br>
+      <b>Vista completa</b>: añade los extras de claude.ai, el coste equivalente en API, la actividad de la
+      semana y los modelos que más usas. Se cambia con el botón del pie del panel o en Ajustes.
+      <br><br>
+      <b>Ajustes</b>: el engranaje de la cabecera. Inicio automático, vista, perfiles, origen de los datos,
+      lectura del navegador, frecuencia de actualización y actualizaciones de la app.
+    </td>
+  </tr>
+</table>
+
+### Varias cuentas
+
+Cada cuenta vive en su propio perfil de Claude Code (`~/.claude-perfiles/<nombre>`), con su login, su historial y
+sus servidores MCP. Los ajustes, tus instrucciones, tus skills, tus comandos y tus agentes se comparten con la
+cuenta principal.
+
+- **Crear un perfil:** *Ajustes → Perfiles de Claude Code → Nuevo perfil*. Si es de tipo **login**, se abre una
+  Terminal donde haces `/login` una vez. Si es un **token de larga duración** (`claude setup-token`), lo pegas y
+  se guarda en tu Llavero.
+- **Elegir cuenta:** enciende su interruptor en el panel. Los próximos `claude` que abras entran con ella.
+- **Desde la terminal**, tras pulsar *Activar* en Ajustes (añade una línea a `~/.zshrc`):
 
 ```bash
-./Scripts/setup-sparkle.sh   # la primera vez
-./Scripts/build-app.sh
+claude                      # abre Claude Code con la cuenta activa
+claude --perfil trabajo     # otra cuenta, solo esta vez
+orbix-perfil trabajo        # cambia la cuenta activa
+orbix-perfil                # muestra la activa y las disponibles
+```
+
+> [!TIP]
+> *Aplicar también a las apps* hace que VS Code y otras apps que lanzan Claude Code usen el perfil activo.
+> Los tokens de larga duración nunca se exponen así.
+
+## ⚙️ Cómo funciona
+
+### De dónde salen los datos
+
+| Dato | Origen | Credenciales |
+|---|---|---|
+| Sesión y límites semanales | `claude -p "/usage" --no-session-persistence`, sin herramientas ni MCP | Ninguna: usa la sesión de Claude Code |
+| Actividad y coste en API | Recuento de tokens de `~/.claude/projects/**/*.jsonl` | Ninguna |
+| Reinicios gratis, saldo y uso extra | API de claude.ai con tu sesión del navegador (Arc, Chrome, Brave, Edge o Vivaldi) | Permiso de macOS para la clave del navegador, una vez |
+| Límites de cada perfil | `claude /usage` ejecutado dentro de ese perfil | Las de cada perfil |
+
+- **Consulta de límites.** Orbix ejecuta `claude /usage` en una carpeta propia y sin guardar la sesión, así que
+  no aparece en tu historial. Tarda unos 2 segundos.
+- **Coste en API.** De cada línea de los registros solo se leen la fecha, el modelo y el recuento de tokens. Las
+  respuestas repetidas se cuentan una vez y se aplican los precios de lista: entrada, salida, lectura de caché y
+  escritura de caché (×1,25 con 5 minutos, ×2 con 1 hora), y el doble en modo rápido.
+- **Sin renovar tokens.** Orbix nunca renueva ni modifica el login de Claude Code; eso lo gestiona el propio
+  Claude Code en cada perfil.
+
+### Privacidad
+
+- **No envía nada a servidores propios:** no hay cuentas, analíticas ni telemetría.
+- **No lee tus conversaciones**, solo el recuento de tokens de cada respuesta.
+- **Guarda los secretos en el Llavero:** los tokens que pegas y, si la activas, la lectura de la sesión del
+  navegador.
+- Deja un registro de diagnóstico en `~/Library/Logs/Orbix.log` con estados y códigos HTTP, **nunca** cookies
+  ni tokens.
+
+## 🛠️ Desarrollo
+
+Basta con las **Command Line Tools** de Xcode; no hace falta Xcode completo.
+
+```bash
+./Scripts/setup-sparkle.sh    # la primera vez: herramientas de Sparkle
+./Scripts/build-app.sh        # compila Orbix.app universal y la firma
 open build/Orbix.app
 ```
 
-Para desarrollar: `swift run`.
-
-## Actualizaciones automáticas
-
-Orbix se actualiza sola con [Sparkle](https://sparkle-project.org): una vez al día lee
-`https://github.com/elrincondeisma/orbix-mac/releases/latest/download/appcast.xml`, y si hay una versión nueva la
-descarga, comprueba su firma EdDSA, se sustituye y se reinicia. Se controla en Ajustes → Actualizaciones.
-
-Publicar una versión:
-
-```bash
-./Scripts/setup-sparkle.sh                 # solo la primera vez en un Mac: herramientas de Sparkle
-./Scripts/release.sh 0.2.0 "Qué cambia"    # compila, firma, notariza, crea el appcast y el release
-```
-
-- La clave privada EdDSA está en el Llavero (cuenta `orbix`); la pública va en `SUPublicEDKey`
-  (`Scripts/build-app.sh`). **No generes otra**: las copias instaladas solo aceptan actualizaciones firmadas
-  con esta.
-- Para que la app abra en otros Macs sin avisos de Gatekeeper hace falta un certificado **Developer ID
-  Application** y un perfil de `notarytool`
-  (`xcrun notarytool store-credentials orbix-notary --apple-id … --team-id …`). Con él, `release.sh` notariza
-  y grapa el ticket automáticamente; sin él se niega a publicar salvo con `ORBIX_ALLOW_UNNOTARIZED=1`.
-
-## De dónde saca los datos
-
-| Orden | Credencial | Endpoint |
-|---|---|---|
-| 1 | Token OAuth de Claude Code (`~/.claude/.credentials.json` o Llavero `Claude Code-credentials`) | `GET api.anthropic.com/api/oauth/usage` y `/profile` (cabecera `anthropic-beta: oauth-2025-04-20`) |
-| 2 | Ninguna: ejecuta `claude -p "/usage" --no-session-persistence` y lee el texto (lo mismo que hace CodexBar) | El propio Claude Code |
-| 3 | Credencial manual en Ajustes: cookie `sessionKey` de claude.ai | `GET claude.ai/api/organizations` → `/organizations/{id}/usage` |
-| 3 | Credencial manual en Ajustes: token `sk-ant-oat…` | Igual que el 1 |
-
-Además, **Actividad local** lee las sesiones de Claude Code en `~/.claude/projects/**/*.jsonl`
-(no necesita credenciales): tokens de hoy y de los últimos 7 días, respuestas, sesiones y modelos más usados.
-De cada línea solo se decodifican `timestamp`, `sessionId`, `requestId`, `message.id`, `message.model` y
-`message.usage`; la conversación se ignora. Las respuestas se deduplican por `message.id + requestId`, porque
-Claude Code escribe una línea por bloque de contenido con el mismo `usage`.
-
-**Si lo pagaras por API**: con los mismos registros estima lo que costaría ese uso con los precios de lista
-de la API (`Services/APIPricing.swift`): entrada, salida, lectura de caché y escritura de caché (×1,25 con TTL
-de 5 min, ×2 con TTL de 1 h), y el doble en modo rápido. Muestra la sesión actual (la ventana de 5 h que informa
-`/usage`) y los últimos 30 días. Solo cuenta este Mac: no incluye claude.ai ni otros equipos.
-
-**Extra sin usar** (como CodexBar): con la sesión de claude.ai leída de Chrome (`Services/ChromeSession.swift`,
-cookie `sessionKey` descifrada con la clave «Chrome Safe Storage» del Llavero; macOS pide permiso una vez) o con
-una `sessionKey` pegada en Ajustes, consulta `usage?cedar_ember=1` (reinicios gratis guardados y su caducidad),
-`prepaid/credits` (saldo prepago) y `overage_spend_limit` (uso extra del mes). Se desactiva en Ajustes.
-
-**Perfiles (varias cuentas)**: cada perfil es una carpeta de Claude Code propia (`~/.claude-perfiles/<nombre>`,
-vía `CLAUDE_CONFIG_DIR`) con su login, historial y servidores MCP; ajustes, `CLAUDE.md`, skills, comandos y agentes
-se enlazan a `~/.claude` (y el historial, si se elige). Tipos: *login* (haces `/login` una vez dentro) y *token de
-larga duración* (`claude setup-token`, guardado en el Llavero y pasado como `CLAUDE_CODE_OAUTH_TOKEN`). El perfil
-activo se guarda en `~/.config/orbix/active-profile`; con la integración de terminal (una línea en `~/.zshrc` que
-carga `~/.config/orbix/shell.zsh`):
-
-```bash
-claude                     # abre Claude Code con el perfil activo
-claude --perfil trabajo    # otro perfil solo esta vez
-orbix-perfil trabajo       # cambia el perfil activo (Orbix lo refleja)
-```
-
-En el panel, un clic en una cuenta la activa y ▸ abre `claude` en una Terminal con ella. Orbix no toca ningún token
-de Claude Code: cada login lo gestiona el propio Claude Code en su perfil.
-
-Las dos APIs devuelven el mismo JSON (`five_hour`, `seven_day`, `seven_day_opus`, `seven_day_sonnet`,
-`limits[]`, `extra_usage`), así que se decodifica con un solo modelo (`Models/Usage.swift`).
-
-Orbix **nunca renueva** el token de Claude Code: renovarlo rota el refresh token y cerraría la sesión de
-`claude`. Si caduca, basta con abrir `claude` en la terminal.
-
-## Estructura
+<details>
+<summary><b>Estructura del proyecto</b></summary>
 
 ```
 Sources/Orbix/
-  OrbixApp.swift                 MenuBarExtra + ventana de Ajustes
-  UsageStore.swift               Estado, temporizador y elección de credencial
-  Models/Usage.swift             JSON de la API → UsageSnapshot
-  Services/ClaudeCodeCredentials Lee el token de Claude Code (solo lectura)
-  Services/ClaudeCLIUsage.swift  Ejecuta `claude /usage` y lo interpreta
-  Services/ClaudeAPI.swift       Clientes OAuth y web
-  Services/LocalSessionScanner  Tokens por día y modelo desde las sesiones locales
+  main.swift, AppDelegate.swift  Arranque, icono de la barra de menús y panel
+  UsageStore.swift               Estado, temporizador y elección de la fuente de datos
+  Models/Usage.swift             Límites, extras y modelos de datos
+  Services/ClaudeCLIUsage.swift  Ejecuta `claude /usage` e interpreta su salida
+  Services/ClaudeAPI.swift       Clientes de la API de uso y de claude.ai
+  Services/LocalSessionScanner   Tokens y coste por día y modelo desde las sesiones locales
   Services/APIPricing.swift      Precios de lista de la API por modelo
-  Services/ChromeSession.swift   Lee la cookie sessionKey de claude.ai en Chrome
-  Services/AppUpdater.swift      Actualizaciones con Sparkle
-  Services/Profiles/             Perfiles de Claude Code, tokens y la función de terminal
-  Services/SecretStore.swift     Guarda la credencial manual en el Llavero
-  Views/Theme.swift              Tokens de color y tipografía (claro/oscuro)
-  Views/Components.swift         Tarjeta, pastilla, medidor, chip, aviso
-  Views/OrbixMark.swift          Logo e icono de la barra de menús
-  Views/                         Panel, tarjetas y ajustes dentro del panel
+  Services/ChromeSession.swift   Sesión de claude.ai desde navegadores Chromium
+  Services/Profiles/             Perfiles, tokens de larga duración y función de terminal
+  Services/AppUpdater.swift      Actualizaciones automáticas (Sparkle)
+  Services/AppMover.swift        Ofrece mover la app a Aplicaciones
+  Services/LoginItem.swift       Abrir al iniciar sesión (ítems de inicio de macOS)
+  Views/                         Panel, tarjetas, ajustes, tema y logotipo
 Scripts/
-  build-app.sh                   Empaqueta y firma Orbix.app (universal, con Sparkle)
-  release.sh                     Publica una versión en GitHub Releases con su appcast
-  setup-sparkle.sh               Descarga las herramientas de Sparkle
-  make-dmg.sh                    Instalador .dmg (fondo de Tools/dmgbackground, dmgbuild), firmado y notarizado
-  make-icon.sh                   Genera Resources/AppIcon.icns desde Resources/icon/AppIcon.png
-  generate-icon.sh               Propuestas de icono con GPT Image 2.5 (OPENAI_API_KEY)
+  build-app.sh                   Empaqueta y firma Orbix.app
+  make-dmg.sh                    Instalador .dmg firmado y notarizado
+  release.sh                     Publica una versión en GitHub Releases
+  make-icon.sh                   Genera AppIcon.icns
+site/                            Web del proyecto (Astro)
 ```
+
+</details>
+
+### Publicar una versión
+
+```bash
+./Scripts/release.sh 0.3.0 "Qué cambia en esta versión"
+```
+
+El script compila la versión universal, la firma con Developer ID, la **notariza** y adjunta el ticket. Después
+crea el `.zip` para las actualizaciones con su firma EdDSA, genera el `appcast.xml` y crea el instalador `.dmg`,
+también firmado y notarizado. Por último etiqueta la versión y publica el release en GitHub.
+
+<details>
+<summary><b>Requisitos para publicar</b></summary>
+
+- Un certificado **Developer ID Application** en el Llavero.
+- Un perfil de `notarytool`:
+  `xcrun notarytool store-credentials orbix-notary --apple-id <email> --team-id <TEAM_ID>`
+- La clave privada EdDSA de las actualizaciones en el Llavero (cuenta `orbix`). La pública está en
+  `SUPublicEDKey` de `Scripts/build-app.sh`. **No la regeneres:** las copias instaladas solo aceptan
+  actualizaciones firmadas con ella.
+
+</details>
+
+## 📄 Avisos
+
+Orbix es un proyecto independiente y **no está afiliado a Anthropic**. Claude y Claude Code son marcas de
+Anthropic. Las licencias de terceros están en [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+
+<div align="center">
+<br>
+Hecho por <a href="https://github.com/elrincondeisma">Ismael Catala</a>
+</div>
