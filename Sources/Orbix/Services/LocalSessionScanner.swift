@@ -28,6 +28,8 @@ struct LocalActivity: Sendable {
     var sessionWindowStart: Date
     /// Responses whose model has no known price, so the costs above leave them out.
     var unpricedResponses = 0
+    /// False when there is no 5-hour window to follow and `sessionWindowStart` is just 5 hours ago.
+    var isSessionWindow = true
 
     var today: Day? { days.last }
     var week: (tokens: Int, output: Int, messages: Int, sessions: Int) {
@@ -113,7 +115,8 @@ actor LocalSessionScanner {
             .sorted { $0.tokens > $1.tokens }
         return LocalActivity(days: byDay.values.sorted { $0.date < $1.date }, modelsLast7: sortedModels,
                              cost30Days: cost30, costSessionWindow: costWindow,
-                             sessionWindowStart: windowStart, unpricedResponses: unpriced)
+                             sessionWindowStart: windowStart, unpricedResponses: unpriced,
+                             isSessionWindow: sessionStart != nil)
     }
 
     private func recentFiles(since: Date) -> [URL] {

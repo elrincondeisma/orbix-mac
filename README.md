@@ -38,7 +38,7 @@ si lo pagaras por API. Todo desde un icono en la barra de menús, sin abrir la t
 
 | | Función | Detalle |
 |:-:|---|---|
-| ⏱️ | **Sesión de 5 horas** | Porcentaje libre, hora de reinicio y un aro que pasa a ámbar al 70 % y a rojo al 90 %. |
+| ⏱️ | **Sesión de 5 horas** | Porcentaje libre, hora de reinicio y un aro que pasa a ámbar al 70 % y a rojo al 90 %. En cuentas sin este límite, como Ultra, sigue el semanal. |
 | 📅 | **Límites semanales** | El general y los de cada modelo, con su día y hora de reinicio. |
 | 🔁 | **Varias cuentas** | Perfiles de Claude Code con login o token de larga duración. Un interruptor elige cuál usa `claude`. |
 | 🎁 | **Extra sin usar** | Reinicios gratis guardados, saldo prepago y uso extra del mes, leídos de claude.ai. |

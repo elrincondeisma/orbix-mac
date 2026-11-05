@@ -68,7 +68,7 @@ enum ClaudeCLIUsage {
         if session == nil, weekly == nil, output.contains("Total cost:") {
             throw CLIError.noLimitsForToken
         }
-        guard session != nil || weekly != nil else {
+        guard session != nil || weekly != nil || !models.isEmpty else {
             throw CLIError.unparseable(output.trimmingCharacters(in: .whitespacesAndNewlines))
         }
         return UsageSnapshot(session: session, weekly: weekly, models: models, source: "claude /usage")

@@ -15,7 +15,7 @@ struct APICostCard: View {
                     Text("precios de lista").font(Brand.sans(10.5)).foregroundStyle(t.muted)
                 }
                 HStack(alignment: .top) {
-                    amount("Sesión actual", activity.costSessionWindow,
+                    amount(activity.isSessionWindow ? "Sesión actual" : "Últimas 5 h", activity.costSessionWindow,
                            detail: "desde las \(activity.sessionWindowStart.formatted(date: .omitted, time: .shortened))")
                     Spacer()
                     amount("Últimos 30 días", activity.cost30Days, detail: "solo este Mac")

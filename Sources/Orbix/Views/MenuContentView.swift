@@ -44,7 +44,7 @@ struct MenuContentView: View {
                 if let error = store.errorMessage {
                     Banner(text: error, color: t.warm, background: t.warmSoft)
                 }
-                if let snapshot = store.snapshot, snapshot.weekly != nil || !snapshot.models.isEmpty {
+                if let snapshot = store.snapshot, !snapshot.limitRows.isEmpty {
                     LimitsCard(snapshot: snapshot, theme: t)
                 }
                 if ProfileManager.shared.hasExtraProfiles {
@@ -116,8 +116,10 @@ struct MenuContentView: View {
     private var pill: (text: String, color: Color, background: Color) {
         if store.isLoading && store.snapshot == nil { return ("···", t.warm, t.warmSoft) }
         if store.errorMessage != nil { return (store.snapshot == nil ? "ERROR" : "ANTIGUO", t.warm, t.warmSoft) }
-        guard let session = store.snapshot?.session else { return ("···", t.muted, t.track) }
-        if session.percent >= 90 { return ("LÍMITE", t.danger, t.dangerSoft) }
+        guard let bar = store.snapshot?.primaryBar else {
+            return (store.snapshot == nil ? "···" : "N/D", t.muted, t.track)
+        }
+        if bar.percent >= 90 { return ("LÍMITE", t.danger, t.dangerSoft) }
         return ("OK", t.accent, t.accentSoft)
     }
 
@@ -157,7 +159,8 @@ struct SessionHero: View {
     let theme: Theme
     private var t: Theme { theme }
 
-    private var session: UsageBar? { store.snapshot?.session }
+    private var session: UsageBar? { store.snapshot?.primaryBar }
+    private var noSessionLimit: Bool { store.snapshot?.noSessionLimit == true }
     private var tint: Color { session.map { t.level($0.percent) } ?? t.muted }
 
     var body: some View {
@@ -203,12 +206,22 @@ struct SessionHero: View {
     }
 
     private var title: String {
-        guard let session else { return store.isLoading ? "Consultando…" : "Sin datos" }
-        return "\(Int((100 - session.percent).rounded())) % libre"
+        guard let session else {
+            if store.isLoading { return "Consultando…" }
+            return store.snapshot?.noLimitsReported == true ? "Límites no disponibles" : "Sin datos"
+        }
+        return "\(Int((100 - session.percent).rounded())) % libre\(noSessionLimit ? " esta semana" : "")"
     }
 
     private var detail: String {
-        guard let session else { return "Preguntando a Claude Code por tus límites." }
+        guard let session else {
+            return store.snapshot?.noLimitsReported == true
+                ? "Claude no informa de límites para esta cuenta."
+                : "Preguntando a Claude Code por tus límites."
+        }
+        if noSessionLimit {
+            return session.resetsAt.map { "Sin límite de 5 h · se reinicia \(ResetText.describe($0))" } ?? "Sin límite de 5 h"
+        }
         guard let reset = session.resetsAt else { return "Sesión de 5 horas" }
         return "Sesión de 5 h · se reinicia \(ResetText.describe(reset))"
     }
@@ -224,7 +237,7 @@ struct LimitsCard: View {
         Card(theme: theme) {
             VStack(alignment: .leading, spacing: 10) {
                 Eyebrow(text: "Límites semanales", theme: theme)
-                ForEach(Array(([snapshot.weekly].compactMap { $0 } + snapshot.models).enumerated()), id: \.element.id) { index, bar in
+                ForEach(Array(snapshot.limitRows.enumerated()), id: \.element.id) { index, bar in
                     if index > 0 { Hairline(theme: theme) }
                     LimitRow(bar: bar, theme: theme)
                 }

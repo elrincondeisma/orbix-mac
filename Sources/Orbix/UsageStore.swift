@@ -83,7 +83,7 @@ final class UsageStore {
 
     /// Session percentage shown next to the menu bar icon.
     var headlinePercent: Int? {
-        (snapshot?.session ?? snapshot?.weekly).map { Int($0.percent.rounded()) }
+        snapshot?.primaryBar.map { Int($0.percent.rounded()) }
     }
 
     func refreshNow() {
@@ -95,11 +95,14 @@ final class UsageStore {
         isLoading = true
         defer { isLoading = false }
         do {
-            snapshot = try await fetch()
+            let fresh = try await fetch()
+            snapshot = fresh
             errorMessage = nil
+            DiagnosticLog.write("usage: ok via \(fresh.source), session \(fresh.session != nil), weekly \(fresh.weekly != nil)")
         } catch {
             // The last good snapshot stays visible; only the error line changes.
             errorMessage = error.localizedDescription
+            DiagnosticLog.write("usage: error \(error.localizedDescription)")
         }
         // Local logs need no credentials, so they show up even when the quota fetch fails.
         // The 5-hour window started 5 hours before its reset time.
@@ -204,7 +207,7 @@ final class UsageStore {
         async let usage = ClaudeOAuthAPI.usage(token: token)
         async let profile = ClaudeOAuthAPI.profile(token: token)
         let (u, p) = try await (usage, profile)
-        return UsageSnapshot(response: u, account: p.email, plan: plan ?? p.plan, source: source)
+        return UsageSnapshot(response: u, account: p.email, plan: p.plan ?? plan, source: source)
     }
 
     private func scheduleTimer() {

@@ -15,7 +15,7 @@ struct CompactPanel: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
                 if let snapshot = store.snapshot {
-                    let bars = [snapshot.weekly].compactMap { $0 } + snapshot.models
+                    let bars = snapshot.limitRows
                     if !bars.isEmpty { Hairline(theme: t) }
                     ForEach(bars) { CompactLimitRow(bar: $0, theme: t) }
                 }
@@ -37,7 +37,8 @@ struct CompactPanel: View {
     }
 
     private var session: some View {
-        let bar = store.snapshot?.session
+        let bar = store.snapshot?.primaryBar
+        let noSessionLimit = store.snapshot?.noSessionLimit == true
         let tint = bar.map { t.level($0.percent) } ?? t.muted
         return HStack(spacing: 12) {
             ZStack {
@@ -56,13 +57,21 @@ struct CompactPanel: View {
             .animation(.easeInOut(duration: 0.4), value: bar?.percent)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text(bar.map { "\(Int((100 - $0.percent).rounded())) % libre" } ?? (store.isLoading ? "Consultando…" : "Sin datos"))
+                Text(bar.map { "\(Int((100 - $0.percent).rounded())) % libre\(noSessionLimit ? " esta semana" : "")" }
+                     ?? (store.isLoading ? "Consultando…" : store.snapshot?.noLimitsReported == true ? "Límites no disponibles" : "Sin datos"))
                     .font(.system(size: 15, weight: .semibold))
-                Text(bar?.resetsAt.map { "Sesión de 5 h · reinicia \($0.formatted(date: .omitted, time: .shortened))" } ?? "Sesión de 5 h")
+                Text(store.snapshot?.noLimitsReported == true ? "Claude no informa de límites"
+                     : noSessionLimit ? weeklyDetail(bar)
+                     : bar?.resetsAt.map { "Sesión de 5 h · reinicia \($0.formatted(date: .omitted, time: .shortened))" } ?? "Sesión de 5 h")
                     .font(Brand.sans(10.5)).foregroundStyle(t.secondary)
             }
             Spacer(minLength: 0)
         }
+    }
+
+    private func weeklyDetail(_ bar: UsageBar?) -> String {
+        guard let reset = bar?.resetsAt else { return "Sin límite de 5 h" }
+        return "Sin límite de 5 h · reinicia \(reset.formatted(.dateTime.weekday(.abbreviated).hour().minute()))"
     }
 }
 

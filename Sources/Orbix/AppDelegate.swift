@@ -69,7 +69,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func updateStatusItem() {
         withObservationTracking {
             guard let button = statusItem.button else { return }
-            button.image = OrbixMark.statusImage(percent: store.snapshot?.session?.percent, dot: dot)
+            button.image = OrbixMark.statusImage(percent: store.snapshot?.primaryBar?.percent, dot: dot)
             button.title = store.headlinePercent.map { " \($0)%" } ?? ""
         } onChange: { [weak self] in
             Task { @MainActor in self?.updateStatusItem() }
@@ -79,7 +79,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var dot: OrbixMark.Dot {
         if store.isLoading && store.snapshot == nil { return .busy }
         if store.errorMessage != nil { return .error }
-        if let pct = store.snapshot?.session?.percent, pct >= 90 { return .error }
+        if let pct = store.snapshot?.primaryBar?.percent, pct >= 90 { return .error }
         return store.snapshot == nil ? .none : .ok
     }
 }

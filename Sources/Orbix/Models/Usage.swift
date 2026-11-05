@@ -128,6 +128,23 @@ struct UsageSnapshot: Sendable {
         fetchedAt = Date()
     }
 
+    /// The bar the gauge and the menu bar icon follow. Accounts without a 5-hour limit
+    /// (verified Ultra) report no session at all, so the tightest weekly limit takes its place.
+    var primaryBar: UsageBar? {
+        session ?? weekly ?? models.max { $0.percent < $1.percent }
+    }
+
+    /// Weekly rows below the gauge, leaving out the one the gauge already shows.
+    var limitRows: [UsageBar] {
+        ([weekly].compactMap { $0 } + models).filter { $0.id != primaryBar?.id }
+    }
+
+    /// The gauge is showing a weekly limit because the account has no 5-hour session.
+    var noSessionLimit: Bool { session == nil && primaryBar != nil }
+
+    /// A successful read with no limit at all, as Free accounts get. Never shown as 0 %.
+    var noLimitsReported: Bool { primaryBar == nil }
+
     private static func bar(_ id: String, _ title: String, _ w: UsageWindow?) -> UsageBar? {
         guard let w, let pct = w.utilization else { return nil }
         return UsageBar(id: id, title: title, percent: pct, resetsAt: ISO8601.parse(w.resetsAt))

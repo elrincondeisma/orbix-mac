@@ -36,7 +36,9 @@ enum ClaudeOAuthAPI {
         let account = json["account"] as? [String: Any]
         let org = json["organization"] as? [String: Any]
         let email = account?["email_address"] as? String ?? account?["email"] as? String
-        var plan: String?
+        // The name Anthropic shows: `has_claude_max` is also true on Ultra.
+        var plan = (org?["plan_display_name"] as? String).flatMap { $0.isEmpty ? nil : $0 }
+        if plan != nil { return (email, plan) }
         if account?["has_claude_max"] as? Bool == true { plan = "Max" }
         else if account?["has_claude_pro"] as? Bool == true { plan = "Pro" }
         else if let type = org?["organization_type"] as? String { plan = PlanName.from(type) }
