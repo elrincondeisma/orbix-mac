@@ -69,7 +69,8 @@ final class ProfileManager {
 
     // MARK: - Active profile
 
-    func activate(_ profile: Profile) {
+    /// - Parameter noteOpenAgents: also say how many `claude` open in herdr stay on their account.
+    func activate(_ profile: Profile, noteOpenAgents: Bool = true) {
         guard profile.slug != activeSlug else { return }
         do {
             try FileManager.default.createDirectory(at: ProfilePaths.orbixConfig, withIntermediateDirectories: true)
@@ -79,8 +80,19 @@ final class ProfileManager {
             message = shellInstalled
                 ? "Los `claude` que abras ahora usan \(profile.name)."
                 : "Activo: \(profile.name). Activa la integración con la terminal en Ajustes para que `claude` lo use."
+            UsageStore.shared.activeProfileChanged()
+            if noteOpenAgents, shellInstalled { noteAgentsStillOpen(after: profile) }
         } catch {
             message = "No se pudo cambiar el perfil: \(error.localizedDescription)"
+        }
+    }
+
+    private func noteAgentsStillOpen(after profile: Profile) {
+        Task {
+            let count = await Task.detached { Herdr.claudeAgentCount() }.value
+            guard count > 0, activeSlug == profile.slug else { return }
+            let open = count == 1 ? "El `claude` abierto en herdr sigue" : "Los \(count) `claude` abiertos en herdr siguen"
+            message = "Los `claude` nuevos usan \(profile.name). \(open) con su cuenta hasta que lo\(count == 1 ? "" : "s") reinicies."
         }
     }
 
@@ -117,7 +129,7 @@ final class ProfileManager {
             newName = ""; newToken = ""; newShareHistory = false
             if profile.kind == .login {
                 message = "Perfil «\(slug)» creado. En la Terminal que se abre, escribe /login y entra con la otra cuenta."
-                openClaude(in: profile)
+                openInTerminal(profile)
             } else {
                 message = "Perfil «\(slug)» creado con su token."
             }
@@ -132,7 +144,7 @@ final class ProfileManager {
     /// (it holds that account's history and Claude Code's own login), so nothing is lost by accident.
     func remove(_ profile: Profile) {
         guard !profile.isMain else { return }
-        if profile.slug == activeSlug { activate(.main) }
+        if profile.slug == activeSlug { activate(.main, noteOpenAgents: false) }
         if profile.kind == .token { ProfileTokens.delete(profile.slug) }
         try? save(profiles.filter { !$0.isMain && $0.slug != profile.slug })
         // Without Orbix's list the folder would still be picked by the shell function; rename it aside.
@@ -198,9 +210,24 @@ final class ProfileManager {
 
     // MARK: - Terminal and shell
 
+    /// Opens `claude` as this profile in herdr when it is running, otherwise in Terminal.
+    /// herdr needs the shell integration: its panes only know `--perfil` through the zsh function.
+    func openClaude(in profile: Profile) {
+        guard shellInstalled else { openInTerminal(profile); return }
+        let slug = profile.slug, label = "claude · \(profile.name)"
+        Task {
+            let opened = await Task.detached { Herdr.openClaude(profileSlug: slug, label: label) }.value
+            if opened {
+                message = "Abierto en herdr con \(profile.name)."
+            } else {
+                openInTerminal(profile)
+            }
+        }
+    }
+
     /// Opens a new Terminal window running `claude` as this profile, via a `.command` file
     /// (no Automation permission needed, unlike scripting Terminal).
-    func openClaude(in profile: Profile) {
+    private func openInTerminal(_ profile: Profile) {
         guard let claude = ClaudeCLIUsage.claudePath() else {
             message = "No se encontró el comando `claude`."
             return

@@ -68,6 +68,8 @@ final class UsageStore {
     }
 
     private var timer: Timer?
+    /// A refresh arrived while another was running for the previous profile.
+    private var refreshAgain = false
 
     init() {
         let defaults = UserDefaults.standard
@@ -90,10 +92,23 @@ final class UsageStore {
         Task { await refresh() }
     }
 
+    /// The figures on screen belong to the previous account: drop them and read the new one.
+    func activeProfileChanged() {
+        snapshot = nil
+        errorMessage = nil
+        if isLoading { refreshAgain = true } else { refreshNow() }
+    }
+
     func refresh() async {
         guard !isLoading else { return }
         isLoading = true
-        defer { isLoading = false }
+        defer {
+            isLoading = false
+            if refreshAgain {
+                refreshAgain = false
+                refreshNow()
+            }
+        }
         do {
             let fresh = try await fetch()
             snapshot = fresh

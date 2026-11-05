@@ -40,7 +40,7 @@ si lo pagaras por API. Todo desde un icono en la barra de menús, sin abrir la t
 |:-:|---|---|
 | ⏱️ | **Sesión de 5 horas** | Porcentaje libre, hora de reinicio y un aro que pasa a ámbar al 70 % y a rojo al 90 %. En cuentas sin este límite, como Ultra, sigue el semanal. |
 | 📅 | **Límites semanales** | El general y los de cada modelo, con su día y hora de reinicio. |
-| 🔁 | **Varias cuentas** | Perfiles de Claude Code con login o token de larga duración. Un interruptor elige cuál usa `claude`. |
+| 🔁 | **Varias cuentas** | Perfiles de Claude Code con login o token de larga duración. Un interruptor elige cuál usa `claude`, y funciona también en [herdr](https://herdr.dev). |
 | 🎁 | **Extra sin usar** | Reinicios gratis guardados, saldo prepago y uso extra del mes, leídos de claude.ai. |
 | 💸 | **Coste equivalente en API** | La sesión actual y los últimos 30 días a precio de lista, a partir de tus sesiones locales. |
 | 📊 | **Actividad** | Tokens por día, respuestas, sesiones y modelos más usados en Claude Code. |
@@ -97,7 +97,10 @@ cuenta principal.
 - **Crear un perfil:** *Ajustes → Perfiles de Claude Code → Nuevo perfil*. Si es de tipo **login**, se abre una
   Terminal donde haces `/login` una vez. Si es un **token de larga duración** (`claude setup-token`), lo pegas y
   se guarda en tu Llavero.
-- **Elegir cuenta:** enciende su interruptor en el panel. Los próximos `claude` que abras entran con ella.
+- **Elegir cuenta:** enciende su interruptor en el panel. Los próximos `claude` que abras entran con ella, también
+  en los panes de [herdr](https://herdr.dev). Los que ya estén abiertos siguen con su cuenta hasta que los reinicies.
+- **Abrir `claude` con una cuenta:** el botón de terminal de cada perfil abre una pestaña en herdr si lo tienes
+  abierto y la integración activada; si no, una ventana de Terminal.
 - **Desde la terminal**, tras pulsar *Activar* en Ajustes (añade una línea a `~/.zshrc`):
 
 ```bash
