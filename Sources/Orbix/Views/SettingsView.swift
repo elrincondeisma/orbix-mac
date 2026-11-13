@@ -1,78 +1,69 @@
 import SwiftUI
 
-/// Settings shown inside the panel (the gear swaps them in, as in ModelNap).
-/// Only brand controls: native popups and buttons look out of place on the themed cards.
+/// One tab of the Settings window. Only brand controls: native popups and buttons look out
+/// of place on the themed cards.
 struct SettingsView: View {
     @Environment(UsageStore.self) private var store
     let theme: Theme
     private var t: Theme { theme }
 
+    var tab: SettingsTab = .general
+
     var body: some View {
         @Bindable var store = store
 
-        VStack(alignment: .leading, spacing: 10) {
-            loginSection
-
-            section("Vista") {
-                SegmentedChoice(options: [(PanelMode.compact, "Compacta"), (.full, "Completa")],
-                                selection: $store.panelMode, theme: t)
-                note(store.panelMode == .compact
-                     ? "Solo la sesión y los límites semanales. El botón del pie cambia a la completa."
-                     : "Añade extras de claude.ai, coste en API, actividad y modelos de Claude Code.")
-            }
-
-            profilesSection
-
-            section("Origen de los datos") {
-                SegmentedChoice(options: [(.auto, "Auto"), (.claudeCode, "Token"), (.cli, "CLI"), (.manual, "Manual")],
-                                selection: $store.source, theme: t)
-                note(sourceNote)
-            }
-
-            section("Extras de claude.ai") {
-                HStack(alignment: .top, spacing: 10) {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Leer la sesión del navegador").font(Brand.sans(12, .medium))
-                        note("Arc, Chrome, Brave, Edge o Vivaldi. Para ver reinicios gratis, saldo prepago y uso extra. macOS pedirá permiso para la clave del navegador: elige Permitir siempre.")
-                    }
-                    Spacer()
-                    BrandSwitch(isOn: $store.chromeSessionEnabled, theme: t)
+        VStack(alignment: .leading, spacing: 12) {
+            switch tab {
+            case .general:
+                loginSection
+                section("Vista del panel") {
+                    SegmentedChoice(options: [(PanelMode.compact, "Compacta"), (.full, "Completa")],
+                                    selection: $store.panelMode, theme: t)
+                    note(store.panelMode == .compact
+                         ? "Solo la sesión y los límites semanales. El botón del pie cambia a la completa."
+                         : "Añade extras de claude.ai, coste en API, actividad y modelos de Claude Code.")
                 }
-            }
-
-            section("Credencial manual") {
-                ZStack(alignment: .leading) {
-                    if store.manualCredential.isEmpty {
-                        Text("sessionKey o token sk-ant-oat…")
-                            .font(Brand.sans(11.5))
-                            .foregroundStyle(t.muted)
-                    }
-                    SecureField("", text: $store.manualCredential)
-                        .textFieldStyle(.plain)
-                        .font(Brand.mono(11.5))
+                section("Actualizar los datos cada") {
+                    SegmentedChoice(options: [1, 2, 5, 10, 15, 30].map { ($0, "\($0) min") },
+                                    selection: $store.interval, theme: t)
                 }
-                .padding(.horizontal, 9).padding(.vertical, 7)
-                .background(RoundedRectangle(cornerRadius: 7).fill(t.bg))
-                .overlay(RoundedRectangle(cornerRadius: 7).strokeBorder(t.line))
-                note("Opcional. Una `sessionKey` pegada aquí sustituye a la del navegador. Se guarda en tu Llavero.")
-            }
+                updatesSection
 
-            section("Actualizar cada") {
-                SegmentedChoice(options: [1, 2, 5, 10, 15, 30].map { ($0, "\($0) min") },
-                                selection: $store.interval, theme: t)
-            }
+            case .accounts:
+                profilesSection
 
-            updatesSection
-            aboutSection
+            case .data:
+                section("Origen de los datos") {
+                    SegmentedChoice(options: [(.auto, "Auto"), (.claudeCode, "Token"), (.cli, "CLI"), (.manual, "Manual")],
+                                    selection: $store.source, theme: t)
+                    note(sourceNote)
+                    Hairline(theme: t)
+                    HStack(spacing: 6) {
+                        Circle().fill(store.errorMessage == nil ? t.accent : t.warm).frame(width: 6, height: 6)
+                        Text(store.errorMessage ?? "Conectado vía \(store.snapshot?.source ?? "—")")
+                            .font(Brand.sans(11)).foregroundStyle(t.secondary).lineLimit(2)
+                        Spacer()
+                        SoftButton(title: "Probar", symbol: "arrow.clockwise", theme: t) { store.refreshNow() }
+                    }
+                }
+                section("Extras de claude.ai") {
+                    HStack(alignment: .top, spacing: 10) {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Leer la sesión del navegador").font(Brand.sans(12, .medium))
+                            note("Arc, Chrome, Brave, Edge o Vivaldi. Para ver reinicios gratis, saldo prepago y uso extra. macOS pedirá permiso para la clave del navegador: elige Permitir siempre.")
+                        }
+                        Spacer()
+                        BrandSwitch(isOn: $store.chromeSessionEnabled, theme: t)
+                    }
+                }
+                section("Credencial manual") {
+                    field("sessionKey o token sk-ant-oat…", text: $store.manualCredential, secure: true)
+                    note("Opcional. Una `sessionKey` pegada aquí sustituye a la del navegador. Se guarda en tu Llavero.")
+                }
 
-            HStack(spacing: 6) {
-                Circle().fill(store.errorMessage == nil ? t.accent : t.warm).frame(width: 6, height: 6)
-                Text(store.errorMessage ?? "Conectado vía \(store.snapshot?.source ?? "—")")
-                    .font(Brand.sans(10.5)).foregroundStyle(t.secondary).lineLimit(2)
-                Spacer()
-                SoftButton(title: "Probar", symbol: "arrow.clockwise", theme: t) { store.refreshNow() }
+            case .about:
+                aboutSection
             }
-            .padding(.horizontal, 2)
         }
     }
 
@@ -197,9 +188,27 @@ struct SettingsView: View {
     }
 
     private var aboutSection: some View {
-        section("Acerca de") {
-            credit(symbol: "person.fill", title: "Creado por Ismael Catala",
-                   detail: "github.com/elrincondeisma", url: "https://github.com/elrincondeisma")
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(spacing: 16) {
+                Image(nsImage: NSApp.applicationIconImage)
+                    .resizable()
+                    .frame(width: 72, height: 72)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Orbix").font(.system(size: 22, weight: .semibold))
+                    Text("Versión \(AppUpdater.shared.version)").font(Brand.mono(11.5)).foregroundStyle(t.secondary)
+                    Text("Tu límite de Claude, siempre a la vista en la barra de menús.")
+                        .font(Brand.sans(11.5)).foregroundStyle(t.muted)
+                }
+            }
+            .padding(.bottom, 4)
+            section("Proyecto") {
+                credit(symbol: "person.fill", title: "Creado por Ismael Catala",
+                       detail: "github.com/elrincondeisma", url: "https://github.com/elrincondeisma")
+                Hairline(theme: t)
+                credit(symbol: "chevron.left.forwardslash.chevron.right", title: "Código y versiones",
+                       detail: "github.com/elrincondeisma/orbix-mac", url: "https://github.com/elrincondeisma/orbix-mac")
+            }
+            note("Orbix no está afiliado a Anthropic. Claude es una marca de Anthropic.")
         }
     }
 
@@ -247,5 +256,28 @@ struct SettingsView: View {
     private func note(_ text: String) -> some View {
         Text(.init(text)).font(Brand.sans(10.5)).foregroundStyle(t.muted)
             .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+enum SettingsTab: String, CaseIterable, Identifiable {
+    case general, accounts, data, about
+    var id: String { rawValue }
+
+    var title: String {
+        switch self {
+        case .general: "General"
+        case .accounts: "Cuentas"
+        case .data: "Datos"
+        case .about: "Acerca de"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .general: "gearshape"
+        case .accounts: "person.2"
+        case .data: "antenna.radiowaves.left.and.right"
+        case .about: "info.circle"
+        }
     }
 }

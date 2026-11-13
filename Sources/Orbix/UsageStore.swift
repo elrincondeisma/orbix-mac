@@ -28,7 +28,10 @@ final class UsageStore {
     private(set) var errorMessage: String?
     private(set) var isLoading = false
     /// Panel UI state; lives here because `@State` is unavailable without full Xcode.
-    var showingSettings = false
+    /// Tab shown in the Settings window.
+    var settingsTab: SettingsTab = .general
+    /// Set by the app delegate: closes the panel and opens the Settings window.
+    @ObservationIgnored var openSettings: (() -> Void)?
     /// Measured height of the panel body, so the popover fits it (up to the screen) and scrolls beyond.
     var panelBodyHeight: CGFloat = 400
 

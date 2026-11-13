@@ -13,6 +13,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         installEditMenu()
+        store.openSettings = { [weak self] in self?.showSettings() }
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         if let button = statusItem.button {
             button.target = self
@@ -46,10 +47,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         edit.addItem(withTitle: "Seleccionar todo", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
         let editItem = NSMenuItem(title: "Edición", action: nil, keyEquivalent: "")
         editItem.submenu = edit
+        // ⌘, opens the Settings window, as in any Mac app.
+        let appMenu = NSMenu(title: "Orbix")
+        let settingsItem = NSMenuItem(title: "Ajustes…", action: #selector(showSettings), keyEquivalent: ",")
+        settingsItem.target = self
+        appMenu.addItem(settingsItem)
+        let appItem = NSMenuItem(title: "Orbix", action: nil, keyEquivalent: "")
+        appItem.submenu = appMenu
         let main = NSMenu()
-        main.addItem(NSMenuItem(title: "Orbix", action: nil, keyEquivalent: ""))
+        main.addItem(appItem)
         main.addItem(editItem)
         NSApp.mainMenu = main
+    }
+
+    @objc private func showSettings() {
+        popover.performClose(nil)
+        SettingsWindow.show()
     }
 
     @objc private func togglePopover() {
@@ -57,7 +70,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if popover.isShown {
             popover.performClose(nil)
         } else {
-            store.showingSettings = false
             ProfileManager.shared.reload()
             LoginItem.shared.refresh()
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)

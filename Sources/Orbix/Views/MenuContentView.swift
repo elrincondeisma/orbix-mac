@@ -26,9 +26,7 @@ struct MenuContentView: View {
 
     @ViewBuilder
     private var panelBody: some View {
-        if store.showingSettings {
-            SettingsView(theme: t).padding(14)
-        } else if store.panelMode == .compact {
+        if store.panelMode == .compact {
             VStack(spacing: 8) {
                 if LoginItem.shared.shouldOffer { LoginOffer(theme: t) }
                 CompactPanel(store: store, theme: t)
@@ -72,19 +70,11 @@ struct MenuContentView: View {
 
     private var header: some View {
         HStack(spacing: 9) {
-            Group {
-                if store.showingSettings {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundStyle(t.accent)
-                } else {
-                    Image(nsImage: OrbixMark.logoImage(points: 22, color: NSColor(pill.color)))
-                }
-            }
-            .frame(width: 22, height: 22)
+            Image(nsImage: OrbixMark.logoImage(points: 22, color: NSColor(pill.color)))
+                .frame(width: 22, height: 22)
 
             VStack(alignment: .leading, spacing: 0) {
-                Text(store.showingSettings ? "Ajustes" : "Orbix")
+                Text("Orbix")
                     .font(Brand.sans(14, .semibold))
                 Text(subtitle)
                     .font(Brand.mono(10))
@@ -92,13 +82,9 @@ struct MenuContentView: View {
                     .lineLimit(1)
             }
             Spacer()
-            if !store.showingSettings {
-                StatePill(text: pill.text, color: pill.color, background: pill.background)
-            }
-            IconButton(symbol: store.showingSettings ? "xmark" : "gearshape", theme: t,
-                       active: store.showingSettings,
-                       help: store.showingSettings ? "Cerrar ajustes" : "Ajustes") {
-                store.showingSettings.toggle()
+            StatePill(text: pill.text, color: pill.color, background: pill.background)
+            IconButton(symbol: "gearshape", theme: t, help: "Ajustes (⌘,)") {
+                store.openSettings?()
             }
         }
         .padding(.horizontal, 14)
@@ -106,7 +92,6 @@ struct MenuContentView: View {
     }
 
     private var subtitle: String {
-        if store.showingSettings { return "Claude · \(store.source.label.lowercased())" }
         let profile = ProfileManager.shared.active
         let parts = [profile.isMain ? nil : "perfil \(profile.slug)", store.snapshot?.plan, store.snapshot?.account,
                      store.snapshot?.source].compactMap { $0 }
@@ -136,11 +121,9 @@ struct MenuContentView: View {
                 }
             }
             Spacer()
-            if !store.showingSettings {
-                IconButton(symbol: store.panelMode == .compact ? "rectangle.expand.vertical" : "rectangle.compress.vertical",
-                           theme: t, help: store.panelMode == .compact ? "Vista completa" : "Vista compacta") {
-                    store.panelMode = store.panelMode == .compact ? .full : .compact
-                }
+            IconButton(symbol: store.panelMode == .compact ? "rectangle.expand.vertical" : "rectangle.compress.vertical",
+                       theme: t, help: store.panelMode == .compact ? "Vista completa" : "Vista compacta") {
+                store.panelMode = store.panelMode == .compact ? .full : .compact
             }
             IconButton(symbol: "arrow.clockwise", theme: t, help: "Actualizar") { store.refreshNow() }
                 .disabled(store.isLoading)
