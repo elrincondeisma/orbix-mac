@@ -257,6 +257,15 @@ const sections = [
   }
   @media (max-width: 54rem) {
     .menubar__nav { display: none; }
+    /* On small screens the page passes close under the bar, so it is nearly opaque. */
+    .menubar { background: var(--menubar-solid); }
+  }
+  @media (pointer: coarse), (max-width: 54rem) {
+    .menubar__nav a, .menubar__item { height: 2.25rem; padding-inline: 0.7rem; }
+    .menubar__brand { min-height: 2.25rem; }
+    .menubar__download { padding: 0.45rem 0.9rem; }
+    .menubar__input-badge { height: 1.25rem; min-width: 1.9rem; font-size: 0.6875rem; }
+    .menu a { padding-block: 0.6rem; }
   }
   @media (max-width: 30rem) {
     .menubar__clock { display: none; }

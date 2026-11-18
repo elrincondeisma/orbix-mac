@@ -88,6 +88,7 @@ const regions = dict.tour.regions.map((region, index) => ({ ...region, ...boxes[
     align-content: start;
   }
   .tour__list li {
+    position: relative;
     padding: 0.9rem 0 1rem;
     border-top: 1px solid var(--line);
     transition: border-color 0.2s ease;
@@ -102,6 +103,8 @@ const regions = dict.tour.regions.map((region, index) => ({ ...region, ...boxes[
     text-align: left;
     cursor: pointer;
   }
+  /* The whole row is the button's target, not just its title. */
+  .tour__list button::after { content: ""; position: absolute; inset: 0; }
   .tour__list p { font-size: 1rem; color: var(--lichen); }
   .tour__list li:has([aria-pressed="true"]) { border-top-color: var(--mint); }
   .tour__list [aria-pressed="true"] { color: var(--mint-ink); }

@@ -20,6 +20,7 @@
   --track: #1d3a33;
   --glow: rgb(52 211 153 / 0.16);
   --menubar: rgb(10 27 24 / 0.62);
+  --menubar-solid: rgb(10 27 24 / 0.92);
   --menubar-ink: #f1f6f3;
   --menu: rgb(24 44 39 / 0.86);
   --shot-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 40px 80px -30px rgb(0 0 0 / 0.7);
@@ -58,6 +59,7 @@
     --track: #d3e2db;
     --glow: rgb(4 120 87 / 0.1);
     --menubar: rgb(240 246 243 / 0.7);
+    --menubar-solid: rgb(240 246 243 / 0.94);
     --menubar-ink: #0f1614;
     --menu: rgb(250 252 251 / 0.86);
     --shot-shadow: 0 0 0 1px rgb(15 36 32 / 0.08), 0 40px 70px -36px rgb(15 36 32 / 0.45);
@@ -143,6 +145,11 @@ code { font-family: var(--code); font-size: 0.86em; }
 .section-title {
   font-size: var(--text-2xl);
   max-width: 18ch;
+}
+
+/* Touch screens and phones: a taller menu bar so its items are big enough for a finger. */
+@media (pointer: coarse), (max-width: 54rem) {
+  :root { --menubar-h: 2.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
