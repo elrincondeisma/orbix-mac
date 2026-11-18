@@ -68,11 +68,11 @@ To switch accounts you flip its switch in the panel. The next `claude` you open 
 
 ```bash
 claude                      # opens Claude Code with the active account
-claude --perfil work        # another account, just this once
-orbix-perfil work           # changes the active account
-orbix-perfil                # shows the active one and the others
+claude --profile work       # another account, just this once
+orbix-profile work          # changes the active account
+orbix-profile               # shows the active one and the others
 ```
 
-The "Aplicar también a las apps" option (apply to apps too; the app's interface is in Spanish for now) makes VS Code and other apps that launch Claude Code use the active profile. Tokens are never exposed this way: only the folder is applied.
+The "Apply to apps too" option makes VS Code and other apps that launch Claude Code use the active profile. Tokens are never exposed this way: only the folder is applied.
 
 The panel shows each account's session and week on its row, so you can see which one has room before you switch. To understand each percentage, read [Claude's 5-hour and weekly limits, explained](/guides/claude-usage-limits-explained/).

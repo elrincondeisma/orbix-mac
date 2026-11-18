@@ -3,8 +3,10 @@
 // language), the Orbix status item, which follows the session ring as you scroll and opens
 // the real panel, and the clock in the visitor's own time.
 import Shot from "./Shot.astro";
-import compactDark from "../assets/shots/panel-compacta-oscuro.png";
-import compactLight from "../assets/shots/panel-compacta-claro.png";
+import compactDarkEn from "../assets/shots/en/panel-compacta-oscuro.png";
+import compactLightEn from "../assets/shots/en/panel-compacta-claro.png";
+import compactDarkEs from "../assets/shots/es/panel-compacta-oscuro.png";
+import compactLightEs from "../assets/shots/es/panel-compacta-claro.png";
 import { locales, localeInfo, homePath, t, type Locale } from "../i18n/config";
 import { guidesBase, guideWords, hasGuides } from "../i18n/guides";
 import type { Release } from "../lib/release";
@@ -18,6 +20,8 @@ interface Props {
   onLanding?: boolean;
 }
 const { locale, release, alternates = {}, onLanding = true } = Astro.props;
+// The app speaks English and Spanish: Spanish captures on /es/, English ones elsewhere.
+const compact = locale === "es" ? { dark: compactDarkEs, light: compactLightEs } : { dark: compactDarkEn, light: compactLightEn };
 const sectionHref = (id: string) => `${onLanding ? "" : homePath(locale)}#${id}`;
 const dict = t(locale);
 const radius = 6.2;
@@ -101,7 +105,7 @@ const sections: { href: string; label: string }[] = [
 </div>
 
 <div id="orbix-panel" class="panel-pop" popover data-anchor-to=".menubar__status">
-  <Shot dark={compactDark} light={compactLight} width={340} alt={dict.tour.alt} />
+  <Shot dark={compact.dark} light={compact.light} width={340} alt={dict.tour.alt} />
 </div>
 
 <style>

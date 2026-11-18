@@ -19,6 +19,8 @@ mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Frameworks" "$APP/Contents/Resourc
 cp "$(swift build -c release --arch arm64 --arch x86_64 --show-bin-path)/Orbix" "$APP/Contents/MacOS/Orbix"
 # App icon, generated from Resources/icon/AppIcon.png by Scripts/make-icon.sh.
 cp Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
+# Interface in English and Spanish (Scripts/localize.sh keeps the tables up to date).
+cp -R Resources/Localization/*.lproj "$APP/Contents/Resources/"
 # ditto keeps the framework's symlinks intact.
 ditto .build/artifacts/sparkle/Sparkle/Sparkle.xcframework/macos-arm64_x86_64/Sparkle.framework \
     "$APP/Contents/Frameworks/Sparkle.framework"
@@ -37,6 +39,9 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleShortVersionString</key><string>${VERSION}</string>
     <key>CFBundleVersion</key><string>${VERSION}</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
+    <!-- Spanish when the Mac is in Spanish; English for every other language. -->
+    <key>CFBundleDevelopmentRegion</key><string>en</string>
+    <key>CFBundleLocalizations</key><array><string>en</string><string>es</string></array>
     <!-- Menu bar only: no Dock icon, no main window. -->
     <key>LSUIElement</key><true/>
     <!-- Sparkle: the appcast is an asset of the latest GitHub release. -->

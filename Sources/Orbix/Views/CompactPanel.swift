@@ -57,12 +57,12 @@ struct CompactPanel: View {
             .animation(.easeInOut(duration: 0.4), value: bar?.percent)
 
             VStack(alignment: .leading, spacing: 1) {
-                Text(bar.map { "\(Int((100 - $0.percent).rounded())) % libre\(noSessionLimit ? " esta semana" : "")" }
-                     ?? (store.isLoading ? "Consultando…" : store.snapshot?.noLimitsReported == true ? "Límites no disponibles" : "Sin datos"))
+                Text(SessionText.title(bar, noSessionLimit: noSessionLimit, store: store))
                     .font(.system(size: 15, weight: .semibold))
                 Text(store.snapshot?.noLimitsReported == true ? store.noLimitsReason
                      : noSessionLimit ? weeklyDetail(bar)
-                     : bar?.resetsAt.map { "Sesión de 5 h · reinicia \($0.formatted(date: .omitted, time: .shortened))" } ?? "Sesión de 5 h")
+                     : bar?.resetsAt.map { String(localized: "Sesión de 5 h · reinicia \($0.formatted(date: .omitted, time: .shortened))") }
+                        ?? String(localized: "Sesión de 5 h"))
                     .font(Brand.sans(10.5)).foregroundStyle(t.secondary)
             }
             Spacer(minLength: 0)
@@ -70,8 +70,8 @@ struct CompactPanel: View {
     }
 
     private func weeklyDetail(_ bar: UsageBar?) -> String {
-        guard let reset = bar?.resetsAt else { return "Sin límite de 5 h" }
-        return "Sin límite de 5 h · reinicia \(reset.formatted(.dateTime.weekday(.abbreviated).hour().minute()))"
+        guard let reset = bar?.resetsAt else { return String(localized: "Sin límite de 5 h") }
+        return String(localized: "Sin límite de 5 h · reinicia \(reset.formatted(.dateTime.weekday(.abbreviated).hour().minute()))")
     }
 }
 
@@ -82,7 +82,7 @@ private struct CompactLimitRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(alignment: .firstTextBaseline) {
-                Text(bar.title.replacingOccurrences(of: " · semanal", with: ""))
+                Text(bar.title)
                     .font(Brand.sans(11.5, .medium))
                 if let reset = bar.resetsAt {
                     Text(reset.formatted(.dateTime.weekday(.abbreviated).hour().minute()))

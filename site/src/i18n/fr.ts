@@ -58,7 +58,7 @@ const fr: Dict = {
     title: "Tout le reste, en un clic.",
     lede: "Un clic sur l'icône de la barre des menus et le panneau s'ouvre. La vue compacte montre la session et vos limites ; la vue complète ajoute le reste. Survolez une section pour la retrouver dans le panneau.",
     alt: "Le panneau complet d'Orbix : session, limites hebdomadaires, comptes, extras inutilisés, coût API, activité et modèles",
-    note: "L'interface de l'app est en espagnol pour l'instant.",
+    note: "",
     regions: [
       { title: "La session de 5 heures", text: "Ce qu'il reste de la fenêtre en cours et quand elle se réinitialise. L'anneau passe à l'ambre près de la limite." },
       { title: "Les limites hebdomadaires", text: "La limite générale et celles de chaque modèle, avec leur jour et leur heure de remise à zéro." },
@@ -133,7 +133,7 @@ const fr: Dict = {
       },
       {
         q: "En quelle langue est l'app ?",
-        a: "En espagnol, pour l'instant. Les anneaux, les couleurs et les chiffres se lisent pareil dans toutes les langues.",
+        a: "En anglais et en espagnol. Elle suit la langue de votre Mac : en espagnol si votre Mac est en espagnol, en anglais pour toute autre langue.",
       },
       {
         q: "Pourquoi un compte avec token n'affiche pas de limites ?",

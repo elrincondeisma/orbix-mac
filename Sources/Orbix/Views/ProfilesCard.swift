@@ -22,7 +22,7 @@ struct ProfilesCard: View {
                     ProfileRow(profile: profile, profiles: profiles, theme: t)
                 }
                 if let message = profiles.message {
-                    Text(.init(message)).font(Brand.sans(10.5)).foregroundStyle(t.secondary)
+                    Text(LocalizedStringKey(message)).font(Brand.sans(10.5)).foregroundStyle(t.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                         .padding(.top, 6)
                         .transition(.opacity)
@@ -85,7 +85,7 @@ private struct ProfileRow: View {
 
     private var dot: some View { Text("·") }
 
-    private func percent(_ label: String, _ value: Double) -> some View {
+    private func percent(_ label: LocalizedStringKey, _ value: Double) -> some View {
         HStack(spacing: 3) {
             Text(label)
             Text("\(Int(value.rounded())) %").font(Brand.mono(10.5, .semibold)).foregroundStyle(t.level(value))

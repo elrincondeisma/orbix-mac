@@ -10,12 +10,12 @@ enum ClaudeAPIError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .unauthorized: "Credencial rechazada (401/403). Vuelve a iniciar sesión."
-        case .rateLimited: "Anthropic está limitando las peticiones. Espera unos minutos."
-        case .cloudflare: "claude.ai ha devuelto un desafío de Cloudflare. Prueba con el token de Claude Code."
-        case .noOrganization: "La cuenta no tiene ninguna organización."
-        case let .http(code): "Error HTTP \(code)."
-        case .invalidResponse: "Respuesta inesperada del servidor."
+        case .unauthorized: String(localized: "Credencial rechazada (401/403). Vuelve a iniciar sesión.")
+        case .rateLimited: String(localized: "Anthropic está limitando las peticiones. Espera unos minutos.")
+        case .cloudflare: String(localized: "claude.ai ha devuelto un desafío de Cloudflare. Prueba con el token de Claude Code.")
+        case .noOrganization: String(localized: "La cuenta no tiene ninguna organización.")
+        case let .http(code): String(localized: "Error HTTP \(code).")
+        case .invalidResponse: String(localized: "Respuesta inesperada del servidor.")
         }
     }
 }

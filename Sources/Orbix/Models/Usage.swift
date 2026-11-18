@@ -105,20 +105,20 @@ struct UsageSnapshot: Sendable {
     }
 
     init(response r: UsageResponse, account: String?, plan: String?, source: String) {
-        session = Self.bar("session", "Sesión (5 h)", r.fiveHour)
-        weekly = Self.bar("weekly", "Semanal", r.sevenDay)
+        session = Self.bar("session", String(localized: "Sesión (5 h)"), r.fiveHour)
+        weekly = Self.bar("weekly", String(localized: "Semanal"), r.sevenDay)
 
         var models: [UsageBar] = []
         let scoped = (r.limits ?? []).filter { $0.kind == "weekly_scoped" }
         for entry in scoped {
             guard let name = entry.scope?.model?.displayName, let pct = entry.percent,
                   name.localizedCaseInsensitiveCompare("All models") != .orderedSame else { continue }
-            models.append(UsageBar(id: "model-\(name)", title: "\(name) · semanal",
+            models.append(UsageBar(id: "model-\(name)", title: name,
                                    percent: pct, resetsAt: ISO8601.parse(entry.resetsAt)))
         }
         if models.isEmpty {
-            if let b = Self.bar("opus", "Opus · semanal", r.sevenDayOpus) { models.append(b) }
-            if let b = Self.bar("sonnet", "Sonnet · semanal", r.sevenDaySonnet) { models.append(b) }
+            if let b = Self.bar("opus", "Opus", r.sevenDayOpus) { models.append(b) }
+            if let b = Self.bar("sonnet", "Sonnet", r.sevenDaySonnet) { models.append(b) }
         }
         self.models = models
         extra = (r.extraUsage?.isEnabled == true) ? r.extraUsage : nil

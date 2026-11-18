@@ -133,7 +133,7 @@ const es: Dict = {
       },
       {
         q: "¿En qué idioma está la app?",
-        a: "En español. Los aros, los colores y las cifras se entienden igual en cualquier idioma.",
+        a: "En español y en inglés. Sigue el idioma de tu Mac: en español si tu Mac está en español y en inglés en cualquier otro idioma.",
       },
       {
         q: "¿Por qué una cuenta con token no enseña límites?",

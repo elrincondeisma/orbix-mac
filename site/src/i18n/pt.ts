@@ -59,7 +59,7 @@ const pt: Dict = {
     title: "Todo o resto, a um clique.",
     lede: "Um clique no ícone da barra de menus e o painel abre. A vista compacta mostra a sessão e os limites; a completa, todo o resto. Aponte para uma seção para encontrá-la no painel.",
     alt: "O painel completo do Orbix: sessão, limites semanais, contas, extras não usados, custo na API, atividade e modelos",
-    note: "Por enquanto, a interface do app está em espanhol.",
+    note: "",
     regions: [
       { title: "A sessão de 5 horas", text: "Quanto resta da janela atual e quando ela reinicia. O anel fica âmbar perto do limite." },
       { title: "Limites semanais", text: "O geral e os de cada modelo, com dia e hora de reinício." },
@@ -134,7 +134,7 @@ const pt: Dict = {
       },
       {
         q: "Em que idioma está o app?",
-        a: "Em espanhol, por enquanto. Os anéis, as cores e os números se leem igual em qualquer idioma.",
+        a: "Em inglês e espanhol. Ele segue o idioma do seu Mac: espanhol se o Mac estiver em espanhol e inglês em qualquer outro idioma.",
       },
       {
         q: "Por que uma conta com token não mostra limites?",

@@ -58,7 +58,7 @@ const de: Dict = {
     title: "Alles andere, einen Klick entfernt.",
     lede: "Ein Klick auf das Symbol in der Menüleiste öffnet das Panel. Die kompakte Ansicht zeigt Sitzung und Limits, die vollständige alles Weitere. Zeigen Sie auf einen Bereich, um ihn im Panel zu finden.",
     alt: "Das vollständige Orbix-Panel: Sitzung, Wochenlimits, Konten, ungenutzte Extras, API-Kosten, Aktivität und Modelle",
-    note: "Die Oberfläche der App ist vorerst auf Spanisch.",
+    note: "",
     regions: [
       { title: "Die 5-Stunden-Sitzung", text: "Wie viel vom aktuellen Zeitfenster übrig ist und wann es zurückgesetzt wird. Nahe am Limit wird der Ring bernsteinfarben." },
       { title: "Wochenlimits", text: "Das allgemeine Limit und die pro Modell, jeweils mit Tag und Uhrzeit des Neustarts." },
@@ -133,7 +133,7 @@ const de: Dict = {
       },
       {
         q: "In welcher Sprache ist die App?",
-        a: "Vorerst auf Spanisch. Ringe, Farben und Zahlen lesen sich in jeder Sprache gleich.",
+        a: "Auf Englisch und Spanisch. Sie folgt der Sprache Ihres Mac: Spanisch, wenn Ihr Mac auf Spanisch eingestellt ist, sonst Englisch.",
       },
       {
         q: "Warum zeigt ein Konto mit Token keine Limits?",

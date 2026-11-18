@@ -8,6 +8,9 @@ interface Props {
   locale: Locale;
 }
 const dict = t(Astro.props.locale).accounts;
+// Orbix accepts both; the app shows the Spanish forms in Spanish and the English ones elsewhere.
+const flag = Astro.props.locale === "es" ? "--perfil" : "--profile";
+const command = Astro.props.locale === "es" ? "orbix-perfil" : "orbix-profile";
 const level = (value: number | null) => (value === null ? "" : value >= 90 ? "signal" : value >= 70 ? "amber" : "ok");
 // Profile names in commands are lowercase, as people type them.
 const slug = (name: string) => name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").split(" ")[0];
@@ -57,8 +60,8 @@ const slug = (name: string) => name.toLowerCase().normalize("NFD").replace(/[̀-
       </div>
 
       <pre class="terminal" aria-live="polite"><code><span class="terminal__prompt">$</span> claude <span class="terminal__note"># {dict.opensWith} <b data-active-name>{dict.rows[0].name}</b></span>
-<span class="terminal__prompt">$</span> claude --perfil {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.once}</span>
-<span class="terminal__prompt">$</span> orbix-perfil {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.switch}</span></code></pre>
+<span class="terminal__prompt">$</span> claude {flag} {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.once}</span>
+<span class="terminal__prompt">$</span> {command} {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.switch}</span></code></pre>
     </div>
   </div>
 </section>

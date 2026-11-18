@@ -17,7 +17,7 @@ struct Card<Content: View>: View {
 
 /// Small semibold section label.
 struct Eyebrow: View {
-    let text: String
+    let text: LocalizedStringKey
     let theme: Theme
     var color: Color?
 
@@ -35,7 +35,7 @@ struct Hairline: View {
 
 /// Status capsule in the header: dot + short word.
 struct StatePill: View {
-    let text: String
+    let text: LocalizedStringKey
     let color: Color
     let background: Color
 
@@ -111,7 +111,7 @@ struct IconButton: View {
     let symbol: String
     let theme: Theme
     var active = false
-    let help: String
+    let help: LocalizedStringKey
     let action: () -> Void
 
     var body: some View {
@@ -130,13 +130,14 @@ struct IconButton: View {
 
 /// Brand segmented control: the selected option sits on a card-coloured capsule.
 struct SegmentedChoice<Value: Hashable>: View {
-    let options: [(value: Value, label: String)]
+    let options: [(value: Value, label: LocalizedStringKey)]
     @Binding var selection: Value
     let theme: Theme
 
     var body: some View {
         HStack(spacing: 2) {
-            ForEach(options, id: \.value) { option in
+            ForEach(options.indices, id: \.self) { index in
+                let option = options[index]
                 let selected = option.value == selection
                 Button { selection = option.value } label: {
                     Text(option.label)
@@ -163,7 +164,7 @@ struct SegmentedChoice<Value: Hashable>: View {
 
 /// Soft accent button (accent text on accentSoft).
 struct SoftButton: View {
-    let title: String
+    let title: LocalizedStringKey
     let symbol: String?
     let theme: Theme
     let action: () -> Void

@@ -58,7 +58,7 @@ export default {
     title: "Everything else, one click away.",
     lede: "Click the menu bar icon and the panel opens. The compact view shows the session and your limits; the full view adds the rest. Point at a section to find it in the panel.",
     alt: "The full Orbix panel: session, weekly limits, accounts, unused extras, API cost, activity and models",
-    note: "The app's interface is in Spanish for now.",
+    note: "",
     regions: [
       { title: "The 5-hour session", text: "How much of the current window is left and when it resets. The ring turns amber near the limit." },
       { title: "Weekly limits", text: "The overall limit and the per-model ones, each with its reset day and time." },
@@ -133,7 +133,7 @@ export default {
       },
       {
         q: "What language is the app in?",
-        a: "Spanish, for now. The rings, colors and numbers read the same in any language.",
+        a: "English and Spanish. It follows your Mac's language: Spanish if your Mac is set to Spanish, English for any other language.",
       },
       {
         q: "Why doesn't an account with a token show limits?",

@@ -24,7 +24,7 @@ struct SettingsView: View {
                          : "Añade extras de claude.ai, coste en API, actividad y modelos de Claude Code.")
                 }
                 section("Actualizar los datos cada") {
-                    SegmentedChoice(options: [1, 2, 5, 10, 15, 30].map { ($0, "\($0) min") },
+                    SegmentedChoice(options: [1, 2, 5, 10, 15, 30].map { (value: $0, label: "\($0) min" as LocalizedStringKey) },
                                     selection: $store.interval, theme: t)
                 }
                 updatesSection
@@ -40,8 +40,14 @@ struct SettingsView: View {
                     Hairline(theme: t)
                     HStack(spacing: 6) {
                         Circle().fill(store.errorMessage == nil ? t.accent : t.warm).frame(width: 6, height: 6)
-                        Text(store.errorMessage ?? "Conectado vía \(store.snapshot?.source ?? "—")")
-                            .font(Brand.sans(11)).foregroundStyle(t.secondary).lineLimit(2)
+                        Group {
+                            if let error = store.errorMessage {
+                                Text(error)
+                            } else {
+                                Text("Conectado vía \(store.snapshot?.source ?? "—")")
+                            }
+                        }
+                        .font(Brand.sans(11)).foregroundStyle(t.secondary).lineLimit(2)
                         Spacer()
                         SoftButton(title: "Probar", symbol: "arrow.clockwise", theme: t) { store.refreshNow() }
                     }
@@ -144,11 +150,11 @@ struct SettingsView: View {
                 Spacer()
                 BrandSwitch(isOn: $profiles.applyToApps, theme: t)
             }
-            if let message = profiles.message { note(message) }
+            if let message = profiles.message { noteText(message) }
         }
     }
 
-    private func field(_ placeholder: String, text: Binding<String>, secure: Bool) -> some View {
+    private func field(_ placeholder: LocalizedStringKey, text: Binding<String>, secure: Bool) -> some View {
         ZStack(alignment: .leading) {
             if text.wrappedValue.isEmpty {
                 Text(placeholder).font(Brand.sans(11.5)).foregroundStyle(t.muted)
@@ -183,7 +189,7 @@ struct SettingsView: View {
                     SoftButton(title: "Abrir Ajustes", symbol: "gearshape", theme: t) { login.openSystemSettings() }
                 }
             }
-            if let error = login.errorMessage { note(error) }
+            if let error = login.errorMessage { noteText(error) }
         }
     }
 
@@ -212,7 +218,7 @@ struct SettingsView: View {
         }
     }
 
-    private func credit(symbol: String, title: String, detail: String, url: String) -> some View {
+    private func credit(symbol: String, title: LocalizedStringKey, detail: String, url: String) -> some View {
         Button {
             if let link = URL(string: url) { NSWorkspace.shared.open(link) }
         } label: {
@@ -235,7 +241,7 @@ struct SettingsView: View {
         .help(url)
     }
 
-    private var sourceNote: String {
+    private var sourceNote: LocalizedStringKey {
         switch store.source {
         case .auto: "Prueba el token de Claude Code, luego `claude /usage` y, por último, la credencial manual."
         case .claudeCode: "Lee el token OAuth que guarda Claude Code. Da también plan, email y uso extra."
@@ -244,7 +250,7 @@ struct SettingsView: View {
         }
     }
 
-    private func section<Content: View>(_ title: String, @ViewBuilder content: () -> Content) -> some View {
+    private func section<Content: View>(_ title: LocalizedStringKey, @ViewBuilder content: () -> Content) -> some View {
         Card(theme: t) {
             VStack(alignment: .leading, spacing: 8) {
                 Eyebrow(text: title, theme: t)
@@ -253,9 +259,14 @@ struct SettingsView: View {
         }
     }
 
-    private func note(_ text: String) -> some View {
-        Text(.init(text)).font(Brand.sans(10.5)).foregroundStyle(t.muted)
+    private func note(_ text: LocalizedStringKey) -> some View {
+        Text(text).font(Brand.sans(10.5)).foregroundStyle(t.muted)
             .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// A message that is already localized (and may carry Markdown).
+    private func noteText(_ text: String) -> some View {
+        note(LocalizedStringKey(text))
     }
 }
 
@@ -263,7 +274,7 @@ enum SettingsTab: String, CaseIterable, Identifiable {
     case general, accounts, data, about
     var id: String { rawValue }
 
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
         case .general: "General"
         case .accounts: "Cuentas"

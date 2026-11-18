@@ -37,12 +37,12 @@ enum ChromeSession {
 
         var errorDescription: String? {
             switch self {
-            case .chromeNotFound: "No se encontró ningún navegador compatible (Arc, Chrome, Brave, Edge…)."
-            case .noDiskAccess: "macOS no deja a Orbix leer las cookies del navegador. Dale «Acceso total al disco» en Ajustes del Sistema → Privacidad y seguridad y vuelve a abrir Orbix."
-            case let .cannotRead(reason): "No se pudieron leer las cookies del navegador: \(reason)"
-            case .noSession: "No hay sesión de claude.ai en el navegador. Inicia sesión en claude.ai."
-            case .keychainDenied: "Sin permiso para la clave del navegador en el Llavero. Pulsa Probar y elige Permitir siempre."
-            case .unreadable: "No se pudo descifrar la cookie del navegador."
+            case .chromeNotFound: String(localized: "No se encontró ningún navegador compatible (Arc, Chrome, Brave, Edge…).")
+            case .noDiskAccess: String(localized: "macOS no deja a Orbix leer las cookies del navegador. Dale «Acceso total al disco» en Ajustes del Sistema → Privacidad y seguridad y vuelve a abrir Orbix.")
+            case let .cannotRead(reason): String(localized: "No se pudieron leer las cookies del navegador: \(reason)")
+            case .noSession: String(localized: "No hay sesión de claude.ai en el navegador. Inicia sesión en claude.ai.")
+            case .keychainDenied: String(localized: "Sin permiso para la clave del navegador en el Llavero. Pulsa Probar y elige Permitir siempre.")
+            case .unreadable: String(localized: "No se pudo descifrar la cookie del navegador.")
             }
         }
     }

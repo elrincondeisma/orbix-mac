@@ -50,7 +50,7 @@ enum ShellError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case let .timedOut(name): "\(name) no respondió a tiempo."
+        case let .timedOut(name): String(localized: "\(name) no respondió a tiempo.")
         }
     }
 }

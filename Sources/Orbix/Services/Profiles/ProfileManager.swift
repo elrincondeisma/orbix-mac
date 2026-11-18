@@ -78,12 +78,12 @@ final class ProfileManager {
             activeSlug = profile.slug
             syncLaunchEnvironment()
             message = shellInstalled
-                ? "Los `claude` que abras ahora usan \(profile.name)."
-                : "Activo: \(profile.name). Activa la integración con la terminal en Ajustes para que `claude` lo use."
+                ? String(localized: "Los `claude` que abras ahora usan \(profile.name).")
+                : String(localized: "Activo: \(profile.name). Activa la integración con la terminal en Ajustes para que `claude` lo use.")
             UsageStore.shared.activeProfileChanged()
             if noteOpenAgents, shellInstalled { noteAgentsStillOpen(after: profile) }
         } catch {
-            message = "No se pudo cambiar el perfil: \(error.localizedDescription)"
+            message = String(localized: "No se pudo cambiar el perfil: \(error.localizedDescription)")
         }
     }
 
@@ -91,8 +91,9 @@ final class ProfileManager {
         Task {
             let count = await Task.detached { Herdr.claudeAgentCount() }.value
             guard count > 0, activeSlug == profile.slug else { return }
-            let open = count == 1 ? "El `claude` abierto en herdr sigue" : "Los \(count) `claude` abiertos en herdr siguen"
-            message = "Los `claude` nuevos usan \(profile.name). \(open) con su cuenta hasta que lo\(count == 1 ? "" : "s") reinicies."
+            message = count == 1
+                ? String(localized: "Los `claude` nuevos usan \(profile.name). El `claude` abierto en herdr sigue con su cuenta hasta que lo reinicies.")
+                : String(localized: "Los `claude` nuevos usan \(profile.name). Los \(count) `claude` abiertos en herdr siguen con su cuenta hasta que los reinicies.")
         }
     }
 
@@ -115,9 +116,9 @@ final class ProfileManager {
     func createProfile() {
         let name = newName.trimmingCharacters(in: .whitespacesAndNewlines)
         let slug = Profile.slug(from: name)
-        guard !slug.isEmpty else { message = "Ponle un nombre al perfil."; return }
+        guard !slug.isEmpty else { message = String(localized: "Ponle un nombre al perfil."); return }
         guard slug != Profile.mainSlug, !profiles.contains(where: { $0.slug == slug }) else {
-            message = "Ya hay un perfil «\(slug)»."
+            message = String(localized: "Ya hay un perfil «\(slug)».")
             return
         }
         let profile = Profile(slug: slug, name: name, kind: newKind)
@@ -128,10 +129,10 @@ final class ProfileManager {
             reload()
             newName = ""; newToken = ""; newShareHistory = false
             if profile.kind == .login {
-                message = "Perfil «\(slug)» creado. En la Terminal que se abre, escribe /login y entra con la otra cuenta."
+                message = String(localized: "Perfil «\(slug)» creado. En la Terminal que se abre, escribe /login y entra con la otra cuenta.")
                 openInTerminal(profile)
             } else {
-                message = "Perfil «\(slug)» creado con su token."
+                message = String(localized: "Perfil «\(slug)» creado con su token.")
             }
             refreshUsage()
         } catch {
@@ -151,7 +152,8 @@ final class ProfileManager {
         if let dir = profile.configDir {
             let parked = dir.deletingLastPathComponent().appendingPathComponent(".\(profile.slug)-quitado-\(Int(Date().timeIntervalSince1970))")
             try? FileManager.default.moveItem(at: dir, to: parked)
-            message = "Perfil «\(profile.slug)» quitado. Su carpeta queda en \(parked.path.replacingOccurrences(of: ProfilePaths.home.path, with: "~"))."
+            let folder = parked.path.replacingOccurrences(of: ProfilePaths.home.path, with: "~")
+            message = String(localized: "Perfil «\(profile.slug)» quitado. Su carpeta queda en \(folder).")
         }
         usage[profile.slug] = nil
         reload()
@@ -218,7 +220,7 @@ final class ProfileManager {
         Task {
             let opened = await Task.detached { Herdr.openClaude(profileSlug: slug, label: label) }.value
             if opened {
-                message = "Abierto en herdr con \(profile.name)."
+                message = String(localized: "Abierto en herdr con \(profile.name).")
             } else {
                 openInTerminal(profile)
             }
@@ -229,7 +231,7 @@ final class ProfileManager {
     /// (no Automation permission needed, unlike scripting Terminal).
     private func openInTerminal(_ profile: Profile) {
         guard let claude = ClaudeCLIUsage.claudePath() else {
-            message = "No se encontró el comando `claude`."
+            message = String(localized: "No se encontró el comando `claude`.")
             return
         }
         var lines = ["#!/bin/zsh", "cd ~", "unset CLAUDE_CONFIG_DIR CLAUDE_CODE_OAUTH_TOKEN"]
@@ -237,7 +239,7 @@ final class ProfileManager {
         if profile.kind == .token {
             lines.append("export CLAUDE_CODE_OAUTH_TOKEN=\"$(/usr/bin/security find-generic-password -a \(quoted(profile.slug)) -s \(ProfileTokens.service) -w)\"")
         }
-        lines.append("echo \"Orbix · perfil \(profile.name)\"")
+        lines.append("echo \(quoted(String(localized: "Orbix · perfil \(profile.name)")))")
         lines.append("exec \(quoted(claude))")
         let file = ProfilePaths.orbixConfig.appendingPathComponent("abrir-\(profile.slug).command")
         do {
@@ -246,7 +248,7 @@ final class ProfileManager {
             try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: file.path)
             NSWorkspace.shared.open(file)
         } catch {
-            message = "No se pudo abrir la Terminal: \(error.localizedDescription)"
+            message = String(localized: "No se pudo abrir la Terminal: \(error.localizedDescription)")
         }
     }
 
@@ -255,9 +257,9 @@ final class ProfileManager {
             ProfileShell.writeScript()
             try ProfileShell.install()
             shellInstalled = true
-            message = "Listo. Abre una terminal nueva: `claude` usará el perfil activo."
+            message = String(localized: "Listo. Abre una terminal nueva: `claude` usará el perfil activo.")
         } catch {
-            message = "No se pudo modificar ~/.zshrc: \(error.localizedDescription)"
+            message = String(localized: "No se pudo modificar ~/.zshrc: \(error.localizedDescription)")
         }
     }
 
@@ -302,13 +304,13 @@ final class ProfileManager {
 extension ProfileManager {
     /// Two demo accounts for website screenshots (debug builds only).
     func loadDemo(active: String = Profile.mainSlug) {
-        let work = Profile(slug: "trabajo", name: "Trabajo", kind: .login)
-        let ci = Profile(slug: "ci", name: "Integración continua", kind: .token)
+        let work = Profile(slug: String(localized: "trabajo"), name: String(localized: "Trabajo"), kind: .login)
+        let ci = Profile(slug: "ci", name: String(localized: "Integración continua"), kind: .token)
         profiles = [.main, work, ci]
         activeSlug = active
         usage = [
-            "trabajo": UsageSnapshot(session: UsageBar(id: "session", title: "Sesión (5 h)", percent: 71, resetsAt: nil),
-                                     weekly: UsageBar(id: "weekly", title: "Semanal", percent: 83, resetsAt: nil),
+            work.slug: UsageSnapshot(session: UsageBar(id: "session", title: String(localized: "Sesión (5 h)"), percent: 71, resetsAt: nil),
+                                     weekly: UsageBar(id: "weekly", title: String(localized: "Semanal"), percent: 83, resetsAt: nil),
                                      models: [], source: "claude /usage"),
         ]
         usageErrors = [:]

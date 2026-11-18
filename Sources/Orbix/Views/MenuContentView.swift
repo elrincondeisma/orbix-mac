@@ -5,15 +5,21 @@ struct MenuContentView: View {
     @Environment(\.colorScheme) private var scheme
 
     private var t: Theme { Theme.of(scheme) }
+    /// Lays the body out at full height, without the scroll view (for rendered screenshots).
+    var staticLayout = false
 
     var body: some View {
         VStack(spacing: 0) {
             header
             Hairline(theme: t)
 
-            FittedScroll(height: store.panelBodyHeight, maxHeight: maxBodyHeight,
-                         onMeasure: { store.panelBodyHeight = $0 }) {
+            if staticLayout {
                 panelBody
+            } else {
+                FittedScroll(height: store.panelBodyHeight, maxHeight: maxBodyHeight,
+                             onMeasure: { store.panelBodyHeight = $0 }) {
+                    panelBody
+                }
             }
 
             Hairline(theme: t)
@@ -93,12 +99,12 @@ struct MenuContentView: View {
 
     private var subtitle: String {
         let profile = ProfileManager.shared.active
-        let parts = [profile.isMain ? nil : "perfil \(profile.slug)", store.snapshot?.plan, store.snapshot?.account,
+        let parts = [profile.isMain ? nil : String(localized: "perfil \(profile.slug)"), store.snapshot?.plan, store.snapshot?.account,
                      store.snapshot?.source].compactMap { $0 }
         return parts.isEmpty ? "Claude" : parts.joined(separator: " · ")
     }
 
-    private var pill: (text: String, color: Color, background: Color) {
+    private var pill: (text: LocalizedStringKey, color: Color, background: Color) {
         if store.isLoading && store.snapshot == nil { return ("···", t.warm, t.warmSoft) }
         if store.errorMessage != nil { return (store.snapshot == nil ? "ERROR" : "ANTIGUO", t.warm, t.warmSoft) }
         guard let bar = store.snapshot?.primaryBar else {
@@ -189,24 +195,35 @@ struct SessionHero: View {
     }
 
     private var title: String {
-        guard let session else {
-            if store.isLoading { return "Consultando…" }
-            return store.snapshot?.noLimitsReported == true ? "Límites no disponibles" : "Sin datos"
-        }
-        return "\(Int((100 - session.percent).rounded())) % libre\(noSessionLimit ? " esta semana" : "")"
+        SessionText.title(session, noSessionLimit: noSessionLimit, store: store)
     }
 
     private var detail: String {
         guard let session else {
             return store.snapshot?.noLimitsReported == true
-                ? "\(store.noLimitsReason) para esta cuenta."
-                : "Preguntando a Claude Code por tus límites."
+                ? String(localized: "\(store.noLimitsReason) para esta cuenta.")
+                : String(localized: "Preguntando a Claude Code por tus límites.")
         }
         if noSessionLimit {
-            return session.resetsAt.map { "Sin límite de 5 h · se reinicia \(ResetText.describe($0))" } ?? "Sin límite de 5 h"
+            return session.resetsAt.map { String(localized: "Sin límite de 5 h · se reinicia \(ResetText.describe($0))") }
+                ?? String(localized: "Sin límite de 5 h")
         }
-        guard let reset = session.resetsAt else { return "Sesión de 5 horas" }
-        return "Sesión de 5 h · se reinicia \(ResetText.describe(reset))"
+        guard let reset = session.resetsAt else { return String(localized: "Sesión de 5 horas") }
+        return String(localized: "Sesión de 5 h · se reinicia \(ResetText.describe(reset))")
+    }
+}
+
+/// The headline next to the session gauge, in the full and the compact panel.
+enum SessionText {
+    @MainActor
+    static func title(_ bar: UsageBar?, noSessionLimit: Bool, store: UsageStore) -> String {
+        guard let bar else {
+            if store.isLoading { return String(localized: "Consultando…") }
+            return store.snapshot?.noLimitsReported == true
+                ? String(localized: "Límites no disponibles") : String(localized: "Sin datos")
+        }
+        let free = Int((100 - bar.percent).rounded())
+        return noSessionLimit ? String(localized: "\(free) % libre esta semana") : String(localized: "\(free) % libre")
     }
 }
 
@@ -236,7 +253,7 @@ struct LimitRow: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(alignment: .firstTextBaseline) {
-                Text(bar.title.replacingOccurrences(of: " · semanal", with: ""))
+                Text(bar.title)
                     .font(Brand.sans(12, .medium))
                 Spacer()
                 Text("\(Int(bar.percent.rounded())) %")
@@ -256,14 +273,15 @@ struct LimitRow: View {
 enum ResetText {
     static func describe(_ date: Date) -> String {
         let seconds = date.timeIntervalSinceNow
-        guard seconds > 0 else { return "ahora" }
+        guard seconds > 0 else { return String(localized: "ahora") }
         let minutes = Int(seconds / 60)
         let days = minutes / 1440, hours = (minutes % 1440) / 60, mins = minutes % 60
-        let span = days > 0 ? "\(days) d \(hours) h" : hours > 0 ? "\(hours) h \(mins) min" : "\(max(mins, 1)) min"
+        let span = days > 0 ? String(localized: "\(days) d \(hours) h")
+            : hours > 0 ? String(localized: "\(hours) h \(mins) min") : String(localized: "\(max(mins, 1)) min")
         let when = Calendar.current.isDateInToday(date)
             ? date.formatted(date: .omitted, time: .shortened)
             : date.formatted(.dateTime.weekday(.abbreviated).hour().minute())
-        return "en \(span) · \(when)"
+        return String(localized: "en \(span) · \(when)")
     }
 }
 

@@ -41,7 +41,7 @@ final class LoginItem {
             }
             errorMessage = nil
         } catch {
-            errorMessage = "No se pudo cambiar: \(error.localizedDescription)"
+            errorMessage = String(localized: "No se pudo cambiar: \(error.localizedDescription)")
         }
         asked = true
         refresh()

@@ -11,10 +11,10 @@ enum CredentialSource: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .auto: "Automático"
-        case .claudeCode: "Token de Claude Code"
-        case .cli: "Comando claude /usage"
-        case .manual: "Credencial manual"
+        case .auto: String(localized: "Automático")
+        case .claudeCode: String(localized: "Token de Claude Code")
+        case .cli: String(localized: "Comando claude /usage")
+        case .manual: String(localized: "Credencial manual")
         }
     }
 }
@@ -94,7 +94,7 @@ final class UsageStore {
     /// Why the gauge is empty after a successful read.
     var noLimitsReason: String {
         ProfileManager.shared.active.kind == .token
-            ? "Con token, Claude Code no da límites" : "Claude no informa de límites"
+            ? String(localized: "Con token, Claude Code no da límites") : String(localized: "Claude no informa de límites")
     }
 
     func refreshNow() {
@@ -251,11 +251,11 @@ extension UsageStore {
         let now = Date()
         let calendar = Calendar.current
         var snapshot = UsageSnapshot(
-            session: UsageBar(id: "session", title: "Sesión (5 h)", percent: 26,
+            session: UsageBar(id: "session", title: String(localized: "Sesión (5 h)"), percent: 26,
                               resetsAt: now.addingTimeInterval(2 * 3600 + 14 * 60)),
-            weekly: UsageBar(id: "weekly", title: "Semanal", percent: 48,
+            weekly: UsageBar(id: "weekly", title: String(localized: "Semanal"), percent: 48,
                              resetsAt: now.addingTimeInterval(2 * 86_400 + 5 * 3600)),
-            models: [UsageBar(id: "model-Fable", title: "Fable · semanal", percent: 12,
+            models: [UsageBar(id: "model-Fable", title: "Fable", percent: 12,
                               resetsAt: now.addingTimeInterval(2 * 86_400 + 5 * 3600))],
             source: "claude /usage")
         snapshot.plan = "Max"

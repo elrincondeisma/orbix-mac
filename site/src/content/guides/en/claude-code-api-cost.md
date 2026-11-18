@@ -45,7 +45,7 @@ One detail is easy to miss: the same response can appear more than once in the l
 
 ## What Orbix does
 
-[Orbix](/) does this math for you and shows it in its panel, in the "Si lo pagaras por API" card (the app's interface is in Spanish for now): the cost of the current session and of the last 30 days at list prices.
+[Orbix](/) does this math for you and shows it in its panel, in the "If you paid for the API" card: the cost of the current session and of the last 30 days at list prices.
 
 - From each log line it reads only the date, the model and the token counts. Never the content of your conversations.
 - It counts repeated responses once.

@@ -17,12 +17,12 @@ enum ClaudeCLIUsage {
 
         var errorDescription: String? {
             switch self {
-            case .notInstalled: "No se encontró el comando `claude`. Instala Claude Code."
-            case .timedOut: "`claude /usage` no respondió a tiempo."
+            case .notInstalled: String(localized: "No se encontró el comando `claude`. Instala Claude Code.")
+            case .timedOut: String(localized: "`claude /usage` no respondió a tiempo.")
             case .notLoggedIn:
-                "Esta cuenta no tiene sesión de claude.ai en Claude Code. Ábrela en una terminal y entra con /login."
+                String(localized: "Esta cuenta no tiene sesión de claude.ai en Claude Code. Ábrela en una terminal y entra con /login.")
             case let .unparseable(output):
-                output.isEmpty ? "`claude /usage` no devolvió nada." : "`claude /usage`: \(output.prefix(200))"
+                output.isEmpty ? String(localized: "`claude /usage` no devolvió nada.") : String(localized: "`claude /usage`: \(output.prefix(200))")
             }
         }
     }
@@ -57,11 +57,11 @@ enum ClaudeCLIUsage {
             let reset = match.4.flatMap { ResetParser.date(String($0), timeZone: match.5.map(String.init), now: now) }
 
             if match.1 == "session" {
-                session = UsageBar(id: "session", title: "Sesión (5 h)", percent: percent, resetsAt: reset)
+                session = UsageBar(id: "session", title: String(localized: "Sesión (5 h)"), percent: percent, resetsAt: reset)
             } else if let scope = match.2.map(String.init), scope.lowercased() != "all models" {
-                models.append(UsageBar(id: "model-\(scope)", title: "\(scope) · semanal", percent: percent, resetsAt: reset))
+                models.append(UsageBar(id: "model-\(scope)", title: scope, percent: percent, resetsAt: reset))
             } else {
-                weekly = UsageBar(id: "weekly", title: "Semanal", percent: percent, resetsAt: reset)
+                weekly = UsageBar(id: "weekly", title: String(localized: "Semanal"), percent: percent, resetsAt: reset)
             }
         }
 

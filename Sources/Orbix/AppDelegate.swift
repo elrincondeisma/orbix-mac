@@ -37,19 +37,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Never shown (Orbix has no menu bar of its own), but its key equivalents are what make
     /// ⌘C / ⌘V / ⌘X / ⌘A / ⌘Z work in the settings text fields.
     private func installEditMenu() {
-        let edit = NSMenu(title: "Edición")
-        edit.addItem(withTitle: "Deshacer", action: Selector(("undo:")), keyEquivalent: "z")
-        edit.addItem(withTitle: "Rehacer", action: Selector(("redo:")), keyEquivalent: "Z")
+        let edit = NSMenu(title: String(localized: "Edición"))
+        edit.addItem(withTitle: String(localized: "Deshacer"), action: Selector(("undo:")), keyEquivalent: "z")
+        edit.addItem(withTitle: String(localized: "Rehacer"), action: Selector(("redo:")), keyEquivalent: "Z")
         edit.addItem(.separator())
-        edit.addItem(withTitle: "Cortar", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
-        edit.addItem(withTitle: "Copiar", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
-        edit.addItem(withTitle: "Pegar", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
-        edit.addItem(withTitle: "Seleccionar todo", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
-        let editItem = NSMenuItem(title: "Edición", action: nil, keyEquivalent: "")
+        edit.addItem(withTitle: String(localized: "Cortar"), action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        edit.addItem(withTitle: String(localized: "Copiar"), action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        edit.addItem(withTitle: String(localized: "Pegar"), action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        edit.addItem(withTitle: String(localized: "Seleccionar todo"), action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        let editItem = NSMenuItem(title: String(localized: "Edición"), action: nil, keyEquivalent: "")
         editItem.submenu = edit
         // ⌘, opens the Settings window, as in any Mac app.
         let appMenu = NSMenu(title: "Orbix")
-        let settingsItem = NSMenuItem(title: "Ajustes…", action: #selector(showSettings), keyEquivalent: ",")
+        let settingsItem = NSMenuItem(title: String(localized: "Ajustes…"), action: #selector(showSettings), keyEquivalent: ",")
         settingsItem.target = self
         appMenu.addItem(settingsItem)
         let appItem = NSMenuItem(title: "Orbix", action: nil, keyEquivalent: "")

@@ -11,11 +11,10 @@ enum AppMover {
 
         NSApp.activate()
         let alert = NSAlert()
-        alert.messageText = "¿Mover Orbix a Aplicaciones?"
-        alert.informativeText = "Orbix se está ejecutando fuera de la carpeta Aplicaciones, y desde ahí no puede "
-            + "actualizarse sola. Se moverá y se volverá a abrir."
-        alert.addButton(withTitle: "Mover a Aplicaciones")
-        alert.addButton(withTitle: "Ahora no")
+        alert.messageText = String(localized: "¿Mover Orbix a Aplicaciones?")
+        alert.informativeText = String(localized: "Orbix se está ejecutando fuera de la carpeta Aplicaciones, y desde ahí no puede actualizarse sola. Se moverá y se volverá a abrir.")
+        alert.addButton(withTitle: String(localized: "Mover a Aplicaciones"))
+        alert.addButton(withTitle: String(localized: "Ahora no"))
         guard alert.runModal() == .alertFirstButtonReturn else { return }
 
         do {
@@ -23,7 +22,7 @@ enum AppMover {
             relaunch(destination, eject: volumeToEject(source))
         } catch {
             let failure = NSAlert(error: error)
-            failure.messageText = "No se pudo mover Orbix"
+            failure.messageText = String(localized: "No se pudo mover Orbix")
             failure.runModal()
         }
     }

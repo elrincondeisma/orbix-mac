@@ -19,7 +19,7 @@ struct Profile: Identifiable, Codable, Hashable, Sendable {
     var id: String { slug }
 
     static let mainSlug = "principal"
-    static let main = Profile(slug: mainSlug, name: "Principal", kind: .main)
+    static let main = Profile(slug: mainSlug, name: String(localized: "Principal"), kind: .main)
 
     var isMain: Bool { kind == .main }
 

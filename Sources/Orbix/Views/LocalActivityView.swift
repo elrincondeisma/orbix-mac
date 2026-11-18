@@ -28,7 +28,7 @@ struct APICostCard: View {
         }
     }
 
-    private func amount(_ title: String, _ value: Double, detail: String) -> some View {
+    private func amount(_ title: LocalizedStringKey, _ value: Double, detail: LocalizedStringKey) -> some View {
         VStack(alignment: .leading, spacing: 1) {
             Text(title).font(Brand.sans(10.5)).foregroundStyle(t.secondary)
             Text(Money.format(value))
@@ -58,19 +58,21 @@ struct ActivityCard: View {
                     legend("Hoy", TokenFormat.short(activity.today?.tokens ?? 0), dot: t.accent)
                     legend("7d", TokenFormat.short(activity.week.tokens), dot: t.muted.opacity(0.55))
                     Spacer(minLength: 4)
+                    // Shrinks rather than widening the card when a language needs more room.
                     Text("\(activity.week.messages) resp. · \(activity.week.sessions) ses.")
                         .font(Brand.mono(10))
                         .foregroundStyle(t.secondary)
-                        .fixedSize()
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
                 }
             }
         }
     }
 
-    private func legend(_ label: String, _ value: String, dot: Color) -> some View {
+    private func legend(_ label: LocalizedStringKey, _ value: String, dot: Color) -> some View {
         HStack(spacing: 4) {
             Circle().fill(dot).frame(width: 6, height: 6)
-            Text("\(label) \(value)").font(Brand.mono(10)).foregroundStyle(t.secondary)
+            (Text(label) + Text(verbatim: " \(value)")).font(Brand.mono(10)).foregroundStyle(t.secondary)
         }
         .fixedSize()
     }

@@ -24,6 +24,9 @@ NOTES="${2:-Orbix $VERSION}"
 git diff --quiet && git diff --cached --quiet || { echo "Hay cambios sin commitear."; exit 1; }
 git rev-parse "v$VERSION" >/dev/null 2>&1 && { echo "La versión v$VERSION ya existe."; exit 1; }
 [ -x "$TOOLS/sign_update" ] || { echo "Faltan las herramientas de Sparkle: ./Scripts/setup-sparkle.sh"; exit 1; }
+# Every text in the code must have its English translation (and es.lproj must be current).
+./Scripts/localize.sh || { echo "Faltan traducciones: revisa Resources/Localization/en.lproj."; exit 1; }
+git diff --quiet Resources/Localization || { echo "localize.sh ha cambiado es.lproj: haz commit."; exit 1; }
 
 echo "$VERSION" > VERSION
 ./Scripts/build-app.sh

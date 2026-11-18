@@ -21,13 +21,13 @@ enum ClaudeCodeCredentials {
         var errorDescription: String? {
             switch self {
             case .notFound:
-                "No se encontró la sesión de Claude Code. Ejecuta `claude` e inicia sesión, o pega una credencial en Ajustes."
+                String(localized: "No se encontró la sesión de Claude Code. Ejecuta `claude` e inicia sesión, o pega una credencial en Ajustes.")
             case .noClaudeAiOAuth:
-                "Claude Code no guarda aquí el token de claude.ai (solo MCP). Usa una credencial manual en Ajustes."
+                String(localized: "Claude Code no guarda aquí el token de claude.ai (solo MCP). Usa una credencial manual en Ajustes.")
             case .expired:
-                "El token de Claude Code ha caducado. Abre `claude` en la terminal para renovarlo."
+                String(localized: "El token de Claude Code ha caducado. Abre `claude` en la terminal para renovarlo.")
             case .missingScope:
-                "El token no tiene el permiso `user:profile` necesario para leer el uso."
+                String(localized: "El token no tiene el permiso `user:profile` necesario para leer el uso.")
             }
         }
     }

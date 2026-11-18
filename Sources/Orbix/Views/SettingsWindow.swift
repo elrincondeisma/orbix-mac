@@ -14,7 +14,7 @@ enum SettingsWindow {
             let created = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 720, height: 560),
                                    styleMask: [.titled, .closable, .miniaturizable, .fullSizeContentView],
                                    backing: .buffered, defer: false)
-            created.title = "Ajustes de Orbix"
+            created.title = String(localized: "Ajustes de Orbix")
             created.titlebarAppearsTransparent = true
             created.isReleasedWhenClosed = false
             created.contentView = host

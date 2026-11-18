@@ -2,14 +2,17 @@
 // The full panel in a window the height of a screen. Pointing at (or choosing) a section in
 // the list scrolls the panel to it and lights it up, so the words and the UI stay together.
 import Shot from "./Shot.astro";
-import fullDark from "../assets/shots/panel-completa-oscuro.png";
-import fullLight from "../assets/shots/panel-completa-claro.png";
+import fullDarkEn from "../assets/shots/en/panel-completa-oscuro.png";
+import fullLightEn from "../assets/shots/en/panel-completa-claro.png";
+import fullDarkEs from "../assets/shots/es/panel-completa-oscuro.png";
+import fullLightEs from "../assets/shots/es/panel-completa-claro.png";
 import { t, type Locale } from "../i18n/config";
 
 interface Props {
   locale: Locale;
 }
 const dict = t(Astro.props.locale);
+const full = Astro.props.locale === "es" ? { dark: fullDarkEs, light: fullLightEs } : { dark: fullDarkEn, light: fullLightEn };
 
 // Where each section sits in the 680×2384 capture, as % of its height.
 const boxes = [
@@ -47,7 +50,7 @@ const regions = dict.tour.regions.map((region, index) => ({ ...region, ...boxes[
     <figure class="tour__figure">
       <div class="tour__window" id="tour-window" data-tour-window>
         <div class="tour__layer" data-tour-layer>
-          <Shot dark={fullDark} light={fullLight} width={340} alt={dict.tour.alt} />
+          <Shot dark={full.dark} light={full.light} width={340} alt={dict.tour.alt} />
           <span
             class="tour__highlight"
             data-tour-highlight

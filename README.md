@@ -51,6 +51,7 @@ si lo pagaras por API. Todo desde un icono en la barra de menús, sin abrir la t
 | 🚀 | **Abre al iniciar sesión** | Te lo pregunta la primera vez; se cambia en Ajustes o en los ítems de inicio de macOS. |
 | 🔄 | **Se actualiza sola** | Comprueba una vez al día, verifica la firma de la descarga y se reinicia. |
 | 🌗 | **Claro y oscuro** | Sigue la apariencia de macOS. |
+| 🌍 | **Inglés y español** | Sigue el idioma del Mac: en español si el sistema está en español y en inglés en cualquier otro idioma. |
 | 🔒 | **Privada** | Sin cuentas, sin analíticas y sin servidores propios. Nunca lee el contenido de tus conversaciones. |
 
 ## 📥 Instalar
@@ -114,6 +115,8 @@ orbix-perfil trabajo        # cambia la cuenta activa
 orbix-perfil                # muestra la activa y las disponibles
 ```
 
+En inglés funcionan igual `claude --profile <nombre>` y `orbix-profile`.
+
 > [!TIP]
 > *Aplicar también a las apps* hace que VS Code y otras apps que lanzan Claude Code usen el perfil activo.
 > Los tokens de larga duración nunca se exponen así.
@@ -155,6 +158,7 @@ Basta con las **Command Line Tools** de Xcode; no hace falta Xcode completo.
 ```bash
 ./Scripts/setup-sparkle.sh    # la primera vez: herramientas de Sparkle
 ./Scripts/build-app.sh        # compila Orbix.app universal y la firma
+./Scripts/localize.sh         # tras cambiar textos: comprueba las traducciones al inglés
 open build/Orbix.app
 ```
 

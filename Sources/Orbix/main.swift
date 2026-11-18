@@ -8,5 +8,8 @@ MainActor.assumeIsolated {
     let delegate = AppDelegate()
     app.delegate = delegate
     app.setActivationPolicy(.accessory)
+    #if DEBUG
+    if ScreenshotRenderer.runIfRequested() { exit(0) }
+    #endif
     withExtendedLifetime(delegate) { app.run() }
 }

@@ -15,9 +15,9 @@ enum ProfileTokens {
 
         var errorDescription: String? {
             switch self {
-            case .invalid: "No parece un token de larga duración (empieza por sk-ant-oat…). Se genera con `claude setup-token`."
-            case let .missing(slug): "No encuentro el token del perfil «\(slug)» en el Llavero."
-            case let .keychain(message): "Llavero: \(message)"
+            case .invalid: String(localized: "No parece un token de larga duración (empieza por sk-ant-oat…). Se genera con `claude setup-token`.")
+            case let .missing(slug): String(localized: "No encuentro el token del perfil «\(slug)» en el Llavero.")
+            case let .keychain(message): String(localized: "Llavero: \(message)")
             }
         }
     }

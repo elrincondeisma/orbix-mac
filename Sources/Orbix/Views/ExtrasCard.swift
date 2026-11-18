@@ -46,9 +46,8 @@ struct ExtrasCard: View {
             line("Reinicios gratis", value: "0", detail: "no tienes reinicios guardados")
         } else {
             let next = expirations.first.flatMap { $0 }
-            line("Reinicios gratis", value: "\(expirations.count)",
-                 detail: next.map { "el próximo caduca \(ResetText.describe($0))" } ?? "sin caducidad",
-                 highlight: true)
+            let detail: LocalizedStringKey = next.map { "el próximo caduca \(ResetText.describe($0))" } ?? "sin caducidad"
+            line("Reinicios gratis", value: "\(expirations.count)", detail: detail, highlight: true)
         }
     }
 
@@ -62,7 +61,7 @@ struct ExtrasCard: View {
         }
     }
 
-    private func line(_ title: String, value: String, detail: String,
+    private func line(_ title: LocalizedStringKey, value: String, detail: LocalizedStringKey,
                       highlight: Bool = false, dimmed: Bool = false) -> some View {
         HStack(alignment: .firstTextBaseline) {
             VStack(alignment: .leading, spacing: 1) {
