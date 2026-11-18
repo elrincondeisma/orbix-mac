@@ -129,13 +129,14 @@ Las guías de la web explican [cómo funcionan los límites de 5 horas y semanal
 
 | Dato | Origen | Credenciales |
 |---|---|---|
-| Sesión y límites semanales | `claude -p "/usage" --no-session-persistence`, sin herramientas ni MCP | Ninguna: usa la sesión de Claude Code |
+| Sesión y límites semanales | Token OAuth de Claude Code contra el endpoint de uso de Anthropic; si no se puede leer, `claude -p "/usage" --no-session-persistence`, sin herramientas ni MCP | Ninguna: usa la sesión de Claude Code (su token en el Llavero) |
 | Actividad y coste en API | Recuento de tokens de `~/.claude/projects/**/*.jsonl` | Ninguna |
 | Reinicios gratis, saldo y uso extra | API de claude.ai con tu sesión del navegador (Arc, Chrome, Brave, Edge o Vivaldi) | Permiso de macOS para la clave del navegador, una vez |
 | Límites de cada perfil | `claude /usage` ejecutado dentro de ese perfil | Las de cada perfil |
 
-- **Consulta de límites.** Orbix ejecuta `claude /usage` en una carpeta propia y sin guardar la sesión, así que
-  no aparece en tu historial. Tarda unos 2 segundos.
+- **Consulta de límites.** En modo automático, Orbix lee el token que Claude Code guarda en el Llavero y pregunta
+  al endpoint de uso de Anthropic. Si no puede, ejecuta `claude /usage` en una carpeta propia y sin guardar la
+  sesión, así que no aparece en tu historial (tarda unos 2 segundos). En *Ajustes → Datos* se puede fijar uno u otro.
 - **Coste en API.** De cada línea de los registros solo se leen la fecha, el modelo y el recuento de tokens. Las
   respuestas repetidas se cuentan una vez y se aplican los precios de lista: entrada, salida, lectura de caché y
   escritura de caché (×1,25 con 5 minutos, ×2 con 1 hora), y el doble en modo rápido.

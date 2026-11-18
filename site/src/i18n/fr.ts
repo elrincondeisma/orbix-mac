@@ -94,7 +94,7 @@ const fr: Dict = {
     title: "Il lit votre utilisation. Rien d'autre.",
     readsTitle: "Ce qu'il lit",
     reads: [
-      "La réponse de claude /usage, sans enregistrer cette session dans votre historique.",
+      "Vos limites, avec le token que Claude Code garde dans votre Trousseau ou, à défaut, la réponse de claude /usage, sans enregistrer cette session dans votre historique.",
       "Le nombre de tokens de vos sessions Claude Code sur ce Mac, jamais le contenu des conversations.",
       "Si vous l'activez, votre session claude.ai dans le navigateur, pour les remises à zéro gratuites et l'usage supplémentaire. macOS demande d'abord.",
     ],

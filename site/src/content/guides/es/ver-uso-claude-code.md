@@ -29,7 +29,7 @@ También puedes pedirlo sin abrir una sesión interactiva:
 claude -p "/usage" --no-session-persistence
 ```
 
-`-p` imprime la respuesta y sale, y `--no-session-persistence` evita que esa consulta se guarde en tu historial. Es justo lo que ejecuta Orbix por debajo cada vez que se actualiza.
+`-p` imprime la respuesta y sale, y `--no-session-persistence` evita que esa consulta se guarde en tu historial. Es lo que ejecuta Orbix con las cuentas que no son la principal, y con la principal cuando no puede leer el token de Claude Code.
 
 > Si `/usage` te enseña costes de API cuando esperabas los límites del plan, revisa si tienes `ANTHROPIC_API_KEY` definida en el entorno. Según la documentación de Claude Code, cuando la apruebas, la clave de API tiene prioridad sobre la suscripción. Ejecuta `unset ANTHROPIC_API_KEY`, abre `claude` otra vez y mira la fila «Login» de `/status`.
 
@@ -52,7 +52,7 @@ Las dos formas anteriores tienen el mismo problema: hay que acordarse de mirar, 
 - tus cuentas de Claude Code, cada una con su sesión y su semana;
 - los reinicios gratis, el saldo prepago y el uso extra del mes, leídos de claude.ai.
 
-Orbix consulta `claude /usage` en una carpeta propia y sin guardar la sesión, así que la consulta no aparece en tu historial. No pide ninguna clave: usa la sesión que ya tiene Claude Code.
+Para saber tus límites, Orbix usa el token que Claude Code guarda en tu Llavero y se lo pregunta a Anthropic. Si no puede leerlo, ejecuta `claude /usage` en una carpeta propia y sin guardar la sesión, así que la consulta no aparece en tu historial. No pide ninguna clave: usa la sesión que ya tiene Claude Code.
 
 ## Cuál usar
 

@@ -94,7 +94,7 @@ export default {
     title: "It reads your usage. Nothing else.",
     readsTitle: "What it reads",
     reads: [
-      "The answer to claude /usage, without saving that session to your history.",
+      "Your limits, using the token Claude Code keeps in your Keychain or, failing that, the answer to claude /usage, without saving that session to your history.",
       "The token counts of your Claude Code sessions on this Mac, never what the conversations say.",
       "If you turn it on, your claude.ai browser session, for free resets and extra usage. macOS asks first.",
     ],

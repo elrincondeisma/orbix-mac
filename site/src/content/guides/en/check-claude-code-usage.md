@@ -29,7 +29,7 @@ You can also ask for it without opening an interactive session:
 claude -p "/usage" --no-session-persistence
 ```
 
-`-p` prints the answer and exits, and `--no-session-persistence` keeps that query out of your history. It's exactly what Orbix runs every time it refreshes.
+`-p` prints the answer and exits, and `--no-session-persistence` keeps that query out of your history. It's what Orbix runs for accounts other than the main one, and for the main one when it can't read Claude Code's token.
 
 > If `/usage` shows API costs when you expected your plan limits, check whether `ANTHROPIC_API_KEY` is set in your environment. According to the Claude Code docs, once you approve it, an API key takes priority over your subscription. Run `unset ANTHROPIC_API_KEY`, open `claude` again and look at the "Login" row in `/status`.
 
@@ -52,7 +52,7 @@ Both options above share a problem: you have to remember to look, and most peopl
 - your Claude Code accounts, each with its own session and week;
 - free resets, prepaid balance and this month's extra usage, read from claude.ai.
 
-Orbix runs `claude /usage` in a folder of its own without saving the session, so the query never shows up in your history. It doesn't ask for any key: it uses the session Claude Code already has.
+To get your limits, Orbix uses the token Claude Code keeps in your Keychain and asks Anthropic. If it can't read it, it runs `claude /usage` in a folder of its own without saving the session, so the query never shows up in your history. It doesn't ask for any key: it uses the session Claude Code already has.
 
 ## Which one to use
 
