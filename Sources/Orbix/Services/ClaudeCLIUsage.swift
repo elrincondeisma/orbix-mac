@@ -65,7 +65,8 @@ enum ClaudeCLIUsage {
         }
 
         // Token-authenticated sessions only get the local cost summary, never the plan limits.
-        if session == nil, weekly == nil, output.contains("Total cost:") {
+        // Claude Code labels it "Total cost:" in older versions and "Estimated cost:" in newer ones (seen in 2.1.327).
+        if session == nil, weekly == nil, output.contains("Total cost:") || output.contains("Estimated cost:") {
             throw CLIError.noLimitsForToken
         }
         guard session != nil || weekly != nil || !models.isEmpty else {
