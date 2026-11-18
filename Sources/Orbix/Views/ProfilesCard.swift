@@ -67,13 +67,15 @@ private struct ProfileRow: View {
     private var detail: some View {
         HStack(spacing: 4) {
             Text(profile.kind == .token ? "token" : "login")
-            if let snapshot = profiles.usage[profile.slug] {
+            if let snapshot = profiles.usage[profile.slug], !snapshot.noLimitsReported {
                 if let session = snapshot.session { dot; percent("sesión", session.percent) }
                 if let weekly = snapshot.weekly { dot; percent("semana", weekly.percent) }
             } else if profile.kind == .token {
                 dot; Text("sin límites").help("Con un token de larga duración Claude Code no informa de los límites.")
             } else if let error = profiles.usageErrors[profile.slug] {
-                dot; Text("sin datos").help(error)
+                dot
+                Text(error == ClaudeCLIUsage.CLIError.notLoggedIn.errorDescription ? "sin sesión" : "sin datos")
+                    .help(error)
             }
         }
         .font(Brand.sans(10.5))

@@ -12,15 +12,15 @@ enum ClaudeCLIUsage {
     enum CLIError: LocalizedError {
         case notInstalled
         case timedOut
-        case noLimitsForToken
+        case notLoggedIn
         case unparseable(String)
 
         var errorDescription: String? {
             switch self {
             case .notInstalled: "No se encontró el comando `claude`. Instala Claude Code."
             case .timedOut: "`claude /usage` no respondió a tiempo."
-            case .noLimitsForToken:
-                "Con un token de larga duración Claude Code no informa de los límites de la cuenta. La actividad y el coste sí se ven."
+            case .notLoggedIn:
+                "Esta cuenta no tiene sesión de claude.ai en Claude Code. Ábrela en una terminal y entra con /login."
             case let .unparseable(output):
                 output.isEmpty ? "`claude /usage` no devolvió nada." : "`claude /usage`: \(output.prefix(200))"
             }
@@ -40,10 +40,11 @@ enum ClaudeCLIUsage {
             // Keeps these probes out of ~/.claude/projects (and out of the local activity).
             "--no-session-persistence",
         ])
-        return try parse(output)
+        return try parse(output, isToken: profile.tokenSlug != nil)
     }
 
-    static func parse(_ output: String, now: Date = Date()) throws -> UsageSnapshot {
+    /// `isToken`: the profile uses a long-lived token, which never gets the plan limits.
+    static func parse(_ output: String, isToken: Bool, now: Date = Date()) throws -> UsageSnapshot {
         var session: UsageBar?
         var weekly: UsageBar?
         var models: [UsageBar] = []
@@ -64,10 +65,13 @@ enum ClaudeCLIUsage {
             }
         }
 
-        // Token-authenticated sessions only get the local cost summary, never the plan limits.
-        // Claude Code labels it "Total cost:" in older versions and "Estimated cost:" in newer ones (seen in 2.1.327).
-        if session == nil, weekly == nil, output.contains("Total cost:") || output.contains("Estimated cost:") {
-            throw CLIError.noLimitsForToken
+        // Without a claude.ai login (a token, or no session at all) Claude Code only prints the
+        // local cost summary: "Total cost:" in older versions, "Estimated cost:" in newer ones (2.1.327).
+        if session == nil, weekly == nil, models.isEmpty,
+           output.contains("Total cost:") || output.contains("Estimated cost:") {
+            // A token profile is working as expected: a read with no limits, not an error.
+            guard isToken else { throw CLIError.notLoggedIn }
+            return UsageSnapshot(session: nil, weekly: nil, models: [], source: "claude /usage")
         }
         guard session != nil || weekly != nil || !models.isEmpty else {
             throw CLIError.unparseable(output.trimmingCharacters(in: .whitespacesAndNewlines))

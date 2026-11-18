@@ -91,6 +91,12 @@ final class UsageStore {
         snapshot?.primaryBar.map { Int($0.percent.rounded()) }
     }
 
+    /// Why the gauge is empty after a successful read.
+    var noLimitsReason: String {
+        ProfileManager.shared.active.kind == .token
+            ? "Con token, Claude Code no da límites" : "Claude no informa de límites"
+    }
+
     func refreshNow() {
         Task { await refresh() }
     }

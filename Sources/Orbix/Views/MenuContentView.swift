@@ -199,7 +199,7 @@ struct SessionHero: View {
     private var detail: String {
         guard let session else {
             return store.snapshot?.noLimitsReported == true
-                ? "Claude no informa de límites para esta cuenta."
+                ? "\(store.noLimitsReason) para esta cuenta."
                 : "Preguntando a Claude Code por tus límites."
         }
         if noSessionLimit {

@@ -60,7 +60,7 @@ struct CompactPanel: View {
                 Text(bar.map { "\(Int((100 - $0.percent).rounded())) % libre\(noSessionLimit ? " esta semana" : "")" }
                      ?? (store.isLoading ? "Consultando…" : store.snapshot?.noLimitsReported == true ? "Límites no disponibles" : "Sin datos"))
                     .font(.system(size: 15, weight: .semibold))
-                Text(store.snapshot?.noLimitsReported == true ? "Claude no informa de límites"
+                Text(store.snapshot?.noLimitsReported == true ? store.noLimitsReason
                      : noSessionLimit ? weeklyDetail(bar)
                      : bar?.resetsAt.map { "Sesión de 5 h · reinicia \($0.formatted(date: .omitted, time: .shortened))" } ?? "Sesión de 5 h")
                     .font(Brand.sans(10.5)).foregroundStyle(t.secondary)

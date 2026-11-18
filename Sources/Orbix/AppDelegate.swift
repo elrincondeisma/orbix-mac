@@ -92,6 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if store.isLoading && store.snapshot == nil { return .busy }
         if store.errorMessage != nil { return .error }
         if let pct = store.snapshot?.primaryBar?.percent, pct >= 90 { return .error }
-        return store.snapshot == nil ? .none : .ok
+        // No limits to watch (token profiles, Free accounts): nothing to signal.
+        return store.snapshot?.primaryBar == nil ? .none : .ok
     }
 }
