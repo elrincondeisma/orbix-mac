@@ -6,24 +6,32 @@ import Shot from "./Shot.astro";
 import compactDark from "../assets/shots/panel-compacta-oscuro.png";
 import compactLight from "../assets/shots/panel-compacta-claro.png";
 import { locales, localeInfo, homePath, t, type Locale } from "../i18n/config";
+import { guidesBase, guideWords, hasGuides } from "../i18n/guides";
 import type { Release } from "../lib/release";
 
 interface Props {
   locale: Locale;
   release: Release;
+  /** The same page in other languages; languages without it go to their home. */
+  alternates?: Partial<Record<Locale, string>>;
+  /** On the landing the sections are on this page; elsewhere they link back to it. */
+  onLanding?: boolean;
 }
-const { locale, release } = Astro.props;
+const { locale, release, alternates = {}, onLanding = true } = Astro.props;
+const sectionHref = (id: string) => `${onLanding ? "" : homePath(locale)}#${id}`;
 const dict = t(locale);
 const radius = 6.2;
 const start = 26;
-const sections = [
-  ["session", dict.nav.session],
-  ["panel", dict.nav.panel],
-  ["accounts", dict.nav.accounts],
-  ["privacy", dict.nav.privacy],
-  ["install", dict.nav.install],
-  ["faq", dict.nav.faq],
-] as const;
+// The first four stay visible on medium screens, so the guides go fourth.
+const sections: { href: string; label: string }[] = [
+  { href: sectionHref("session"), label: dict.nav.session },
+  { href: sectionHref("panel"), label: dict.nav.panel },
+  { href: sectionHref("accounts"), label: dict.nav.accounts },
+  ...(hasGuides(locale) ? [{ href: guidesBase[locale], label: guideWords[locale].nav }] : []),
+  { href: sectionHref("privacy"), label: dict.nav.privacy },
+  { href: sectionHref("install"), label: dict.nav.install },
+  { href: sectionHref("faq"), label: dict.nav.faq },
+];
 ---
 
 <a class="skip" href="#main">{dict.nav.skip}</a>
@@ -39,8 +47,8 @@ const sections = [
 
   <nav class="menubar__nav" aria-label={dict.nav.label}>
     <ul>
-      {sections.map(([id, label]) => (
-        <li><a href={`#${id}`}>{label}</a></li>
+      {sections.map((section) => (
+        <li><a href={section.href}>{section.label}</a></li>
       ))}
     </ul>
   </nav>
@@ -78,7 +86,7 @@ const sections = [
     {locales.map((code) => (
       <li>
         <a
-          href={homePath(code)}
+          href={alternates[code] ?? homePath(code)}
           hreflang={localeInfo[code].hreflang}
           lang={localeInfo[code].hreflang}
           aria-current={code === locale ? "true" : undefined}

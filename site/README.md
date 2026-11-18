@@ -19,6 +19,25 @@ To add a language: create `src/i18n/<code>.ts`, register it in `src/i18n/config.
 (`locales` and `localeInfo`) and in `astro.config.mjs` (`i18n.locales` and the sitemap), then
 render its share image (below).
 
+## Guides
+
+Guides live in `src/content/guides/<locale>/<file>.md`, in English (`/guides/…`) and Spanish
+(`/es/guias/…`). The frontmatter says what each one is:
+
+```yaml
+key: check-usage            # the same in every language: joins the translations (hreflang)
+urlSlug: check-claude-code-usage
+title: How to check your Claude Code usage
+seoTitle: "How to check your Claude Code usage and limits: 3 ways"
+description: "…"          # 160 characters at most; the build fails above that
+order: 1
+published: 2026-11-18
+updated: 2026-11-18
+```
+
+Facts about Claude's limits come from Anthropic's help center and the Claude Code docs; link
+the source when a guide relies on it. UI strings for the guides are in `src/i18n/guides.ts`.
+
 ## SEO
 
 Each page has its own title, description, canonical URL, `hreflang` alternates (plus
@@ -51,6 +70,10 @@ src/components/Session.astro   Hero and the scroll-driven 5-hour session ring
 src/components/Tour.astro      Full panel that scrolls to the section you point at
 src/components/Accounts.astro  Working accounts switches and terminal
 src/components/Shot.astro      Screenshot that follows light or dark appearance
+src/components/GuidePage.astro One guide: article, call to action, related guides
+src/components/GuideIndex.astro The list of guides in one language
+src/components/Footer.astro    Footer shared by every page
+src/content/guides/            Guides in Markdown, per language
 src/layouts/Base.astro         <head>: meta, hreflang, Open Graph, JSON-LD
 src/lib/release.ts             Latest release from GitHub
 ```

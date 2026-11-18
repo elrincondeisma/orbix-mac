@@ -1,0 +1,99 @@
+---
+// The list of guides in one language.
+import { getCollection } from "astro:content";
+import Base from "../layouts/Base.astro";
+import MenuBar from "./MenuBar.astro";
+import Footer from "./Footer.astro";
+import { homePath, localeInfo, t, type Locale } from "../i18n/config";
+import { guideLocales, guidesBase, guideWords, type GuideLocale } from "../i18n/guides";
+import { latestRelease } from "../lib/release";
+
+interface Props {
+  locale: GuideLocale;
+}
+const { locale } = Astro.props;
+const words = guideWords[locale];
+const dict = t(locale);
+const release = await latestRelease();
+const site = Astro.site!;
+const path = guidesBase[locale];
+const alternates: Partial<Record<Locale, string>> = Object.fromEntries(guideLocales.map((code) => [code, guidesBase[code]]));
+const guides = (await getCollection("guides"))
+  .filter((item) => item.id.startsWith(`${locale}/`))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: words.indexTitle,
+    description: words.indexDescription,
+    inLanguage: localeInfo[locale].hreflang,
+    url: new URL(path, site).href,
+    hasPart: guides.map((item) => ({
+      "@type": "TechArticle",
+      headline: item.data.title,
+      url: new URL(`${path}${item.data.urlSlug}/`, site).href,
+    })),
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Orbix", item: new URL(homePath(locale), site).href },
+      { "@type": "ListItem", position: 2, name: words.breadcrumb, item: new URL(path, site).href },
+    ],
+  },
+];
+---
+
+<Base
+  locale={locale}
+  title={words.indexSeoTitle}
+  description={words.indexDescription}
+  path={path}
+  alternates={alternates}
+  ogAlt={dict.meta.ogAlt}
+  structuredData={structuredData}
+>
+  <MenuBar locale={locale} release={release} alternates={alternates} onLanding={false} />
+
+  <main id="main" class="guides">
+    <div class="wrap guides__wrap">
+      <nav class="crumbs" aria-label={words.breadcrumb}>
+        <a href={homePath(locale)}>Orbix</a>
+      </nav>
+      <h1>{words.indexTitle}</h1>
+      <p class="guides__lede">{words.indexLede}</p>
+
+      <ul class="guides__list">
+        {guides.map((item) => (
+          <li>
+            <h2><a href={`${path}${item.data.urlSlug}/`}>{item.data.title}</a></h2>
+            <p>{item.data.description}</p>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </main>
+
+  <Footer locale={locale} release={release} alternates={alternates} />
+</Base>
+
+<style>
+  .guides { padding-top: calc(var(--menubar-h) + clamp(2rem, 6vw, 4rem)); padding-bottom: clamp(4rem, 10vw, 7rem); }
+  .guides__wrap { max-width: 50rem; }
+  .crumbs { font-size: var(--text-sm); margin-bottom: 2rem; }
+  .crumbs a { color: var(--lichen); text-decoration: none; }
+  .crumbs a:hover { color: var(--fog); text-decoration: underline; }
+  h1 { font-size: clamp(2.4rem, 6vw, 4rem); letter-spacing: -0.035em; margin-bottom: 1.2rem; max-width: 16ch; }
+  .guides__lede { font-size: 1.25rem; color: var(--lichen); max-width: var(--measure); margin-bottom: 3rem; }
+  .guides__list { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .guides__list li { position: relative; padding: 1.5rem 0; border-bottom: 1px solid var(--line); }
+  .guides__list h2 { font-size: var(--text-lg); margin-bottom: 0.5rem; }
+  .guides__list a { color: var(--fog); text-decoration: none; }
+  /* The whole row opens the guide. */
+  .guides__list a::after { content: ""; position: absolute; inset: 0; }
+  .guides__list li:hover a { color: var(--mint-ink); }
+  .guides__list p { color: var(--lichen); max-width: var(--measure); }
+</style>

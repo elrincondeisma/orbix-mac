@@ -6,6 +6,7 @@ import MenuBar from "./MenuBar.astro";
 import Session from "./Session.astro";
 import Tour from "./Tour.astro";
 import Accounts from "./Accounts.astro";
+import Footer from "./Footer.astro";
 import appIcon from "../assets/art/app-icon.png";
 import { locales, localeInfo, homePath, t, type Locale } from "../i18n/config";
 import { latestRelease, fill } from "../lib/release";
@@ -17,9 +18,50 @@ const { locale } = Astro.props;
 const dict = t(locale);
 const release = await latestRelease();
 const version = { version: release.version };
+const alternates = Object.fromEntries(locales.map((code) => [code, homePath(code)]));
+const site = Astro.site!;
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Orbix",
+    description: dict.meta.description,
+    url: new URL(homePath(locale), site).href,
+    image: new URL(`/og/${locale}.png`, site).href,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "macOS 14 or later",
+    softwareVersion: release.version,
+    downloadUrl: release.dmgUrl,
+    installUrl: release.releasesUrl,
+    inLanguage: "es",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@type": "Person", name: "Ismael Catala", url: "https://github.com/elrincondeisma" },
+    codeRepository: release.repoUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    inLanguage: localeInfo[locale].hreflang,
+    mainEntity: dict.faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+];
 ---
 
-<Base locale={locale} release={release}>
+<Base
+  locale={locale}
+  title={dict.meta.title}
+  description={dict.meta.description}
+  path={homePath(locale)}
+  alternates={alternates}
+  ogAlt={dict.meta.ogAlt}
+  structuredData={structuredData}
+>
   <MenuBar locale={locale} release={release} />
 
   <main id="main">
@@ -110,31 +152,7 @@ const version = { version: release.version };
     </section>
   </main>
 
-  <footer class="footer">
-    <div class="wrap footer__grid">
-      <div class="footer__about">
-        <p>{dict.footer.madeBy} <a href="https://github.com/elrincondeisma">Ismael Catala</a>. <a href={release.repoUrl}>{dict.footer.source}</a>.</p>
-        <p>{dict.footer.legal}</p>
-        <p>{dict.footer.site}</p>
-      </div>
-      <nav aria-label={dict.footer.languages}>
-        <ul class="footer__languages">
-          {locales.map((code) => (
-            <li>
-              <a
-                href={homePath(code)}
-                hreflang={localeInfo[code].hreflang}
-                lang={localeInfo[code].hreflang}
-                aria-current={code === locale ? "true" : undefined}
-              >
-                {localeInfo[code].name}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </div>
-  </footer>
+  <Footer locale={locale} release={release} alternates={alternates} />
 </Base>
 
 <style>
@@ -273,15 +291,6 @@ const version = { version: release.version };
   .faq details[open] summary:hover::after { box-shadow: inset 0 0 0 0.45rem var(--mint); }
   .faq details p { padding-bottom: 1.4rem; color: var(--lichen); max-width: var(--measure); }
 
-  /* Footer */
-  .footer { padding-block: 2.5rem 3rem; border-top: 1px solid var(--line); font-size: var(--text-sm); color: var(--lichen); }
-  .footer__grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem 3rem; }
-  .footer__about { display: grid; gap: 0.3rem; }
-  .footer a { color: var(--fog); }
-  .footer__languages { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0; padding: 0; list-style: none; }
-  .footer__languages a { display: inline-block; padding-block: 0.5rem; text-decoration: none; }
-  .footer__languages a:hover { text-decoration: underline; }
-  .footer__languages [aria-current] { color: var(--mint-ink); font-weight: 600; }
 
   @media (max-width: 54rem) {
     .install__grid, .faq__grid { grid-template-columns: minmax(0, 1fr); }

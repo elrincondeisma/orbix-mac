@@ -1,49 +1,28 @@
 ---
+// The document and its <head>: title, description, canonical, hreflang alternates, Open Graph,
+// Twitter and JSON-LD. Pages say what they are; this writes it out.
 import "../styles/global.css";
-import { locales, localeInfo, homePath, defaultLocale, t, type Locale } from "../i18n/config";
-import type { Release } from "../lib/release";
+import { localeInfo, defaultLocale, type Locale } from "../i18n/config";
 
 interface Props {
   locale: Locale;
-  release: Release;
+  title: string;
+  description: string;
+  /** This page's path, e.g. "/es/guias/ver-uso-claude-code/". */
+  path: string;
+  /** The same page in other languages, path by locale (this one included). */
+  alternates: Partial<Record<Locale, string>>;
+  ogAlt: string;
+  type?: "website" | "article";
+  structuredData?: object[];
 }
-const { locale, release } = Astro.props;
-const dict = t(locale);
+const { locale, title, description, path, alternates, ogAlt, type = "website", structuredData = [] } = Astro.props;
 const info = localeInfo[locale];
 const site = Astro.site!;
-const canonical = new URL(homePath(locale), site).href;
+const canonical = new URL(path, site).href;
 const ogImage = new URL(`/og/${locale}.png`, site).href;
-
-const structuredData = [
-  {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    name: "Orbix",
-    description: dict.meta.description,
-    url: canonical,
-    image: ogImage,
-    applicationCategory: "DeveloperApplication",
-    operatingSystem: "macOS 14 or later",
-    softwareVersion: release.version,
-    downloadUrl: release.dmgUrl,
-    installUrl: release.releasesUrl,
-    inLanguage: "es",
-    isAccessibleForFree: true,
-    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-    author: { "@type": "Person", name: "Ismael Catala", url: "https://github.com/elrincondeisma" },
-    codeRepository: release.repoUrl,
-  },
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    inLanguage: info.hreflang,
-    mainEntity: dict.faq.items.map((item) => ({
-      "@type": "Question",
-      name: item.q,
-      acceptedAnswer: { "@type": "Answer", text: item.a },
-    })),
-  },
-];
+const languages = (Object.keys(alternates) as Locale[]).filter((code) => alternates[code]);
+const xDefault = alternates[defaultLocale];
 ---
 
 <!doctype html>
@@ -51,32 +30,32 @@ const structuredData = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>{dict.meta.title}</title>
-    <meta name="description" content={dict.meta.description} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
-    {locales.map((code) => (
-      <link rel="alternate" hreflang={localeInfo[code].hreflang} href={new URL(homePath(code), site).href} />
+    {languages.length > 1 && languages.map((code) => (
+      <link rel="alternate" hreflang={localeInfo[code].hreflang} href={new URL(alternates[code]!, site).href} />
     ))}
-    <link rel="alternate" hreflang="x-default" href={new URL(homePath(defaultLocale), site).href} />
+    {languages.length > 1 && xDefault && <link rel="alternate" hreflang="x-default" href={new URL(xDefault, site).href} />}
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={type} />
     <meta property="og:site_name" content="Orbix" />
     <meta property="og:url" content={canonical} />
-    <meta property="og:title" content={dict.meta.title} />
-    <meta property="og:description" content={dict.meta.description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
     <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content={dict.meta.ogAlt} />
+    <meta property="og:image:alt" content={ogAlt} />
     <meta property="og:locale" content={info.og} />
-    {locales.filter((code) => code !== locale).map((code) => (
+    {languages.filter((code) => code !== locale).map((code) => (
       <meta property="og:locale:alternate" content={localeInfo[code].og} />
     ))}
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={dict.meta.title} />
-    <meta name="twitter:description" content={dict.meta.description} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={dict.meta.ogAlt} />
+    <meta name="twitter:image:alt" content={ogAlt} />
 
     <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e2420" />
     <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e8f0ec" />
@@ -84,7 +63,7 @@ const structuredData = [
     <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" href="/sitemap-index.xml" />
-    <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
+    {structuredData.length > 0 && <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />}
   </head>
   <body>
     <slot />

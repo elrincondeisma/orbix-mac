@@ -1,0 +1,53 @@
+---
+// Footer: who made it, the legal line, the guides and the same page in every language.
+import { locales, localeInfo, homePath, t, type Locale } from "../i18n/config";
+import { guidesBase, guideWords, hasGuides } from "../i18n/guides";
+import type { Release } from "../lib/release";
+
+interface Props {
+  locale: Locale;
+  release: Release;
+  /** The same page in other languages; languages without it link to their home. */
+  alternates?: Partial<Record<Locale, string>>;
+}
+const { locale, release, alternates = {} } = Astro.props;
+const dict = t(locale);
+---
+
+<footer class="footer">
+  <div class="wrap footer__grid">
+    <div class="footer__about">
+      <p>{dict.footer.madeBy} <a href="https://github.com/elrincondeisma">Ismael Catala</a>. <a href={release.repoUrl}>{dict.footer.source}</a>.</p>
+      {hasGuides(locale) && <p><a href={guidesBase[locale]}>{guideWords[locale].indexTitle}</a></p>}
+      <p>{dict.footer.legal}</p>
+      <p>{dict.footer.site}</p>
+    </div>
+    <nav aria-label={dict.footer.languages}>
+      <ul class="footer__languages">
+        {locales.map((code) => (
+          <li>
+            <a
+              href={alternates[code] ?? homePath(code)}
+              hreflang={localeInfo[code].hreflang}
+              lang={localeInfo[code].hreflang}
+              aria-current={code === locale ? "true" : undefined}
+            >
+              {localeInfo[code].name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .footer { padding-block: 2.5rem 3rem; border-top: 1px solid var(--line); font-size: var(--text-sm); color: var(--lichen); }
+  .footer__grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem 3rem; }
+  .footer__about { display: grid; gap: 0.3rem; }
+  .footer a { color: var(--fog); }
+  .footer__languages { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0; padding: 0; list-style: none; }
+  .footer__languages a { display: inline-block; padding-block: 0.5rem; text-decoration: none; }
+  .footer__languages a:hover { text-decoration: underline; }
+  .footer__languages [aria-current] { color: var(--mint-ink); font-weight: 600; }
+</style>

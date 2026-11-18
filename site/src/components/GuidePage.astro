@@ -1,0 +1,197 @@
+---
+// One guide: breadcrumbs, the article, a quiet nudge to Orbix and the other guides.
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import Base from "../layouts/Base.astro";
+import MenuBar from "./MenuBar.astro";
+import Footer from "./Footer.astro";
+import { homePath, localeInfo, t, type Locale } from "../i18n/config";
+import { guidesBase, guideWords, type GuideLocale } from "../i18n/guides";
+import { latestRelease } from "../lib/release";
+
+interface Props {
+  locale: GuideLocale;
+  entry: CollectionEntry<"guides">;
+}
+const { locale, entry } = Astro.props;
+const words = guideWords[locale];
+const dict = t(locale);
+const release = await latestRelease();
+const site = Astro.site!;
+const { Content } = await render(entry);
+
+const all = await getCollection("guides");
+const localeOf = (item: CollectionEntry<"guides">) => item.id.split("/")[0] as GuideLocale;
+const pathOf = (item: CollectionEntry<"guides">) => `${guidesBase[localeOf(item)]}${item.data.urlSlug}/`;
+const path = pathOf(entry);
+const alternates: Partial<Record<Locale, string>> = Object.fromEntries(
+  all.filter((item) => item.data.key === entry.data.key).map((item) => [localeOf(item), pathOf(item)]),
+);
+const related = all
+  .filter((item) => localeOf(item) === locale && item.data.key !== entry.data.key)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const date = new Intl.DateTimeFormat(localeInfo[locale].intl, { day: "numeric", month: "long", year: "numeric" });
+const isoDate = (value: Date) => value.toISOString().slice(0, 10);
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    headline: entry.data.title,
+    description: entry.data.description,
+    inLanguage: localeInfo[locale].hreflang,
+    datePublished: isoDate(entry.data.published),
+    dateModified: isoDate(entry.data.updated),
+    author: { "@type": "Person", name: "Ismael Catala", url: "https://github.com/elrincondeisma" },
+    image: new URL(`/og/${locale}.png`, site).href,
+    mainEntityOfPage: new URL(path, site).href,
+    about: { "@type": "SoftwareApplication", name: "Claude Code" },
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Orbix", item: new URL(homePath(locale), site).href },
+      { "@type": "ListItem", position: 2, name: words.breadcrumb, item: new URL(guidesBase[locale], site).href },
+      { "@type": "ListItem", position: 3, name: entry.data.title, item: new URL(path, site).href },
+    ],
+  },
+];
+---
+
+<Base
+  locale={locale}
+  title={entry.data.seoTitle}
+  description={entry.data.description}
+  path={path}
+  alternates={alternates}
+  ogAlt={dict.meta.ogAlt}
+  type="article"
+  structuredData={structuredData}
+>
+  <MenuBar locale={locale} release={release} alternates={alternates} onLanding={false} />
+
+  <main id="main" class="guide">
+    <article class="wrap guide__article">
+      <nav class="crumbs" aria-label={words.breadcrumb}>
+        <a href={homePath(locale)}>Orbix</a>
+        <span aria-hidden="true">/</span>
+        <a href={guidesBase[locale]}>{words.breadcrumb}</a>
+      </nav>
+
+      <header class="guide__head">
+        <h1>{entry.data.title}</h1>
+        <p class="guide__lede">{entry.data.description}</p>
+        <p class="guide__meta">{words.updated} <time datetime={isoDate(entry.data.updated)}>{date.format(entry.data.updated)}</time></p>
+      </header>
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      <aside class="cta" aria-labelledby="guide-cta">
+        <svg class="cta__ring" viewBox="0 0 100 100" aria-hidden="true">
+          <circle cx="50" cy="50" r="38" fill="none" stroke="var(--track)" stroke-width="8" />
+          <circle cx="50" cy="50" r="38" fill="none" stroke="var(--mint)" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="26 100" transform="rotate(-90 50 50)" />
+        </svg>
+        <div>
+          <h2 id="guide-cta">{words.ctaTitle}</h2>
+          <p>{words.ctaText}</p>
+          <a class="button button--primary" href={release.dmgUrl}>{words.ctaButton}</a>
+        </div>
+      </aside>
+
+      {related.length > 0 && (
+        <section class="related" aria-labelledby="related-title">
+          <h2 id="related-title">{words.related}</h2>
+          <ul>
+            {related.map((item) => (
+              <li>
+                <a href={pathOf(item)}>{item.data.title}</a>
+                <p>{item.data.description}</p>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </article>
+  </main>
+
+  <Footer locale={locale} release={release} alternates={alternates} />
+</Base>
+
+<style>
+  .guide { padding-top: calc(var(--menubar-h) + clamp(2rem, 6vw, 4rem)); padding-bottom: clamp(4rem, 10vw, 7rem); }
+  .guide__article { max-width: 46rem; }
+
+  .crumbs { display: flex; gap: 0.5rem; font-size: var(--text-sm); color: var(--lichen); margin-bottom: 2rem; }
+  .crumbs a { color: var(--lichen); text-decoration: none; }
+  .crumbs a:hover { color: var(--fog); text-decoration: underline; }
+
+  .guide__head { margin-bottom: 3rem; }
+  .guide__head h1 { font-size: clamp(2.2rem, 5.5vw, 3.5rem); letter-spacing: -0.03em; margin-bottom: 1.2rem; }
+  .guide__lede { font-size: 1.25rem; color: var(--lichen); margin-bottom: 1rem; }
+  .guide__meta { font-size: var(--text-sm); color: var(--lichen); }
+
+  /* Markdown body. */
+  .prose { font-size: 1.125rem; line-height: 1.65; }
+  .prose :global(h2) { font-size: var(--text-xl); margin: 3rem 0 1rem; scroll-margin-top: calc(var(--menubar-h) + 1rem); }
+  .prose :global(h3) { font-size: var(--text-lg); margin: 2rem 0 0.7rem; }
+  .prose :global(p), .prose :global(ul), .prose :global(ol), .prose :global(table), .prose :global(pre) { margin: 0 0 1.2rem; }
+  .prose :global(ul), .prose :global(ol) { padding-left: 1.3rem; }
+  .prose :global(li) { margin-bottom: 0.4rem; }
+  .prose :global(li::marker) { color: var(--mint-ink); }
+  .prose :global(a) { color: var(--mint-ink); text-underline-offset: 0.15em; }
+  .prose :global(strong) { font-weight: 600; color: var(--fog); }
+  .prose :global(code) { padding: 0.1em 0.35em; border-radius: 0.3rem; background: var(--raised); font-size: 0.86em; }
+  .prose :global(pre) {
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    background: #0b0f0e !important;
+    color: #e7efe9;
+    box-shadow: 0 0 0 1px #22302b;
+    overflow-x: auto;
+    font-size: 0.875rem;
+    line-height: 1.7;
+  }
+  .prose :global(pre code) { padding: 0; background: none; font-size: inherit; }
+  .prose :global(blockquote) {
+    margin: 0 0 1.4rem;
+    padding: 0.9rem 1.2rem;
+    border-left: 3px solid var(--mint);
+    border-radius: 0 10px 10px 0;
+    background: var(--raised);
+    color: var(--fog);
+  }
+  .prose :global(blockquote p:last-child) { margin-bottom: 0; }
+  .prose :global(table) { width: 100%; border-collapse: collapse; font-size: 1rem; display: block; overflow-x: auto; }
+  .prose :global(th), .prose :global(td) { padding: 0.6rem 0.8rem; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  .prose :global(th) { font-weight: 600; color: var(--lichen); font-size: var(--text-sm); }
+
+  .cta {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 1fr);
+    gap: 1.5rem;
+    align-items: start;
+    margin: 4rem 0;
+    padding: 1.6rem;
+    border-radius: 16px;
+    background: var(--sky-deep);
+    box-shadow: inset 0 0 0 1px var(--line);
+  }
+  .cta__ring { width: 5rem; height: 5rem; }
+  .cta h2 { font-size: var(--text-lg); margin-bottom: 0.5rem; }
+  .cta p { color: var(--lichen); margin-bottom: 1.2rem; }
+
+  .related h2 { font-size: var(--text-lg); margin-bottom: 1rem; }
+  .related ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .related li { padding: 1rem 0; border-bottom: 1px solid var(--line); }
+  .related a { font-family: var(--display); font-weight: 600; font-size: 1.2rem; color: var(--fog); text-decoration: none; }
+  .related a:hover { color: var(--mint-ink); text-decoration: underline; }
+  .related p { margin-top: 0.3rem; font-size: 1rem; color: var(--lichen); }
+
+  @media (max-width: 34rem) {
+    .cta { grid-template-columns: minmax(0, 1fr); }
+    .cta__ring { width: 3.5rem; height: 3.5rem; }
+  }
+</style>
