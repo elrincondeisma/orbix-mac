@@ -1,0 +1,47 @@
+---
+// Not found: one page for every language, with a way back to each home.
+import "../styles/global.css";
+import { locales, localeInfo, homePath } from "../i18n/config";
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Page not found · Orbix</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  </head>
+  <body>
+    <main class="lost">
+      <svg viewBox="0 0 200 200" width="140" height="140" aria-hidden="true">
+        <circle cx="100" cy="100" r="80" fill="none" stroke="var(--track)" stroke-width="12" />
+        <circle cx="100" cy="100" r="80" fill="none" stroke="var(--signal)" stroke-width="12" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 100 100)" />
+      </svg>
+      <h1>This page doesn't exist.</h1>
+      <p>The link may be old or mistyped. Orbix's home is one click away, in your language:</p>
+      <ul>
+        {locales.map((code) => (
+          <li><a href={homePath(code)} hreflang={localeInfo[code].hreflang} lang={localeInfo[code].hreflang}>{localeInfo[code].name}</a></li>
+        ))}
+      </ul>
+    </main>
+  </body>
+</html>
+
+<style>
+  .lost {
+    min-height: 100svh;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 1.2rem;
+    padding: 2rem var(--gutter);
+    text-align: center;
+  }
+  h1 { font-size: var(--text-2xl); }
+  p { color: var(--lichen); max-width: 30rem; }
+  ul { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1.4rem; margin: 0; padding: 0; list-style: none; }
+  a { display: inline-block; padding-block: 0.5rem; font-weight: 600; color: var(--mint-ink); }
+</style>

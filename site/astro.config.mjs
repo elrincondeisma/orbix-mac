@@ -15,6 +15,7 @@ export default defineConfig({
     sitemap({
       // The Open Graph card templates are only rendered to make the share images.
       filter: (page) => !page.includes("/og/"),
+      lastmod: new Date(),
       i18n: {
         defaultLocale: "en",
         locales: { en: "en", es: "es", fr: "fr", de: "de", pt: "pt-BR" },

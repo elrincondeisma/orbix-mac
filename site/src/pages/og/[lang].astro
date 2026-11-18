@@ -1,9 +1,10 @@
 ---
 // Template for the 1200×630 share images in public/og/. It isn't linked or indexed; render
-// it with a browser at that size and save the screenshot (see the README).
+// it with a browser at that size and save the screenshot (see the README). It mirrors the
+// hero: the dusk valley, the glowing session ring and the headline.
 import "../../styles/global.css";
 import { Image } from "astro:assets";
-import panel from "../../assets/shots/panel-compacta-oscuro.png";
+import wallpaper from "../../assets/art/wallpaper.png";
 import { locales, localeInfo, t, type Locale } from "../../i18n/config";
 
 export function getStaticPaths() {
@@ -11,6 +12,9 @@ export function getStaticPaths() {
 }
 const locale = Astro.params.lang as Locale;
 const dict = t(locale);
+const used = 26;
+const angle = (used / 100) * Math.PI * 2 - Math.PI / 2;
+const ball = { x: 200 + 150 * Math.cos(angle), y: 200 + 150 * Math.sin(angle) };
 ---
 
 <!doctype html>
@@ -22,10 +26,12 @@ const dict = t(locale);
   </head>
   <body>
     <div class="card">
+      <Image src={wallpaper} alt="" width={1200} class="land" loading="eager" />
+      <div class="veil"></div>
       <div class="copy">
         <p class="brand">
-          <svg viewBox="0 0 20 20" width="44" height="44" aria-hidden="true">
-            <path d="M15.6 13.4A6.6 6.6 0 1 1 13.3 4.3" fill="none" stroke="#e3ece7" stroke-width="2.4" stroke-linecap="round" />
+          <svg viewBox="0 0 20 20" width="40" height="40" aria-hidden="true">
+            <path d="M15.6 13.4A6.6 6.6 0 1 1 13.3 4.3" fill="none" stroke="#f1f6f3" stroke-width="2.4" stroke-linecap="round" />
             <circle cx="15.3" cy="5.6" r="2.5" fill="#34d399" />
           </svg>
           Orbix
@@ -33,12 +39,18 @@ const dict = t(locale);
         <h1>{dict.hero.title}</h1>
         <p class="sub">macOS 14+</p>
       </div>
-      <div class="art">
-        <svg class="orbit" viewBox="0 0 800 800" aria-hidden="true">
-          <ellipse cx="400" cy="400" rx="390" ry="150" transform="rotate(-18 400 400)" />
-          <ellipse cx="400" cy="400" rx="330" ry="250" transform="rotate(24 400 400)" />
+      <div class="ring">
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <defs>
+            <filter id="bloom" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="10" /></filter>
+          </defs>
+          <circle cx="200" cy="200" r="150" fill="none" stroke="rgb(241 246 243 / 0.12)" stroke-width="16" />
+          <circle cx="200" cy="200" r="150" fill="none" stroke="#34d399" stroke-width="24" stroke-linecap="round" pathLength="100" stroke-dasharray={`${used} 100`} transform="rotate(-90 200 200)" filter="url(#bloom)" opacity="0.9" />
+          <circle cx="200" cy="200" r="150" fill="none" stroke="#34d399" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray={`${used} 100`} transform="rotate(-90 200 200)" />
+          <circle cx={ball.x} cy={ball.y} r="30" fill="#34d399" opacity="0.3" filter="url(#bloom)" />
+          <circle cx={ball.x} cy={ball.y} r="13" fill="#34d399" />
         </svg>
-        <Image src={panel} alt="" width={380} class="panel" />
+        <p class="pct"><span>{used}<small>%</small></span></p>
       </div>
     </div>
   </body>
@@ -46,21 +58,42 @@ const dict = t(locale);
 
 <style is:global>
   html, body { margin: 0; color-scheme: dark; }
-  body { width: 1200px; height: 630px; overflow: hidden; background: #0e2420; color: #e3ece7; }
-  .card {
-    position: relative;
-    display: grid;
-    grid-template-columns: 1fr 470px;
-    height: 100%;
-    padding: 0 0 0 80px;
-    background: radial-gradient(700px 500px at 85% 30%, rgb(52 211 153 / 0.18), transparent 70%), linear-gradient(#0a1b18, #0e2420);
-    overflow: hidden;
+  body { width: 1200px; height: 630px; overflow: hidden; background: #0e2420; color: #f1f6f3; }
+  .card { position: relative; width: 100%; height: 100%; overflow: hidden; }
+  .land { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: 50% 70%; }
+  .veil {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(520px 420px at 78% 46%, rgb(52 211 153 / 0.16), transparent 70%),
+      linear-gradient(90deg, rgb(10 27 24 / 0.82) 0%, rgb(10 27 24 / 0.45) 55%, rgb(10 27 24 / 0.2));
   }
-  .copy { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
-  .brand { display: flex; align-items: center; gap: 14px; margin: 0; font-family: var(--display); font-weight: 600; font-size: 40px; }
-  h1 { font-size: 70px; line-height: 1.02; letter-spacing: -0.035em; max-width: 12ch; }
-  .sub { margin: 0; font-size: 24px; color: #97ada4; }
-  .art { position: relative; }
-  .orbit { position: absolute; width: 900px; left: -160px; top: -140px; fill: none; stroke: #24453d; stroke-width: 1.2; }
-  .panel { position: absolute; top: 56px; left: 40px; width: 380px; border-radius: 16px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 40px 80px -20px rgb(0 0 0 / 0.8); }
+  .copy {
+    position: absolute;
+    left: 72px;
+    top: 0;
+    bottom: 0;
+    width: 640px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 26px;
+  }
+  .brand { display: flex; align-items: center; gap: 14px; margin: 0; font-family: var(--display); font-weight: 600; font-size: 38px; }
+  h1 { font-size: 66px; line-height: 1; letter-spacing: -0.04em; text-shadow: 0 2px 30px rgb(6 20 17 / 0.6); }
+  .sub { margin: 0; font-size: 24px; color: #c4d4cc; }
+  .ring { position: absolute; right: 70px; top: 105px; width: 420px; height: 420px; }
+  .ring svg { width: 100%; height: 100%; overflow: visible; }
+  .pct {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    margin: 0;
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: 120px;
+    letter-spacing: -0.04em;
+  }
+  .pct small { font-size: 0.42em; color: #34d399; margin-left: 0.04em; }
 </style>

@@ -2,9 +2,9 @@ import type { Dict } from "./config";
 
 const de: Dict = {
   meta: {
-    title: "Orbix: Ihr Claude-Limit in der Menüleiste des Mac",
+    title: "Orbix: Claude-Code-Limits in der Menüleiste des Mac",
     description:
-      "Orbix zeigt, wie viel von Ihrer 5-Stunden-Sitzung und Ihrem Wochenlimit bei Claude übrig ist, wann beide zurückgesetzt werden und was diese Nutzung über die API kosten würde. Kostenlos für macOS.",
+      "Kostenlose Menüleisten-App für Claude Code: was von 5-Stunden-Sitzung und Wochenlimit übrig ist, wann beide neu starten und was es per API kosten würde.",
     ogAlt: "Orbix: der Nutzungsring in der Menüleiste des Mac und sein Panel mit 5-Stunden-Sitzung und Wochenlimits",
   },
   nav: {
@@ -15,7 +15,7 @@ const de: Dict = {
     privacy: "Datenschutz",
     install: "Installieren",
     faq: "Fragen",
-    download: "Laden",
+    download: "Download",
     language: "Sprache",
     openPanel: "Orbix-Panel öffnen",
     home: "Orbix, Startseite",
@@ -23,8 +23,8 @@ const de: Dict = {
   },
   hero: {
     title: "Sehen Sie Ihr Claude-Limit, bevor Sie es erreichen.",
-    lede: "Orbix sitzt in der Menüleiste Ihres Mac. Es zeigt, wie viel von der 5-Stunden-Sitzung und der Woche übrig ist, wann beide zurückgesetzt werden und was diese Nutzung über die API kosten würde.",
-    download: "Für Mac laden",
+    lede: "Orbix ist eine kostenlose Menüleisten-App für die Nutzung von Claude Code. Sie zeigt, wie viel von der 5-Stunden-Sitzung und der Woche übrig ist, wann beide zurückgesetzt werden und was diese Nutzung über die API kosten würde.",
+    download: "Für Mac herunterladen",
     source: "Auf GitHub ansehen",
     meta: "Version {version}, kostenlos. macOS 14 oder neuer, Apple Silicon und Intel. Von Apple signiert und notariell beglaubigt.",
   },
@@ -108,11 +108,11 @@ const de: Dict = {
   install: {
     title: "Die Installation dauert eine halbe Minute.",
     steps: [
-      { title: "Laden Sie die .dmg", text: "Version {version}, signiert und notariell beglaubigt." },
+      { title: "Laden Sie die .dmg herunter", text: "Version {version}, signiert und notariell beglaubigt." },
       { title: "Ziehen Sie Orbix in Programme", text: "Im Fenster, das sich öffnet." },
       { title: "Öffnen Sie es", text: "Es erscheint oben rechts in der Menüleiste und fragt, ob es beim Anmelden starten soll." },
     ],
-    download: "Orbix {version} laden",
+    download: "Orbix {version} herunterladen",
     note: "Sie brauchen Claude Code, installiert und angemeldet.",
     allReleases: "Alle Versionen auf GitHub",
     window: "Installationsfenster: Orbix links, der Ordner Programme rechts",

@@ -2,9 +2,9 @@ import type { Dict } from "./config";
 
 const es: Dict = {
   meta: {
-    title: "Orbix: tu límite de Claude en la barra de menús del Mac",
+    title: "Orbix: límites de Claude Code en la barra de menús del Mac",
     description:
-      "Orbix te enseña cuánto te queda de la sesión de 5 horas y de la semana de Claude, cuándo se reinicia cada una y qué te costaría ese uso por API. Gratis, para macOS.",
+      "App gratis para la barra de menús del Mac: cuánto te queda de la sesión de 5 horas y de la semana de Claude Code, cuándo se reinician y qué costaría por API.",
     ogAlt: "Orbix: el aro de uso en la barra de menús del Mac y su panel con la sesión de 5 horas y los límites semanales",
   },
   nav: {
@@ -23,7 +23,7 @@ const es: Dict = {
   },
   hero: {
     title: "Mira tu límite de Claude antes de llegar a él.",
-    lede: "Orbix vive en la barra de menús del Mac. Te dice cuánto te queda de la sesión de 5 horas y de la semana, cuándo se reinicia cada una y qué te costaría ese uso por API.",
+    lede: "Orbix es una app gratis para ver el uso de Claude Code desde la barra de menús del Mac. Te dice cuánto te queda de la sesión de 5 horas y de la semana, cuándo se reinicia cada una y qué te costaría ese uso por API.",
     download: "Descargar para Mac",
     source: "Ver en GitHub",
     meta: "Versión {version}, gratis. macOS 14 o posterior, Apple Silicon e Intel. Firmada y notarizada por Apple.",

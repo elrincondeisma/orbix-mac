@@ -2,9 +2,9 @@
 // "{version}" is replaced with the latest release number at build time.
 export default {
   meta: {
-    title: "Orbix: your Claude limit in the Mac menu bar",
+    title: "Orbix: Claude Code usage limits in your Mac menu bar",
     description:
-      "Orbix shows how much of your 5-hour Claude session and weekly limit is left, when each one resets and what that usage would cost on the API. Free for macOS.",
+      "Free Mac menu bar app for Claude Code: see what's left of your 5-hour session and weekly limit, when each resets and what it would cost on the API.",
     ogAlt: "Orbix: the usage ring in the Mac menu bar and its panel with the 5-hour session and weekly limits",
   },
   nav: {
@@ -23,7 +23,7 @@ export default {
   },
   hero: {
     title: "See your Claude limit before you hit it.",
-    lede: "Orbix lives in your Mac's menu bar. It shows how much of the 5-hour session and the week you have left, when each one resets, and what that usage would cost on the API.",
+    lede: "Orbix is a free Mac menu bar app for Claude Code usage. It shows how much of the 5-hour session and the week you have left, when each one resets, and what that usage would cost on the API.",
     download: "Download for Mac",
     source: "View on GitHub",
     meta: "Version {version}, free. macOS 14 or later, Apple Silicon and Intel. Signed and notarized by Apple.",

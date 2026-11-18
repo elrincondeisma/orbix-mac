@@ -48,11 +48,13 @@ const sections = [
   <div class="menubar__extras">
     <a class="menubar__download" href={release.dmgUrl}>{dict.nav.download}</a>
 
-    <button class="menubar__item menubar__input" type="button" popovertarget="language-menu" aria-label={`${dict.nav.language}: ${localeInfo[locale].name}`}>
-      <span class="menubar__input-badge">{localeInfo[locale].short}</span>
+    <button class="menubar__item menubar__input" type="button" popovertarget="language-menu">
+      <span class="visually-hidden">{dict.nav.language}: </span>
+      <span class="menubar__input-badge" title={localeInfo[locale].name}>{localeInfo[locale].short}</span>
     </button>
 
-    <button class="menubar__item menubar__status" type="button" popovertarget="orbix-panel" aria-label={dict.nav.openPanel} data-status>
+    <button class="menubar__item menubar__status" type="button" popovertarget="orbix-panel" data-status>
+      <span class="visually-hidden">{dict.nav.openPanel}: </span>
       <svg viewBox="0 0 20 18" width="20" height="18" aria-hidden="true">
         <circle cx="10" cy="9" r={radius} fill="none" stroke="currentColor" stroke-opacity="0.32" stroke-width="1.6" />
         <circle

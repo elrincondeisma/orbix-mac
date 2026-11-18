@@ -74,7 +74,7 @@ const words = dict.hero.title.split(" ");
       <div class="hero__moon" data-moon></div>
       <h1 id="hero-title">
         {words.map((word, index) => (
-          <span class="hero__word" style={`--i:${index}`}>{word}</span>
+          <>{index > 0 && " "}<span class="hero__word" style={`--i:${index}`}>{word}</span></>
         ))}
       </h1>
       <div class="hero__after">
@@ -106,7 +106,7 @@ const words = dict.hero.title.split(" ");
         <circle class="stage__moon" cx="742" cy="282" r="5" />
       </svg>
 
-      <figure class="ring" role="img" aria-label={`${dict.ring.label}: ${start.used}%`} data-ring>
+      <div class="ring" role="img" aria-label={`${dict.ring.label}: ${start.used}%`} data-ring>
         <svg viewBox="0 0 400 400" aria-hidden="true">
           <defs>
             <filter id="ring-bloom" x="-30%" y="-30%" width="160%" height="160%">
@@ -142,12 +142,12 @@ const words = dict.hero.title.split(" ");
             <circle class="ring__shine" r="5" cx="-4" cy="-4" />
           </g>
         </svg>
-        <figcaption class="ring__center">
+        <div class="ring__center">
           <span class="ring__number"><span data-pct>{start.used}</span><span class="ring__unit">%</span></span>
           <span class="ring__used" data-used-label>{dict.ring.used}</span>
           <span class="ring__session" data-fade>{dict.ring.session}</span>
-        </figcaption>
-      </figure>
+        </div>
+      </div>
 
       <dl class="readout" data-fade>
         <div>
@@ -261,7 +261,6 @@ const words = dict.hero.title.split(" ");
   }
   .hero__word {
     display: inline-block;
-    margin-inline: 0.12em;
     animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
     animation-delay: calc(0.5s + var(--i) * 0.07s);
   }
@@ -509,6 +508,8 @@ const words = dict.hero.title.split(" ");
     const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
     const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
 
+    let landed = false;
+
     // The flight: at the top of the page the ring sits in the hero's moon, bigger; over the
     // first stretch of scrolling it shrinks into its place in the story column.
     function fly() {
@@ -524,6 +525,9 @@ const words = dict.hero.title.split(" ");
       }
       // It moves aside first (fast out), then settles and shrinks (ease in and out).
       const raw = clamp01(window.scrollY / (hero.offsetHeight * 0.7));
+      // Once it has landed there's nothing to measure until it heads back up.
+      if (raw === 1 && landed) return;
+      landed = raw === 1;
       const k = easeInOut(raw);
       const kx = 1 - Math.pow(1 - raw, 3);
       const stageRect = stage!.getBoundingClientRect();
@@ -580,6 +584,7 @@ const words = dict.hero.title.split(" ");
     // What's on screen eases towards the target; on load that draws the ring in from zero.
     const shown = { used: 0, minutes: keyframes[0].minutes - 66, weekly: keyframes[0].weekly };
     let target = sessionAt(position());
+    let activeStep = -1;
     let frame = 0;
 
     function render() {
@@ -605,8 +610,7 @@ const words = dict.hero.title.split(" ");
         statusDot.style.fill = `var(--${state === "ok" ? "mint" : state})`;
       }
 
-      const active = Math.round(position()) - 1;
-      steps.forEach((step, index) => step.classList.toggle("is-active", index === active));
+      steps.forEach((step, index) => step.classList.toggle("is-active", index === activeStep));
     }
 
     function loop() {
@@ -628,9 +632,13 @@ const words = dict.hero.title.split(" ");
       }
     }
 
+    // Layout is read once per scroll, before anything is written, so the browser never
+    // has to lay the page out twice in a frame; the animation loop only writes.
     function update() {
+      const at = position();
+      target = sessionAt(at);
+      activeStep = Math.round(at) - 1;
       fly();
-      target = sessionAt(position());
       if (!frame) frame = requestAnimationFrame(loop);
     }
 
