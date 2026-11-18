@@ -1,97 +1,151 @@
-/* Orbix — tokens. The page is the app's light "paper" with forest ink; emerald is the
-   app's accent, amber only where the app itself uses it (near the limit). */
+/* Orbix: the page is the dusk sky of the app's wallpaper. Mint is the ring; amber and red
+   appear only where the app uses them, as the session nears its limit. It follows the
+   visitor's light or dark appearance, like the app follows macOS. */
+@import "@fontsource-variable/funnel-display";
+@import "@fontsource-variable/funnel-sans";
+
 :root {
-  --paper: #eef3f0;
-  --paper-deep: #e2ebe5;
-  --card: #fbfdfc;
-  --ink: #0e1a16;
-  --ink-soft: #3b4c44;
-  --muted: #62746b;
-  --line: #c9d8d0;
-  --forest: #0b3b2e;
-  --forest-deep: #07251d;
-  --emerald: #047857;
-  --emerald-bright: #34d399;
-  --amber: #a16207;
+  color-scheme: dark light;
 
-  --display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
-  --body: "Onest", ui-sans-serif, system-ui, sans-serif;
-  --figures: "JetBrains Mono", ui-monospace, monospace;
+  --sky: #0e2420;
+  --sky-deep: #0a1b18;
+  --raised: #143029;
+  --line: #24453d;
+  --fog: #e3ece7;
+  --lichen: #97ada4;
+  --mint: #34d399;
+  --mint-ink: #5ee6b0;
+  --amber: #e2ad48;
+  --signal: #ec8a7c;
+  --track: #1d3a33;
+  --glow: rgb(52 211 153 / 0.16);
+  --menubar: rgb(10 27 24 / 0.62);
+  --menubar-ink: #f1f6f3;
+  --menu: rgb(24 44 39 / 0.86);
+  --shot-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 40px 80px -30px rgb(0 0 0 / 0.7);
 
-  /* Type scale: perfect fourth (1.333) from a 17px body. */
-  --step--1: 0.8125rem;
-  --step-0: 1.0625rem;
-  --step-1: 1.4167rem;
-  --step-2: 1.8889rem;
-  --step-3: 2.5185rem;
-  --step-4: clamp(2.6rem, 5.2vw, 4.4rem);
+  --display: "Funnel Display Variable", ui-sans-serif, system-ui, sans-serif;
+  --body: "Funnel Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --system: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --code: ui-monospace, "SF Mono", Menlo, monospace;
 
+  /* The classic scale from The Elements of Typographic Style: 14 · 18 · 24 · 36 · 48 · 72. */
+  --text-sm: 0.875rem;
+  --text-base: 1.125rem;
+  --text-lg: 1.5rem;
+  --text-xl: clamp(1.9rem, 4vw, 2.25rem);
+  --text-2xl: clamp(2.25rem, 5vw, 3rem);
+  --text-3xl: clamp(2.6rem, 6.4vw, 4.5rem);
+
+  --menubar-h: 2.25rem;
   --gutter: clamp(1rem, 4vw, 3rem);
-  --measure: 38rem;
-  --radius-panel: 14px;
-  --radius-scene: 22px;
+  --measure: 36rem;
+  --wide: 74rem;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --sky: #e8f0ec;
+    --sky-deep: #dce8e2;
+    --raised: #f7faf8;
+    --line: #c6d7cf;
+    --fog: #0f2420;
+    --lichen: #4d655e;
+    --mint: #047857;
+    --mint-ink: #036148;
+    --amber: #a8740a;
+    --signal: #a4402f;
+    --track: #d3e2db;
+    --glow: rgb(4 120 87 / 0.1);
+    --menubar: rgb(240 246 243 / 0.7);
+    --menubar-ink: #0f1614;
+    --menu: rgb(250 252 251 / 0.86);
+    --shot-shadow: 0 0 0 1px rgb(15 36 32 / 0.08), 0 40px 70px -36px rgb(15 36 32 / 0.45);
+  }
 }
 
 *, *::before, *::after { box-sizing: border-box; }
 
-html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--menubar-h) + 1rem);
+  -webkit-text-size-adjust: 100%;
+}
 
 body {
   margin: 0;
-  background: var(--paper);
-  color: var(--ink);
+  background: var(--sky);
+  color: var(--fog);
   font-family: var(--body);
-  font-size: var(--step-0);
-  line-height: 1.6;
-  font-feature-settings: "ss01";
+  font-size: var(--text-base);
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: clip;
 }
 
 h1, h2, h3 {
   font-family: var(--display);
-  font-weight: 700;
-  letter-spacing: -0.025em;
-  line-height: 1.04;
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   margin: 0;
   text-wrap: balance;
 }
 
 p { margin: 0; text-wrap: pretty; }
-
 a { color: inherit; }
-
 img { display: block; max-width: 100%; height: auto; }
+code { font-family: var(--code); font-size: 0.86em; }
 
 :focus-visible {
-  outline: 3px solid var(--emerald);
+  outline: 2px solid var(--mint);
   outline-offset: 3px;
   border-radius: 6px;
 }
 
 .wrap {
-  width: min(100% - 2 * var(--gutter), 72rem);
+  width: min(100% - 2 * var(--gutter), var(--wide));
   margin-inline: auto;
 }
 
-.figures { font-family: var(--figures); font-feature-settings: "zero"; }
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 
 .button {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-  padding: 0.85rem 1.35rem;
-  border-radius: 999px;
+  gap: 0.55rem;
+  min-height: 3rem;
+  padding: 0.7rem 1.35rem;
+  border-radius: 0.75rem;
   font-weight: 600;
+  font-size: 1rem;
   text-decoration: none;
-  transition: transform 0.15s ease, background-color 0.15s ease;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 .button:active { transform: translateY(1px); }
-.button--primary { background: var(--forest); color: var(--paper); }
-.button--primary:hover { background: var(--forest-deep); }
-.button--quiet { color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
-.button--quiet:hover { box-shadow: inset 0 0 0 1.5px var(--ink-soft); }
+.button--primary { background: var(--mint); color: var(--sky-deep); }
+.button--primary:hover { background: var(--mint-ink); }
+.button--quiet { box-shadow: inset 0 0 0 1px var(--line); }
+.button--quiet:hover { box-shadow: inset 0 0 0 1px var(--lichen); }
+
+@media (prefers-color-scheme: light) {
+  .button--primary { color: #f4faf7; }
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  max-width: 18ch;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
   html { scroll-behavior: auto; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }

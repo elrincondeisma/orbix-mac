@@ -1,0 +1,39 @@
+---
+// A screenshot of the app in the visitor's appearance: the dark capture by default and the
+// light one when the system is in light mode, like the app itself.
+import { getImage } from "astro:assets";
+import type { ImageMetadata } from "astro";
+
+interface Props {
+  dark: ImageMetadata;
+  light: ImageMetadata;
+  alt: string;
+  width: number;
+  class?: string;
+  loading?: "eager" | "lazy";
+}
+const { dark, light, alt, width, class: className, loading = "lazy" } = Astro.props;
+const height = Math.round((dark.height / dark.width) * width);
+
+async function srcset(source: ImageMetadata) {
+  const [one, two] = await Promise.all([
+    getImage({ src: source, width, format: "webp" }),
+    getImage({ src: source, width: width * 2, format: "webp" }),
+  ]);
+  return { src: one.src, srcset: `${one.src} 1x, ${two.src} 2x` };
+}
+const [darkSet, lightSet] = await Promise.all([srcset(dark), srcset(light)]);
+---
+
+<picture class={className}>
+  <source media="(prefers-color-scheme: light)" srcset={lightSet.srcset} />
+  <img
+    src={darkSet.src}
+    srcset={darkSet.srcset}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={loading}
+    decoding="async"
+  />
+</picture>

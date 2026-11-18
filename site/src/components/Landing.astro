@@ -1,0 +1,292 @@
+---
+// The whole landing in one language. The pages only choose the locale.
+import { Image } from "astro:assets";
+import Base from "../layouts/Base.astro";
+import MenuBar from "./MenuBar.astro";
+import Session from "./Session.astro";
+import Tour from "./Tour.astro";
+import Accounts from "./Accounts.astro";
+import appIcon from "../assets/art/app-icon.png";
+import { locales, localeInfo, homePath, t, type Locale } from "../i18n/config";
+import { latestRelease, fill } from "../lib/release";
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const dict = t(locale);
+const release = await latestRelease();
+const version = { version: release.version };
+---
+
+<Base locale={locale} release={release}>
+  <MenuBar locale={locale} release={release} />
+
+  <main id="main">
+    <Session locale={locale} release={release} />
+    <Tour locale={locale} />
+    <Accounts locale={locale} />
+
+    <section id="privacy" class="privacy" aria-labelledby="privacy-title">
+      <div class="wrap">
+        <h2 id="privacy-title" class="section-title">{dict.privacy.title}</h2>
+        <div class="privacy__columns">
+          <div>
+            <h3>{dict.privacy.readsTitle}</h3>
+            <ul class="privacy__list privacy__list--reads">
+              {dict.privacy.reads.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+          <div>
+            <h3>{dict.privacy.neverTitle}</h3>
+            <ul class="privacy__list privacy__list--never">
+              {dict.privacy.never.map((item) => <li>{item}</li>)}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install" class="install" aria-labelledby="install-title">
+      <div class="wrap install__grid">
+        <div>
+          <h2 id="install-title" class="section-title">{dict.install.title}</h2>
+          <ol class="install__steps">
+            {dict.install.steps.map((step) => (
+              <li>
+                <strong>{step.title}</strong>
+                <span>{fill(step.text, version)}</span>
+              </li>
+            ))}
+          </ol>
+          <a class="button button--primary" href={release.dmgUrl}>{fill(dict.install.download, version)}</a>
+          <p class="install__note">
+            {dict.install.note} <a href={release.releasesUrl}>{dict.install.allReleases}</a>
+          </p>
+        </div>
+
+        <figure class="dmg" aria-label={dict.install.window}>
+          <div class="dmg__titlebar" aria-hidden="true">
+            <span></span><span></span><span></span>
+            <em>Orbix</em>
+          </div>
+          <div class="dmg__body">
+            <p class="dmg__hint">{dict.install.drag}</p>
+            <div class="dmg__items">
+              <div class="dmg__item">
+                <Image src={appIcon} alt="" width={96} height={96} />
+                <span>Orbix</span>
+              </div>
+              <svg class="dmg__arrow" viewBox="0 0 120 24" aria-hidden="true">
+                <path d="M4 12h96" stroke-dasharray="0.1 9" stroke-linecap="round" stroke-width="4" />
+                <path d="M100 3l10 9-10 9" fill="none" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+              <div class="dmg__item">
+                <svg viewBox="0 0 104 84" width="96" height="78" aria-hidden="true">
+                  <path d="M6 14a6 6 0 0 1 6-6h24l8 8h48a6 6 0 0 1 6 6v6H6Z" fill="#5fa8e8" />
+                  <rect x="6" y="22" width="92" height="56" rx="7" fill="#7cbdf2" />
+                  <path d="M52 36v22M43 50l9 9 9-9" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0.9" />
+                </svg>
+                <span>{dict.install.applications}</span>
+              </div>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </section>
+
+    <section id="faq" class="faq" aria-labelledby="faq-title">
+      <div class="wrap faq__grid">
+        <h2 id="faq-title" class="section-title">{dict.faq.title}</h2>
+        <div class="faq__list">
+          {dict.faq.items.map((item) => (
+            <details name="faq">
+              <summary>{item.q}</summary>
+              <p>{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__grid">
+      <div class="footer__about">
+        <p>{dict.footer.madeBy} <a href="https://github.com/elrincondeisma">Ismael Catala</a>. <a href={release.repoUrl}>{dict.footer.source}</a>.</p>
+        <p>{dict.footer.legal}</p>
+        <p>{dict.footer.site}</p>
+      </div>
+      <nav aria-label={dict.footer.languages}>
+        <ul class="footer__languages">
+          {locales.map((code) => (
+            <li>
+              <a
+                href={homePath(code)}
+                hreflang={localeInfo[code].hreflang}
+                lang={localeInfo[code].hreflang}
+                aria-current={code === locale ? "true" : undefined}
+              >
+                {localeInfo[code].name}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+    </div>
+  </footer>
+</Base>
+
+<style>
+  /* Privacy */
+  .privacy { padding-block: clamp(5rem, 12vw, 9rem); }
+  .privacy h2 { margin-bottom: clamp(2rem, 5vw, 3.5rem); }
+  .privacy__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2rem, 6vw, 5rem);
+  }
+  .privacy h3 { font-size: var(--text-lg); margin-bottom: 1.2rem; }
+  .privacy__list { margin: 0; padding: 0; list-style: none; display: grid; gap: 1rem; }
+  .privacy__list li { position: relative; padding-left: 1.8rem; color: var(--lichen); max-width: 32rem; }
+  .privacy__list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.3em;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+  }
+  /* What it reads: a full ring. What it never does: an empty one, struck through. */
+  .privacy__list--reads li::before { box-shadow: inset 0 0 0 2.5px var(--mint); }
+  .privacy__list--never li::before {
+    box-shadow: inset 0 0 0 1.5px var(--lichen);
+    background: linear-gradient(135deg, transparent 46%, var(--lichen) 46% 54%, transparent 54%);
+  }
+
+  /* Install */
+  .install {
+    padding-block: clamp(5rem, 12vw, 9rem);
+    border-top: 1px solid var(--line);
+  }
+  .install__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(2.5rem, 7vw, 6rem);
+    align-items: center;
+  }
+  .install h2 { margin-bottom: 2rem; }
+  .install__steps {
+    margin: 0 0 2.2rem;
+    padding: 0;
+    list-style: none;
+    counter-reset: step;
+    display: grid;
+    gap: 1.1rem;
+  }
+  .install__steps li {
+    counter-increment: step;
+    display: grid;
+    grid-template-columns: 2.2rem minmax(0, 1fr);
+    column-gap: 0.4rem;
+  }
+  .install__steps li::before {
+    content: counter(step);
+    grid-row: span 2;
+    display: grid;
+    place-items: center;
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1.5px var(--mint);
+    color: var(--mint-ink);
+    font-weight: 700;
+    font-size: var(--text-sm);
+  }
+  .install__steps strong { font-weight: 600; }
+  .install__steps span { color: var(--lichen); }
+  .install__note { margin-top: 1.2rem; font-size: var(--text-sm); color: var(--lichen); }
+  .install__note a { color: var(--fog); }
+
+  .dmg {
+    margin: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f4f7f5;
+    color: #0f1614;
+    box-shadow: var(--shot-shadow);
+    font-family: var(--system);
+  }
+  .dmg__titlebar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 2.1rem;
+    padding-inline: 0.8rem;
+    background: #e9eeeb;
+    border-bottom: 1px solid #d3ddd8;
+    font-size: 0.8125rem;
+  }
+  .dmg__titlebar span { width: 12px; height: 12px; border-radius: 50%; background: #cfd8d3; }
+  .dmg__titlebar em { position: absolute; inset: 0; display: grid; place-items: center; font-style: normal; font-weight: 600; color: #3d4c45; }
+  .dmg__body { padding: clamp(1.5rem, 4vw, 2.5rem) 1rem clamp(2rem, 5vw, 3.5rem); text-align: center; }
+  .dmg__hint { color: #5c6b64; font-size: 0.9375rem; margin-bottom: clamp(1.5rem, 4vw, 2.5rem); }
+  .dmg__items { display: flex; align-items: flex-end; justify-content: center; gap: clamp(1rem, 5vw, 3rem); }
+  .dmg__item { display: grid; justify-items: center; gap: 0.4rem; font-size: 0.8125rem; }
+  .dmg__item img, .dmg__item svg { width: clamp(4rem, 12vw, 6rem); height: auto; }
+  .dmg__arrow { align-self: center; width: clamp(4rem, 12vw, 7.5rem); stroke: #047857; fill: none; }
+  .dmg__arrow path:first-child { stroke: #6fb59a; }
+
+  /* FAQ */
+  .faq { padding-block: clamp(5rem, 12vw, 9rem); background: var(--sky-deep); }
+  .faq__grid { display: grid; grid-template-columns: minmax(0, 0.7fr) minmax(0, 1.3fr); gap: clamp(2rem, 6vw, 5rem); align-items: start; }
+  .faq__list { border-top: 1px solid var(--line); }
+  .faq details { border-bottom: 1px solid var(--line); }
+  .faq summary {
+    position: relative;
+    padding: 1.15rem 2.5rem 1.15rem 0;
+    list-style: none;
+    cursor: pointer;
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: 1.25rem;
+    letter-spacing: -0.01em;
+  }
+  .faq summary::-webkit-details-marker { display: none; }
+  /* A small ring that fills when the answer is open. */
+  .faq summary::after {
+    content: "";
+    position: absolute;
+    right: 0.3rem;
+    top: 50%;
+    width: 0.9rem;
+    height: 0.9rem;
+    margin-top: -0.45rem;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 2px var(--lichen);
+    transition: box-shadow 0.2s ease;
+  }
+  .faq details[open] summary::after { box-shadow: inset 0 0 0 0.45rem var(--mint); }
+  .faq summary:hover::after { box-shadow: inset 0 0 0 2px var(--mint); }
+  .faq details[open] summary:hover::after { box-shadow: inset 0 0 0 0.45rem var(--mint); }
+  .faq details p { padding-bottom: 1.4rem; color: var(--lichen); max-width: var(--measure); }
+
+  /* Footer */
+  .footer { padding-block: 2.5rem 3rem; border-top: 1px solid var(--line); font-size: var(--text-sm); color: var(--lichen); }
+  .footer__grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1.5rem 3rem; }
+  .footer__about { display: grid; gap: 0.3rem; }
+  .footer a { color: var(--fog); }
+  .footer__languages { display: flex; flex-wrap: wrap; gap: 0.4rem 1.2rem; margin: 0; padding: 0; list-style: none; }
+  .footer__languages a { text-decoration: none; }
+  .footer__languages a:hover { text-decoration: underline; }
+  .footer__languages [aria-current] { color: var(--mint-ink); font-weight: 600; }
+
+  @media (max-width: 54rem) {
+    .install__grid, .faq__grid { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 40rem) {
+    .privacy__columns { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>

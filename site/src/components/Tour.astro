@@ -1,117 +1,180 @@
 ---
-// "What you see when you open it": the full panel with keyed markers on each region and
-// the explanation beside it. The keys map regions to text, so numbering is a legend here.
-import { Image } from "astro:assets";
-import full from "../assets/shots/panel-completa-claro.png";
+// The full panel in a window the height of a screen. Pointing at (or choosing) a section in
+// the list scrolls the panel to it and lights it up, so the words and the UI stay together.
+import Shot from "./Shot.astro";
+import fullDark from "../assets/shots/panel-completa-oscuro.png";
+import fullLight from "../assets/shots/panel-completa-claro.png";
+import { t, type Locale } from "../i18n/config";
 
-const regions = [
-  { top: 10, title: "La sesión de 5 horas", text: "Cuánto te queda de la ventana actual y a qué hora se reinicia. El aro pasa a ámbar cerca del límite." },
-  { top: 21, title: "Los límites semanales", text: "El general y los de cada modelo, como Fable, con su día y hora de reinicio." },
-  { top: 36, title: "Tus cuentas", text: "Principal, trabajo o un token de larga duración. Enciende una y los próximos claude la usan." },
-  { top: 52, title: "Lo que no has gastado", text: "Reinicios gratis guardados, saldo prepago y uso extra del mes, leídos de claude.ai." },
-  { top: 65, title: "Lo que costaría por API", text: "Tu sesión actual y los últimos 30 días a precio de lista, calculados con tus sesiones locales." },
-  { top: 83, title: "Actividad y modelos", text: "Tokens por día y qué modelos usas más en Claude Code." },
+interface Props {
+  locale: Locale;
+}
+const dict = t(Astro.props.locale);
+
+// Where each section sits in the 680×2384 capture, as % of its height.
+const boxes = [
+  { top: 5.4, bottom: 13.8 },
+  { top: 14.4, bottom: 28.5 },
+  { top: 29.1, bottom: 44.2 },
+  { top: 44.8, bottom: 60.7 },
+  { top: 61.3, bottom: 69.7 },
+  { top: 70.3, bottom: 81.1 },
+  { top: 81.3, bottom: 95.6 },
 ];
+const regions = dict.tour.regions.map((region, index) => ({ ...region, ...boxes[index] }));
 ---
 
-<section class="tour" id="que-hace" aria-labelledby="tour-title">
+<section id="panel" class="tour" aria-labelledby="tour-title">
   <div class="wrap tour__grid">
     <div class="tour__intro">
-      <h2 id="tour-title">Todo lo que Claude no te enseña hasta que es tarde.</h2>
-      <p>
-        Un clic en la barra de menús y lo tienes delante. La vista compacta muestra la sesión y los límites; la
-        completa, todo lo demás.
-      </p>
+      <h2 id="tour-title" class="section-title">{dict.tour.title}</h2>
+      <p>{dict.tour.lede}</p>
     </div>
 
-    <figure class="tour__shot">
-      <Image src={full} alt="Vista completa del panel de Orbix con sesión, límites, cuentas, extras, coste por API y actividad" widths={[340, 680]} sizes="340px" />
+    <ul class="tour__list" data-tour-list>
       {regions.map((region, index) => (
-        <a class="tour__key figures" href={`#region-${index + 1}`} style={`top:${region.top}%`} aria-label={region.title}>
-          {index + 1}
-        </a>
-      ))}
-    </figure>
-
-    <ol class="tour__list">
-      {regions.map((region, index) => (
-        <li id={`region-${index + 1}`}>
-          <span class="tour__key tour__key--static figures" aria-hidden="true">{index + 1}</span>
-          <div>
-            <h3>{region.title}</h3>
-            <p>{region.text}</p>
-          </div>
+        <li data-region={index}>
+          <h3>
+            <button type="button" aria-controls="tour-window" aria-pressed={index === 0 ? "true" : "false"}>
+              {region.title}
+            </button>
+          </h3>
+          <p>{region.text}</p>
         </li>
       ))}
-    </ol>
+    </ul>
+
+    <figure class="tour__figure">
+      <div class="tour__window" id="tour-window" data-tour-window>
+        <div class="tour__layer" data-tour-layer>
+          <Shot dark={fullDark} light={fullLight} width={340} alt={dict.tour.alt} />
+          <span
+            class="tour__highlight"
+            data-tour-highlight
+            data-boxes={JSON.stringify(boxes)}
+            style={`top:${boxes[0].top}%;height:${boxes[0].bottom - boxes[0].top}%`}
+          ></span>
+        </div>
+      </div>
+      {dict.tour.note && <figcaption>{dict.tour.note}</figcaption>}
+    </figure>
   </div>
 </section>
 
 <style>
-  .tour { padding-block: clamp(4rem, 10vw, 8rem); }
+  .tour { padding-block: clamp(5rem, 12vw, 9rem); }
 
   .tour__grid {
     display: grid;
-    grid-template-columns: 340px minmax(0, 1fr);
-    grid-template-areas: "intro intro" "shot list";
-    column-gap: clamp(2rem, 5vw, 4.5rem);
-    row-gap: 3rem;
-    align-items: start;
+    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-areas: "intro figure" "list figure";
+    grid-template-rows: auto 1fr;
+    column-gap: clamp(2rem, 7vw, 7rem);
+    row-gap: 2.5rem;
   }
 
   .tour__intro { grid-area: intro; max-width: var(--measure); }
-  .tour__intro h2 { font-size: var(--step-3); margin-bottom: 1rem; }
-  .tour__intro p { color: var(--ink-soft); }
-
-  .tour__shot {
-    grid-area: shot;
-    position: relative;
-    margin: 0;
-    width: 340px;
-  }
-  .tour__shot img {
-    border-radius: var(--radius-panel);
-    box-shadow: 0 0 0 1px var(--line), 0 30px 60px -30px rgb(7 37 29 / 0.35);
-  }
-
-  .tour__key {
-    display: grid;
-    place-items: center;
-    width: 1.6rem;
-    height: 1.6rem;
-    border-radius: 50%;
-    background: var(--forest);
-    color: var(--paper);
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .tour__shot .tour__key {
-    position: absolute;
-    left: -0.8rem;
-    box-shadow: 0 0 0 3px var(--paper);
-  }
-  .tour__shot .tour__key:hover { background: var(--emerald); }
+  .tour__intro h2 { margin-bottom: 1.2rem; }
+  .tour__intro p { color: var(--lichen); }
 
   .tour__list {
     grid-area: list;
-    list-style: none;
     margin: 0;
     padding: 0;
+    list-style: none;
     display: grid;
-    gap: 1.6rem;
-    max-width: 30rem;
-    /* Keeps the explanations beside the panel while it scrolls past. */
-    position: sticky;
-    top: 2rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem 2rem;
+    align-content: start;
   }
-  .tour__list li { display: grid; grid-template-columns: auto 1fr; gap: 1rem; scroll-margin-top: 2rem; }
-  .tour__list h3 { font-size: var(--step-1); letter-spacing: -0.015em; margin-bottom: 0.3rem; }
-  .tour__list p { color: var(--ink-soft); }
-  .tour__list li:target h3 { color: var(--emerald); }
+  .tour__list li {
+    padding: 0.9rem 0 1rem;
+    border-top: 1px solid var(--line);
+    transition: border-color 0.2s ease;
+  }
+  .tour__list h3 { font-size: 1.25rem; letter-spacing: -0.01em; margin-bottom: 0.35rem; }
+  .tour__list button {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .tour__list p { font-size: 1rem; color: var(--lichen); }
+  .tour__list li:has([aria-pressed="true"]) { border-top-color: var(--mint); }
+  .tour__list [aria-pressed="true"] { color: var(--mint-ink); }
 
-  @media (max-width: 52rem) {
-    .tour__grid { grid-template-columns: 1fr; grid-template-areas: "intro" "shot" "list"; }
-    .tour__shot { justify-self: center; width: min(340px, 100%); }
+  .tour__figure { grid-area: figure; margin: 0; align-self: start; position: sticky; top: calc(var(--menubar-h) + 1.5rem); }
+  .tour__window {
+    position: relative;
+    height: min(38rem, calc(100svh - var(--menubar-h) - 6rem));
+    overflow: hidden;
+    border-radius: 14px;
+    box-shadow: var(--shot-shadow);
+  }
+  .tour__layer {
+    position: relative;
+    transition: transform 0.6s cubic-bezier(0.3, 0.8, 0.2, 1);
+  }
+  .tour__highlight {
+    position: absolute;
+    left: 3.6%;
+    right: 3.6%;
+    border-radius: 12px;
+    box-shadow: 0 0 0 2px var(--mint), 0 0 0 100vmax rgb(10 27 24 / 0.5);
+    transition: top 0.6s cubic-bezier(0.3, 0.8, 0.2, 1), height 0.6s cubic-bezier(0.3, 0.8, 0.2, 1);
+    pointer-events: none;
+  }
+  .tour__figure figcaption { margin-top: 0.9rem; font-size: var(--text-sm); color: var(--lichen); }
+
+  @media (prefers-color-scheme: light) {
+    .tour__highlight { box-shadow: 0 0 0 2px var(--mint), 0 0 0 100vmax rgb(232 240 236 / 0.55); }
+  }
+
+  @media (max-width: 64rem) {
+    .tour__list { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 46rem) {
+    .tour__grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: "intro" "figure" "list"; }
+    .tour__figure { position: static; justify-self: center; width: min(340px, 100%); }
+    .tour__window { height: 26rem; }
   }
 </style>
+
+<script>
+  const list = document.querySelector<HTMLElement>("[data-tour-list]");
+  const windowEl = document.querySelector<HTMLElement>("[data-tour-window]");
+  const layer = document.querySelector<HTMLElement>("[data-tour-layer]");
+  const highlight = document.querySelector<HTMLElement>("[data-tour-highlight]");
+
+  if (list && windowEl && layer && highlight) {
+    const boxes: { top: number; bottom: number }[] = JSON.parse(highlight.dataset.boxes!);
+    const items = Array.from(list.querySelectorAll<HTMLElement>("[data-region]"));
+    let current = 0;
+
+    function show(index: number) {
+      current = index;
+      const box = boxes[index];
+      const height = layer!.offsetHeight;
+      const view = windowEl!.offsetHeight;
+      const centre = ((box.top + box.bottom) / 200) * height;
+      const offset = Math.max(0, Math.min(height - view, centre - view / 2));
+      layer!.style.transform = `translateY(${-offset}px)`;
+      highlight!.style.top = `${box.top}%`;
+      highlight!.style.height = `${box.bottom - box.top}%`;
+      items.forEach((item, i) => item.querySelector("button")!.setAttribute("aria-pressed", String(i === index)));
+    }
+
+    items.forEach((item, index) => {
+      item.addEventListener("pointerenter", (event) => {
+        if (event.pointerType === "mouse") show(index);
+      });
+      item.querySelector("button")!.addEventListener("click", () => show(index));
+    });
+    window.addEventListener("resize", () => show(current));
+    // The capture loads lazily; place the window once its height is known.
+    layer.querySelector("img")?.addEventListener("load", () => show(current));
+  }
+</script>

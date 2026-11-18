@@ -1,0 +1,13 @@
+---
+// Every language except English, which lives at the root.
+import Landing from "../../components/Landing.astro";
+import { locales, defaultLocale, type Locale } from "../../i18n/config";
+
+export function getStaticPaths() {
+  return locales.filter((locale) => locale !== defaultLocale).map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+---
+
+<Landing locale={locale} />

@@ -1,31 +1,90 @@
 ---
 import "../styles/global.css";
+import { locales, localeInfo, homePath, defaultLocale, t, type Locale } from "../i18n/config";
+import type { Release } from "../lib/release";
 
 interface Props {
-  title: string;
-  description: string;
+  locale: Locale;
+  release: Release;
 }
-const { title, description } = Astro.props;
+const { locale, release } = Astro.props;
+const dict = t(locale);
+const info = localeInfo[locale];
+const site = Astro.site!;
+const canonical = new URL(homePath(locale), site).href;
+const ogImage = new URL(`/og/${locale}.png`, site).href;
+
+const structuredData = [
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Orbix",
+    description: dict.meta.description,
+    url: canonical,
+    image: ogImage,
+    applicationCategory: "DeveloperApplication",
+    operatingSystem: "macOS 14 or later",
+    softwareVersion: release.version,
+    downloadUrl: release.dmgUrl,
+    installUrl: release.releasesUrl,
+    inLanguage: "es",
+    isAccessibleForFree: true,
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+    author: { "@type": "Person", name: "Ismael Catala", url: "https://github.com/elrincondeisma" },
+    codeRepository: release.repoUrl,
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    inLanguage: info.hreflang,
+    mainEntity: dict.faq.items.map((item) => ({
+      "@type": "Question",
+      name: item.q,
+      acceptedAnswer: { "@type": "Answer", text: item.a },
+    })),
+  },
+];
 ---
 
 <!doctype html>
-<html lang="es">
+<html lang={info.hreflang}>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{dict.meta.title}</title>
+    <meta name="description" content={dict.meta.description} />
+    <link rel="canonical" href={canonical} />
+    {locales.map((code) => (
+      <link rel="alternate" hreflang={localeInfo[code].hreflang} href={new URL(homePath(code), site).href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={new URL(homePath(defaultLocale), site).href} />
+
     <meta property="og:type" content="website" />
-    <meta name="theme-color" content="#eef3f0" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@500;600&family=Onest:wght@400;500;600&display=swap"
-    />
+    <meta property="og:site_name" content="Orbix" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={dict.meta.title} />
+    <meta property="og:description" content={dict.meta.description} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={dict.meta.ogAlt} />
+    <meta property="og:locale" content={info.og} />
+    {locales.filter((code) => code !== locale).map((code) => (
+      <meta property="og:locale:alternate" content={localeInfo[code].og} />
+    ))}
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={dict.meta.title} />
+    <meta name="twitter:description" content={dict.meta.description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={dict.meta.ogAlt} />
+
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0e2420" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e8f0ec" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" sizes="64x64" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(structuredData)} />
   </head>
   <body>
     <slot />

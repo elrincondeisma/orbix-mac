@@ -1,0 +1,178 @@
+---
+// Accounts: a working copy of the app's accounts card. Flip a switch and the terminal below
+// shows which account the next `claude` signs in with.
+import { t, type Locale } from "../i18n/config";
+import { fill } from "../lib/release";
+
+interface Props {
+  locale: Locale;
+}
+const dict = t(Astro.props.locale).accounts;
+const level = (value: number | null) => (value === null ? "" : value >= 90 ? "signal" : value >= 70 ? "amber" : "ok");
+// Profile names in commands are lowercase, as people type them.
+const slug = (name: string) => name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").split(" ")[0];
+---
+
+<section id="accounts" class="accounts" aria-labelledby="accounts-title">
+  <div class="wrap accounts__grid">
+    <div class="accounts__copy">
+      <h2 id="accounts-title" class="section-title">{dict.title}</h2>
+      {dict.body.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+
+    <div class="accounts__demo">
+      <p class="accounts__try" id="accounts-try">{dict.try}</p>
+      <div class="card" role="group" aria-labelledby="accounts-card-title" aria-describedby="accounts-try">
+        <p class="card__title" id="accounts-card-title">{dict.cardTitle}</p>
+        <ul>
+          {dict.rows.map((row, index) => (
+            <li class="card__row" data-row={index}>
+              <div>
+                <p class="card__name">{row.name}</p>
+                <p class="card__detail">
+                  <span>{row.kind}</span>
+                  {row.session === null ? (
+                    <span>{dict.noLimits}</span>
+                  ) : (
+                    <>
+                      <span>{dict.session} <b class={`level-${level(row.session)}`}>{row.session}%</b></span>
+                      <span>{dict.week} <b class={`level-${level(row.week)}`}>{row.week}%</b></span>
+                    </>
+                  )}
+                </p>
+              </div>
+              <button
+                type="button"
+                class="switch"
+                role="switch"
+                aria-checked={index === 0 ? "true" : "false"}
+                aria-label={fill(dict.switchLabel, { name: row.name })}
+                data-name={row.name}
+              >
+                <span></span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <pre class="terminal" aria-live="polite"><code><span class="terminal__prompt">$</span> claude <span class="terminal__note"># {dict.opensWith} <b data-active-name>{dict.rows[0].name}</b></span>
+<span class="terminal__prompt">$</span> claude --perfil {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.once}</span>
+<span class="terminal__prompt">$</span> orbix-perfil {slug(dict.rows[1].name)} <span class="terminal__note"># {dict.switch}</span></code></pre>
+    </div>
+  </div>
+</section>
+
+<style>
+  .accounts {
+    padding-block: clamp(5rem, 12vw, 9rem);
+    background: var(--sky-deep);
+  }
+  .accounts__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 30rem);
+    gap: clamp(2.5rem, 7vw, 7rem);
+    align-items: center;
+  }
+  .accounts__copy { max-width: var(--measure); }
+  .accounts__copy h2 { margin-bottom: 1.6rem; }
+  .accounts__copy p { color: var(--lichen); }
+  .accounts__copy p + p { margin-top: 1rem; }
+
+  .accounts__try { font-size: var(--text-sm); color: var(--lichen); margin-bottom: 0.7rem; }
+
+  /* Mirrors the app's card: its own darker surface, so it reads as the app, not the page. */
+  .card {
+    --card: #111a16;
+    --card-line: #22302b;
+    --card-fg: #e7efe9;
+    --card-muted: #7d938a;
+    padding: 1rem 1.2rem 0.4rem;
+    border-radius: 14px;
+    background: var(--card);
+    color: var(--card-fg);
+    box-shadow: 0 0 0 1px var(--card-line), 0 30px 60px -30px rgb(0 0 0 / 0.6);
+    font-family: var(--system);
+  }
+  .card__title { font-size: 0.9375rem; font-weight: 600; color: var(--card-muted); margin-bottom: 0.4rem; }
+  .card ul { margin: 0; padding: 0; list-style: none; }
+  .card__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.75rem;
+  }
+  .card__row + .card__row { border-top: 1px solid var(--card-line); }
+  .card__name { font-weight: 600; font-size: 1.0625rem; color: var(--card-muted); transition: color 0.2s ease; }
+  .card__row:has([aria-checked="true"]) .card__name { color: var(--card-fg); }
+  .card__detail { display: flex; flex-wrap: wrap; gap: 0 0.5rem; font-size: 0.875rem; color: var(--card-muted); }
+  .card__detail span + span::before { content: "·"; margin-right: 0.5rem; }
+  .card__detail b { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .level-ok { color: #34d399; }
+  .level-amber { color: #d9a441; }
+  .level-signal { color: #e08a7e; }
+
+  .switch {
+    flex: none;
+    position: relative;
+    width: 3.1rem;
+    height: 1.8rem;
+    padding: 0;
+    border: 0;
+    border-radius: 1rem;
+    background: #1a2621;
+    box-shadow: inset 0 0 0 1px var(--card-line);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  .switch span {
+    position: absolute;
+    top: 0.25rem;
+    left: 0.25rem;
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 50%;
+    background: #5c6f66;
+    transition: transform 0.25s cubic-bezier(0.3, 0.9, 0.3, 1.2), background-color 0.2s ease;
+  }
+  .switch[aria-checked="true"] { background: #34d399; }
+  .switch[aria-checked="true"] span { transform: translateX(1.3rem); background: #0b0f0e; }
+
+  .terminal {
+    margin: 1rem 0 0;
+    padding: 1rem 1.2rem;
+    border-radius: 12px;
+    background: #0b0f0e;
+    color: #e7efe9;
+    box-shadow: 0 0 0 1px #22302b;
+    overflow-x: auto;
+    font-family: var(--code);
+    font-size: 0.8125rem;
+    line-height: 1.9;
+  }
+  .terminal code { font-size: inherit; }
+  .terminal__prompt { color: #34d399; user-select: none; }
+  .terminal__note { color: #7d938a; }
+  .terminal__note b { color: #e7efe9; font-weight: 600; }
+
+  @media (max-width: 54rem) {
+    .accounts__grid { grid-template-columns: minmax(0, 1fr); }
+  }
+</style>
+
+<script>
+  const switches = Array.from(document.querySelectorAll<HTMLButtonElement>(".switch[role=switch]"));
+  const activeName = document.querySelector<HTMLElement>("[data-active-name]");
+
+  // One account is active at a time, as in the app. Turning the active one off falls back
+  // to the first, so there's always an account for the next claude.
+  switches.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      const turningOff = button.getAttribute("aria-checked") === "true";
+      const chosen = turningOff ? 0 : index;
+      switches.forEach((other, i) => other.setAttribute("aria-checked", String(i === chosen)));
+      if (activeName) activeName.textContent = switches[chosen].dataset.name ?? "";
+    });
+  });
+</script>

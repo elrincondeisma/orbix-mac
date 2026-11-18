@@ -1,0 +1,645 @@
+---
+// The hero and the page's one orchestrated moment. The ring is a 5-hour session. On load it
+// rises like a moon over the app's dusk landscape and draws in to 26 %. Scrolling, it flies
+// into the story column and keeps going: the clock moves on, the ring fills, turns amber at
+// 70 % and red at 90 %, then empties at the reset. The Orbix item in the menu bar follows it.
+import { Image } from "astro:assets";
+import wallpaper from "../assets/art/wallpaper.png";
+import { localeInfo, t, type Locale } from "../i18n/config";
+import { fill, type Release } from "../lib/release";
+
+interface Props {
+  locale: Locale;
+  release: Release;
+}
+const { locale, release } = Astro.props;
+const dict = t(locale);
+const intl = localeInfo[locale].intl;
+
+// Keyframes of the illustrated session: minutes since midnight, % used, weekly %.
+// The hero is the first one; each story step is the next.
+const keyframes = [
+  { minutes: 920, used: 26, weekly: 48 },
+  { minutes: 1060, used: 70, weekly: 52 },
+  { minutes: 1115, used: 90, weekly: 55 },
+  { minutes: 1154, used: 0, weekly: 56 },
+];
+const resetAt = 1154;
+
+const timeFormat = new Intl.DateTimeFormat(intl, { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+const clock = (minutes: number) => timeFormat.format(new Date(Date.UTC(2026, 0, 1, 0, minutes % 1440)));
+const isoTime = (minutes: number) =>
+  `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+
+// Geometry: a 400×400 ring, 0 % at the top, ticks every 5 % with the two thresholds marked.
+const C = 200;
+const R = 150;
+const ticks = Array.from({ length: 20 }, (_, index) => {
+  const value = index * 5;
+  const angle = (value / 100) * Math.PI * 2 - Math.PI / 2;
+  const threshold = value === 70 ? "amber" : value === 90 ? "signal" : null;
+  const inner = threshold ? 166 : 170;
+  const outer = threshold ? 184 : 176;
+  return {
+    x1: C + inner * Math.cos(angle),
+    y1: C + inner * Math.sin(angle),
+    x2: C + outer * Math.cos(angle),
+    y2: C + outer * Math.sin(angle),
+    threshold,
+  };
+});
+const start = keyframes[0];
+const startAngle = (start.used / 100) * Math.PI * 2 - Math.PI / 2;
+const ballAt = `translate(${C + R * Math.cos(startAngle)} ${C + R * Math.sin(startAngle)})`;
+
+// The headline enters word by word.
+const words = dict.hero.title.split(" ");
+---
+
+<section id="session" class="session" aria-labelledby="hero-title">
+  <div class="sky" aria-hidden="true">
+    <Image
+      src={wallpaper}
+      alt=""
+      class="sky__land"
+      widths={[960, 1536]}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+    />
+  </div>
+
+  <div class="session__grid wrap">
+    <div class="hero" data-anchor>
+      <div class="hero__moon" data-moon></div>
+      <h1 id="hero-title">
+        {words.map((word, index) => (
+          <span class="hero__word" style={`--i:${index}`}>{word}</span>
+        ))}
+      </h1>
+      <div class="hero__after">
+        <p class="hero__lede">{dict.hero.lede}</p>
+        <div class="hero__actions">
+          <a class="button button--primary" href={release.dmgUrl}>
+            <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true"><path d="M8 1.8v8.6m0 0L4.6 7M8 10.4 11.4 7M2.6 14h10.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+            {dict.hero.download}
+          </a>
+          <a class="button button--quiet" href={release.repoUrl}>{dict.hero.source}</a>
+        </div>
+        <p class="hero__meta">{fill(dict.hero.meta, { version: release.version })}</p>
+      </div>
+    </div>
+
+    <div
+      class="stage"
+      data-stage
+      data-state="ok"
+      data-keyframes={JSON.stringify(keyframes)}
+      data-reset={resetAt}
+      data-locale={intl}
+      data-label-used={dict.ring.used}
+      data-label-reset={dict.ring.reset}
+    >
+      <svg class="stage__orbits" viewBox="0 0 800 800" aria-hidden="true" data-fade>
+        <ellipse cx="400" cy="400" rx="390" ry="150" transform="rotate(-18 400 400)" />
+        <ellipse cx="400" cy="400" rx="330" ry="250" transform="rotate(24 400 400)" />
+        <circle class="stage__moon" cx="742" cy="282" r="5" />
+      </svg>
+
+      <figure class="ring" role="img" aria-label={`${dict.ring.label}: ${start.used}%`} data-ring>
+        <svg viewBox="0 0 400 400" aria-hidden="true">
+          <defs>
+            <filter id="ring-bloom" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="9" />
+            </filter>
+          </defs>
+          <g class="ring__ticks" data-fade>
+            {ticks.map((tick) => (
+              <line x1={tick.x1} y1={tick.y1} x2={tick.x2} y2={tick.y2} class={tick.threshold ? `ring__tick--${tick.threshold}` : undefined} />
+            ))}
+          </g>
+          <circle class="ring__track" cx={C} cy={C} r={R} />
+          <circle
+            class="ring__arc ring__arc--bloom"
+            data-arc
+            cx={C} cy={C} r={R}
+            pathLength="100"
+            stroke-dasharray={`${start.used} 100`}
+            transform={`rotate(-90 ${C} ${C})`}
+            filter="url(#ring-bloom)"
+          />
+          <circle
+            class="ring__arc"
+            data-arc
+            cx={C} cy={C} r={R}
+            pathLength="100"
+            stroke-dasharray={`${start.used} 100`}
+            transform={`rotate(-90 ${C} ${C})`}
+          />
+          <g data-ball transform={ballAt}>
+            <circle class="ring__halo" r="30" />
+            <circle class="ring__ball" r="13" />
+            <circle class="ring__shine" r="5" cx="-4" cy="-4" />
+          </g>
+        </svg>
+        <figcaption class="ring__center">
+          <span class="ring__number"><span data-pct>{start.used}</span><span class="ring__unit">%</span></span>
+          <span class="ring__used" data-used-label>{dict.ring.used}</span>
+          <span class="ring__session" data-fade>{dict.ring.session}</span>
+        </figcaption>
+      </figure>
+
+      <dl class="readout" data-fade>
+        <div>
+          <dt>{dict.ring.now}</dt>
+          <dd data-now>{clock(start.minutes)}</dd>
+        </div>
+        <div>
+          <dt>{dict.ring.resets}</dt>
+          <dd data-resets>{clock(resetAt)}</dd>
+        </div>
+        <div class="readout__weekly">
+          <dt>{dict.ring.weekly}</dt>
+          <dd>
+            <span class="readout__bar"><span data-weekly-bar style={`width:${start.weekly}%`}></span></span>
+            <span data-weekly>{start.weekly}%</span>
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="story">
+      <h2 class="story__title">{dict.session.title}</h2>
+      <ol class="steps">
+        {dict.session.steps.map((step, index) => (
+          <li class="step" data-anchor data-step-state={["amber", "signal", "ok"][index]}>
+            <time class="step__time" datetime={isoTime(keyframes[index + 1].minutes)}>
+              {clock(keyframes[index + 1].minutes)}
+            </time>
+            <h3>{step.title}</h3>
+            <p>{step.text}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .session {
+    --hero-h: calc(100svh - var(--menubar-h));
+    --moon: min(46svh, 30rem, 84vw);
+    position: relative;
+    overflow-x: clip;
+    padding-top: var(--menubar-h);
+    background: var(--sky);
+  }
+
+  /* The app's wallpaper: a dusk valley that dissolves into the page's sky. */
+  .sky {
+    position: absolute;
+    inset: 0 0 auto;
+    height: calc(100svh + 12rem);
+    overflow: hidden;
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(#000 72%, transparent);
+    mask-image: linear-gradient(#000 72%, transparent);
+  }
+  .sky__land {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 78%;
+    animation: dawn 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .sky::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(42rem 30rem at 50% 32%, rgb(52 211 153 / 0.12), transparent 70%),
+      linear-gradient(rgb(10 27 24 / 0.55), rgb(10 27 24 / 0.1) 45%, rgb(14 36 32 / 0.5));
+  }
+  @keyframes dawn {
+    from { opacity: 0; transform: scale(1.08); }
+  }
+
+  .session__grid {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-rows: auto auto;
+    column-gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  /* Hero: the moon (where the ring sits on load), then the headline over its lower edge. */
+  .hero {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    position: relative;
+    z-index: 2;
+    min-height: var(--hero-h);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-block: 1.5rem 3rem;
+    text-align: center;
+    pointer-events: none;
+  }
+  .hero > * { pointer-events: auto; }
+  .hero__moon { width: var(--moon); height: calc(var(--moon) * 0.8); flex: none; pointer-events: none; }
+
+  .hero h1 {
+    font-size: clamp(2.6rem, 6vw, 5.25rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 0.98;
+    max-width: 18ch;
+    color: #f1f6f3;
+    text-shadow: 0 2px 30px rgb(6 20 17 / 0.6);
+  }
+  .hero__word {
+    display: inline-block;
+    margin-inline: 0.12em;
+    animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+    animation-delay: calc(0.5s + var(--i) * 0.07s);
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(0.45em); filter: blur(6px); }
+  }
+
+  .hero__after {
+    display: grid;
+    justify-items: center;
+    animation: rise 0.9s cubic-bezier(0.2, 0.8, 0.2, 1) 1.2s both;
+  }
+  .hero__lede {
+    margin-top: 1.6rem;
+    font-size: 1.25rem;
+    color: #c4d4cc;
+    max-width: 44rem;
+    text-shadow: 0 1px 16px rgb(6 20 17 / 0.7);
+  }
+  .hero__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem; margin-top: 2rem; }
+  .hero .button--quiet { color: #f1f6f3; box-shadow: inset 0 0 0 1px rgb(241 246 243 / 0.35); backdrop-filter: blur(8px); }
+  .hero .button--quiet:hover { box-shadow: inset 0 0 0 1px rgb(241 246 243 / 0.7); }
+  .hero__meta { margin-top: 1.2rem; font-size: var(--text-sm); color: #a9bdb4; max-width: 34rem; }
+
+  /* The ring stays put while the story scrolls beside it. On load the script lifts it into
+     the hero's moon; scrolling flies it back here. */
+  .stage {
+    --state: var(--mint);
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: sticky;
+    top: var(--menubar-h);
+    align-self: start;
+    z-index: 1;
+    height: var(--hero-h);
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: clamp(1.2rem, 3svh, 2.2rem);
+    pointer-events: none;
+    animation: appear 0.8s ease 0.25s both;
+  }
+  @keyframes appear {
+    from { opacity: 0; }
+  }
+  .stage[data-state="amber"] { --state: var(--amber); }
+  .stage[data-state="signal"] { --state: var(--signal); }
+
+  .stage__orbits {
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: min(54rem, 150%);
+    translate: -50% -50%;
+    z-index: -1;
+    fill: none;
+    stroke: var(--line);
+    stroke-width: 1;
+  }
+  .stage__moon { fill: var(--lichen); stroke: none; }
+
+  .ring {
+    --ink: var(--fog);
+    position: relative;
+    margin: 0;
+    width: min(30rem, 62svh, 100%);
+    aspect-ratio: 1;
+    transform-origin: 50% 50%;
+  }
+  .ring svg { width: 100%; height: 100%; overflow: visible; }
+  .ring__ticks line { stroke: var(--line); stroke-width: 2; stroke-linecap: round; }
+  .ring__ticks .ring__tick--amber { stroke: var(--amber); stroke-width: 3; }
+  .ring__ticks .ring__tick--signal { stroke: var(--signal); stroke-width: 3; }
+  .ring__track { fill: none; stroke: var(--track); stroke-width: 16; opacity: 0.85; }
+  .ring__arc {
+    fill: none;
+    stroke: var(--state);
+    stroke-width: 16;
+    stroke-linecap: round;
+    transition: stroke 0.5s ease;
+  }
+  .ring__arc--bloom { stroke-width: 22; opacity: var(--bloom, 0.55); }
+  .ring__ball { fill: var(--state); transition: fill 0.5s ease; }
+  .ring__halo { fill: var(--state); opacity: 0.3; filter: blur(10px); transition: fill 0.5s ease; }
+  .ring__shine { fill: #fff; opacity: 0.45; filter: blur(1.5px); }
+
+  .ring__center {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    text-align: center;
+    color: var(--ink);
+  }
+  .ring__number {
+    font-family: var(--display);
+    font-weight: 500;
+    font-size: clamp(4rem, 13svh, 7.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+  .ring__unit { font-size: 0.42em; letter-spacing: 0; margin-left: 0.04em; color: var(--state); transition: color 0.5s ease; }
+  .ring__used { margin-top: 0.5rem; font-size: var(--text-base); font-weight: 600; }
+  .ring__session { font-size: var(--text-sm); color: var(--lichen); }
+
+  .readout {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.6rem 2rem;
+    margin: 0;
+    font-size: var(--text-sm);
+  }
+  .readout div { display: grid; gap: 0.1rem; }
+  .readout dt { color: var(--lichen); }
+  .readout dd { margin: 0; font-weight: 600; font-size: 1rem; font-variant-numeric: tabular-nums; }
+  .readout__weekly dd { display: flex; align-items: center; gap: 0.6rem; }
+  .readout__bar { width: 6.5rem; height: 0.4rem; border-radius: 1rem; background: var(--track); overflow: hidden; }
+  .readout__bar span { display: block; height: 100%; border-radius: inherit; background: var(--mint); }
+
+  /* While the ring is the hero's moon it glows harder and drops the story's labels. */
+  .stage.is-moon .ring { --ink: #f1f6f3; --bloom: 0.9; }
+  .stage.is-moon .ring__track { stroke: rgb(241 246 243 / 0.12); }
+  .stage.is-moon .ring__ticks line:not([class]) { stroke: rgb(241 246 243 / 0.18); }
+  .stage.is-moon .readout { color: #f1f6f3; }
+  .stage.is-moon .readout dt { color: #a9bdb4; }
+  .stage.is-moon .readout__bar { background: rgb(241 246 243 / 0.15); }
+  [data-fade] { transition: opacity 0.2s linear; }
+
+  /* The story column: one step per keyframe after the hero. */
+  .story { grid-column: 1; grid-row: 2; position: relative; z-index: 2; }
+
+  .story__title {
+    padding-top: 12svh;
+    font-size: var(--text-lg);
+    font-weight: 500;
+    color: var(--lichen);
+    letter-spacing: -0.01em;
+    max-width: 22ch;
+  }
+
+  .steps { margin: 0; padding: 0 0 20svh; list-style: none; }
+  .step {
+    min-height: 78svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 30rem;
+  }
+  .step__time {
+    align-self: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 0.4rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--lichen);
+    box-shadow: inset 0 0 0 1px var(--line);
+    transition: color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .step[data-step-state="amber"] { --step: var(--amber); }
+  .step[data-step-state="signal"] { --step: var(--signal); }
+  .step[data-step-state="ok"] { --step: var(--mint); }
+  .step.is-active .step__time { color: var(--step); box-shadow: inset 0 0 0 1px var(--step); }
+  .step h3 { font-size: var(--text-xl); margin-bottom: 1rem; }
+  .step p { color: var(--lichen); }
+
+  /* In light appearance the hero keeps its night sky, so the glowing ring and the white
+     headline still read, and the valley dissolves into the light page below. */
+
+  /* Phones and narrow windows: the ring sits on top and the story scrolls under it; it
+     doesn't fly, so the hero text simply follows it. */
+  @media (max-width: 54rem) {
+    .session { --moon: 0px; }
+    .session__grid { grid-template-columns: minmax(0, 1fr); }
+    .stage {
+      grid-column: 1;
+      grid-row: 1;
+      height: auto;
+      z-index: 3;
+      padding-block: 0.8rem 1.2rem;
+      gap: 0.6rem;
+      margin-inline: calc(-1 * var(--gutter));
+    }
+    .stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background: linear-gradient(var(--sky) 86%, transparent);
+      opacity: var(--veil, 0);
+    }
+    .hero { grid-row: 2; min-height: auto; padding-block: 0.5rem 4rem; }
+    .hero__moon, .stage__orbits { display: none; }
+    .story { grid-row: 3; }
+    .story__title { padding-top: 4rem; }
+    .ring { width: min(15rem, 34svh); }
+    .ring__number { font-size: clamp(2.8rem, 8svh, 4rem); }
+    .ring__used { margin-top: 0.2rem; font-size: var(--text-sm); }
+    .ring__session { display: none; }
+    .readout { gap: 0.4rem 1.2rem; }
+    .readout__bar { width: 4rem; }
+    .step { min-height: 62svh; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sky__land, .hero__word, .hero__after, .stage { animation: none; }
+  }
+</style>
+
+<script>
+  type Frame = { minutes: number; used: number; weekly: number };
+
+  const stage = document.querySelector<HTMLElement>("[data-stage]");
+  if (stage) {
+    const section = stage.closest("section")!;
+    const keyframes: Frame[] = JSON.parse(stage.dataset.keyframes!);
+    const resetAt = Number(stage.dataset.reset);
+    const anchors = Array.from(section.querySelectorAll<HTMLElement>("[data-anchor]"));
+    const steps = anchors.slice(1);
+    const hero = anchors[0];
+    const moon = section.querySelector<HTMLElement>("[data-moon]")!;
+    const $ = <T extends Element>(selector: string) => stage.querySelector<T>(selector)!;
+    const arcs = Array.from(stage.querySelectorAll<SVGCircleElement>("[data-arc]"));
+    const ball = $<SVGGElement>("[data-ball]");
+    const pct = $<HTMLElement>("[data-pct]");
+    const usedLabel = $<HTMLElement>("[data-used-label]");
+    const ring = $<HTMLElement>("[data-ring]");
+    const now = $<HTMLElement>("[data-now]");
+    const resets = $<HTMLElement>("[data-resets]");
+    const weekly = $<HTMLElement>("[data-weekly]");
+    const weeklyBar = $<HTMLElement>("[data-weekly-bar]");
+    const faders = Array.from(stage.querySelectorAll<HTMLElement | SVGElement>("[data-fade]"));
+    const statusArc = document.querySelector<SVGCircleElement>("[data-status-arc]");
+    const statusPct = document.querySelector<HTMLElement>("[data-status-pct]");
+    const statusDot = document.querySelector<SVGCircleElement>("[data-status-dot]");
+    const ariaBase = ring.getAttribute("aria-label")!.replace(/:.*$/, "");
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)");
+    const narrow = matchMedia("(max-width: 54rem)");
+
+    const format = new Intl.DateTimeFormat(stage.dataset.locale, { hour: "numeric", minute: "2-digit", timeZone: "UTC" });
+    const clock = (minutes: number) => format.format(new Date(Date.UTC(2026, 0, 1, 0, Math.round(minutes) % 1440)));
+    const lerp = (a: number, b: number, k: number) => a + (b - a) * k;
+    const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
+    const easeInOut = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+
+    // The flight: at the top of the page the ring sits in the hero's moon, bigger; over the
+    // first stretch of scrolling it shrinks into its place in the story column.
+    function fly() {
+      if (narrow.matches) {
+        ring.style.transform = "";
+        faders.forEach((element) => (element.style.opacity = ""));
+        hero.style.opacity = String(1 - clamp01((window.scrollY - 160) / 260));
+        // Once the hero text starts passing under the ring, a veil of sky hides it.
+        const veil = clamp01(window.scrollY / 140);
+        stage!.style.setProperty("--veil", String(veil));
+        stage!.classList.toggle("is-moon", veil < 0.5);
+        return;
+      }
+      // It moves aside first (fast out), then settles and shrinks (ease in and out).
+      const raw = clamp01(window.scrollY / (hero.offsetHeight * 0.7));
+      const k = easeInOut(raw);
+      const kx = 1 - Math.pow(1 - raw, 3);
+      const stageRect = stage!.getBoundingClientRect();
+      const homeX = stageRect.left + ring.offsetLeft + ring.offsetWidth / 2;
+      const homeY = stageRect.top + ring.offsetTop + ring.offsetHeight / 2;
+      const moonRect = moon.getBoundingClientRect();
+      const moonX = moonRect.left + moonRect.width / 2;
+      const moonY = moonRect.top + window.scrollY + moonRect.width / 2;
+      const scale = lerp(moonRect.width / ring.offsetWidth, 1, k);
+      ring.style.transform = `translate(${lerp(moonX - homeX, 0, kx)}px, ${lerp(moonY - homeY, 0, k)}px) scale(${scale})`;
+      stage!.classList.toggle("is-moon", k < 0.5);
+      const fade = String(clamp01((k - 0.6) / 0.4));
+      faders.forEach((element) => (element.style.opacity = fade));
+      // The hero steps back as the ring leaves it.
+      hero.style.opacity = String(1 - clamp01((raw - 0.08) / 0.4));
+    }
+
+    // Where the story is: 0 at the hero, 1 at the first step, and so on, by comparing each
+    // anchor's centre with a reading line just above the middle of the screen.
+    function position(): number {
+      // On narrow screens the ring covers the top, so read just below it.
+      const line = narrow.matches
+        ? Math.min(window.innerHeight * 0.8, stage!.getBoundingClientRect().bottom + window.innerHeight * 0.15)
+        : window.innerHeight * 0.45;
+      const centres = anchors.map((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.top + rect.height / 2;
+      });
+      if (line <= centres[0]) return 0;
+      for (let index = 0; index < centres.length - 1; index++) {
+        if (line <= centres[index + 1]) {
+          return index + (line - centres[index]) / (centres[index + 1] - centres[index]);
+        }
+      }
+      return centres.length - 1;
+    }
+
+    // The session at a story position. Between 90 % and the reset it keeps climbing, then
+    // empties at once, as the real one does.
+    function sessionAt(position: number): Frame & { afterReset: boolean } {
+      const index = Math.min(Math.floor(position), keyframes.length - 2);
+      const k = Math.min(1, position - index);
+      const from = keyframes[index];
+      const to = keyframes[index + 1];
+      const minutes = lerp(from.minutes, to.minutes, k);
+      const weeklyValue = lerp(from.weekly, to.weekly, k);
+      if (to.used === 0) {
+        const afterReset = k >= 0.72;
+        return { minutes, weekly: weeklyValue, used: afterReset ? 0 : lerp(from.used, 99, k / 0.72), afterReset };
+      }
+      return { minutes, weekly: weeklyValue, used: lerp(from.used, to.used, k), afterReset: false };
+    }
+
+    // What's on screen eases towards the target; on load that draws the ring in from zero.
+    const shown = { used: 0, minutes: keyframes[0].minutes - 66, weekly: keyframes[0].weekly };
+    let target = sessionAt(position());
+    let frame = 0;
+
+    function render() {
+      const used = Math.max(0, Math.min(100, shown.used));
+      const angle = (used / 100) * Math.PI * 2 - Math.PI / 2;
+      const rounded = Math.round(used);
+      const state = rounded >= 90 ? "signal" : rounded >= 70 ? "amber" : "ok";
+
+      arcs.forEach((arc) => arc.setAttribute("stroke-dasharray", `${used} 100`));
+      ball.setAttribute("transform", `translate(${200 + 150 * Math.cos(angle)} ${200 + 150 * Math.sin(angle)})`);
+      stage!.dataset.state = state;
+      pct.textContent = String(rounded);
+      usedLabel.textContent = target.afterReset && rounded < 3 ? stage!.dataset.labelReset! : stage!.dataset.labelUsed!;
+      ring.setAttribute("aria-label", `${ariaBase}: ${rounded}%`);
+      now.textContent = clock(shown.minutes);
+      resets.textContent = clock(target.afterReset ? resetAt + 300 : resetAt);
+      weekly.textContent = `${Math.round(shown.weekly)}%`;
+      weeklyBar.style.width = `${shown.weekly}%`;
+
+      if (statusArc && statusPct && statusDot) {
+        statusArc.setAttribute("stroke-dasharray", `${used} 100`);
+        statusPct.textContent = `${rounded}%`;
+        statusDot.style.fill = `var(--${state === "ok" ? "mint" : state})`;
+      }
+
+      const active = Math.round(position()) - 1;
+      steps.forEach((step, index) => step.classList.toggle("is-active", index === active));
+    }
+
+    function loop() {
+      const ease = reduced.matches ? 1 : 0.09;
+      shown.used = lerp(shown.used, target.used, ease);
+      shown.minutes = lerp(shown.minutes, target.minutes, ease);
+      shown.weekly = lerp(shown.weekly, target.weekly, ease);
+      render();
+      const settled =
+        Math.abs(shown.used - target.used) < 0.05 &&
+        Math.abs(shown.minutes - target.minutes) < 0.3 &&
+        Math.abs(shown.weekly - target.weekly) < 0.05;
+      if (settled) {
+        Object.assign(shown, { used: target.used, minutes: target.minutes, weekly: target.weekly });
+        render();
+        frame = 0;
+      } else {
+        frame = requestAnimationFrame(loop);
+      }
+    }
+
+    function update() {
+      fly();
+      target = sessionAt(position());
+      if (!frame) frame = requestAnimationFrame(loop);
+    }
+
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update);
+    document.fonts?.ready.then(update);
+    // On load the ring waits for the valley to appear, then draws in.
+    fly();
+    render();
+    setTimeout(update, reduced.matches ? 0 : 450);
+  }
+</script>

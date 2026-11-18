@@ -1,0 +1,66 @@
+---
+// Template for the 1200×630 share images in public/og/. It isn't linked or indexed; render
+// it with a browser at that size and save the screenshot (see the README).
+import "../../styles/global.css";
+import { Image } from "astro:assets";
+import panel from "../../assets/shots/panel-compacta-oscuro.png";
+import { locales, localeInfo, t, type Locale } from "../../i18n/config";
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+const locale = Astro.params.lang as Locale;
+const dict = t(locale);
+---
+
+<!doctype html>
+<html lang={localeInfo[locale].hreflang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="robots" content="noindex" />
+    <title>Orbix share image</title>
+  </head>
+  <body>
+    <div class="card">
+      <div class="copy">
+        <p class="brand">
+          <svg viewBox="0 0 20 20" width="44" height="44" aria-hidden="true">
+            <path d="M15.6 13.4A6.6 6.6 0 1 1 13.3 4.3" fill="none" stroke="#e3ece7" stroke-width="2.4" stroke-linecap="round" />
+            <circle cx="15.3" cy="5.6" r="2.5" fill="#34d399" />
+          </svg>
+          Orbix
+        </p>
+        <h1>{dict.hero.title}</h1>
+        <p class="sub">macOS 14+</p>
+      </div>
+      <div class="art">
+        <svg class="orbit" viewBox="0 0 800 800" aria-hidden="true">
+          <ellipse cx="400" cy="400" rx="390" ry="150" transform="rotate(-18 400 400)" />
+          <ellipse cx="400" cy="400" rx="330" ry="250" transform="rotate(24 400 400)" />
+        </svg>
+        <Image src={panel} alt="" width={380} class="panel" />
+      </div>
+    </div>
+  </body>
+</html>
+
+<style is:global>
+  html, body { margin: 0; color-scheme: dark; }
+  body { width: 1200px; height: 630px; overflow: hidden; background: #0e2420; color: #e3ece7; }
+  .card {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 470px;
+    height: 100%;
+    padding: 0 0 0 80px;
+    background: radial-gradient(700px 500px at 85% 30%, rgb(52 211 153 / 0.18), transparent 70%), linear-gradient(#0a1b18, #0e2420);
+    overflow: hidden;
+  }
+  .copy { display: flex; flex-direction: column; justify-content: center; gap: 28px; }
+  .brand { display: flex; align-items: center; gap: 14px; margin: 0; font-family: var(--display); font-weight: 600; font-size: 40px; }
+  h1 { font-size: 70px; line-height: 1.02; letter-spacing: -0.035em; max-width: 12ch; }
+  .sub { margin: 0; font-size: 24px; color: #97ada4; }
+  .art { position: relative; }
+  .orbit { position: absolute; width: 900px; left: -160px; top: -140px; fill: none; stroke: #24453d; stroke-width: 1.2; }
+  .panel { position: absolute; top: 56px; left: 40px; width: 380px; border-radius: 16px; box-shadow: 0 0 0 1px rgb(255 255 255 / 0.08), 0 40px 80px -20px rgb(0 0 0 / 0.8); }
+</style>
