@@ -13,7 +13,9 @@
 ![Notarizada](https://img.shields.io/badge/Apple-firmada%20y%20notarizada-34D399?style=flat-square&logo=apple&logoColor=white)
 [![Descargas](https://img.shields.io/github/downloads/elrincondeisma/orbix-mac/total?style=flat-square&label=descargas&color=5C6B64)](https://github.com/elrincondeisma/orbix-mac/releases)
 
+[Web](https://orbix.elrincondeisma.com/es/) ·
 [Descargar](https://github.com/elrincondeisma/orbix-mac/releases/latest) ·
+[Guías](https://orbix.elrincondeisma.com/es/guias/) ·
 [Funciones](#-funciones) ·
 [Instalar](#-instalar) ·
 [Uso](#-uso) ·
@@ -90,6 +92,8 @@ si lo pagaras por API. Todo desde un icono en la barra de menús, sin abrir la t
 
 ### Varias cuentas
 
+> Guía paso a paso, también sin Orbix: [cómo usar varias cuentas de Claude Code en un Mac](https://orbix.elrincondeisma.com/es/guias/varias-cuentas-claude-code/).
+
 Cada cuenta vive en su propio perfil de Claude Code (`~/.claude-perfiles/<nombre>`), con su login, su historial y
 sus servidores MCP. Los ajustes, tus instrucciones, tus skills, tus comandos y tus agentes se comparten con la
 cuenta principal.
@@ -117,6 +121,8 @@ orbix-perfil                # muestra la activa y las disponibles
 ## ⚙️ Cómo funciona
 
 ### De dónde salen los datos
+
+Las guías de la web explican [cómo funcionan los límites de 5 horas y semanal](https://orbix.elrincondeisma.com/es/guias/limites-de-claude-explicados/) y [cómo se calcula el coste equivalente en API](https://orbix.elrincondeisma.com/es/guias/coste-api-claude-code/).
 
 | Dato | Origen | Credenciales |
 |---|---|---|
