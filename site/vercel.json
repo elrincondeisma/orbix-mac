@@ -5,7 +5,7 @@
   "redirects": [
     {
       "source": "/:path*",
-      "has": [{ "type": "host", "value": "orbix-hazel.vercel.app" }],
+      "has": [{ "type": "host", "value": "orbix-hazel\\.vercel\\.app" }],
       "destination": "https://orbix.elrincondeisma.com/:path*",
       "permanent": true
     }
